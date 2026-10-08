@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Components use the semantic Tailwind colours below (bg-surface, text-muted,
+ * bg-primary ...), never raw hex values. Every text/background pair is checked for WCAG AA
+ * contrast (>= 4.5:1) in both themes by src/core/theme/tokens.test.ts.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  color-scheme: light;
+  --tt-bg: #f8fafc;
+  --tt-surface: #ffffff;
+  --tt-text: #0f172a;
+  --tt-muted: #475569;
+  --tt-border: #cbd5e1;
+  --tt-primary: #4f46e5;
+  --tt-primary-contrast: #ffffff;
+  --tt-success: #047857;
+  --tt-warning: #b45309;
+  --tt-danger: #b91c1c;
+  --tt-focus: #4f46e5;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --tt-bg: #0b1120;
+  --tt-surface: #111827;
+  --tt-text: #f1f5f9;
+  --tt-muted: #94a3b8;
+  --tt-border: #334155;
+  --tt-primary: #818cf8;
+  --tt-primary-contrast: #0b1120;
+  --tt-success: #34d399;
+  --tt-warning: #fbbf24;
+  --tt-danger: #f87171;
+  --tt-focus: #a5b4fc;
+}
+
+@theme inline {
+  --color-bg: var(--tt-bg);
+  --color-surface: var(--tt-surface);
+  --color-text: var(--tt-text);
+  --color-muted: var(--tt-muted);
+  --color-border: var(--tt-border);
+  --color-primary: var(--tt-primary);
+  --color-primary-contrast: var(--tt-primary-contrast);
+  --color-success: var(--tt-success);
+  --color-warning: var(--tt-warning);
+  --color-danger: var(--tt-danger);
+  --color-focus: var(--tt-focus);
+  --font-sans:
+    system-ui, 'Segoe UI', 'Noto Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'Nirmala UI',
+    sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bg font-sans text-text antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--tt-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

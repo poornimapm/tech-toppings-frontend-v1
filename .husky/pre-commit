@@ -1,0 +1,8 @@
+# Use this repo's Node version (.node-version) via fnm when available, so hooks never run on
+# a different global Node.
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --shell bash)"
+  fnm use --silent-if-unchanged >/dev/null 2>&1 || true
+fi
+
+npx lint-staged

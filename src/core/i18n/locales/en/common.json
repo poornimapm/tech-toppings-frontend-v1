@@ -1,0 +1,43 @@
+{
+  "skipToContent": "Skip to main content",
+  "language": {
+    "label": "Language"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Theme: {{current}}. Switch to {{next}}."
+  },
+  "welcome": {
+    "title": "Welcome to {{appName}}",
+    "subtitle": "Your modules will appear here. The foundations are ready."
+  },
+  "status": {
+    "title": "System status",
+    "api": "API",
+    "database": "Database",
+    "checking": "Checking…",
+    "waking": "Waking up the server…",
+    "online": "Online",
+    "offline": "Unreachable",
+    "ready": "Ready",
+    "notReady": "Not ready",
+    "version": "Version {{version}}"
+  },
+  "banner": {
+    "waking": "Waking up the server. The free hosting plan sleeps when idle, so this can take up to a minute.",
+    "offline": "We can't reach the server right now.",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist.",
+    "home": "Go to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Please reload the page.",
+    "reload": "Reload"
+  }
+}

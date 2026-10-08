@@ -1,0 +1,22 @@
+# --- secrets / local configuration (never commit) ---
+.env
+.env.*
+!.env.example
+
+# --- dependencies / build output ---
+node_modules/
+dist/
+*.tsbuildinfo
+
+# --- test output ---
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# --- editors / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
