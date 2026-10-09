@@ -20,5 +20,10 @@
   "AUTH_GOOGLE_DISABLED": "Google sign-in isn't enabled.",
   "AUTH_REFRESH_INVALID": "Your session has ended. Please sign in again.",
   "AUTH_REFRESH_REUSED": "You were signed out for your security. Please sign in again.",
-  "AUTH_SESSION_REVOKED": "You've been signed out. Please sign in again."
+  "AUTH_SESSION_REVOKED": "You've been signed out. Please sign in again.",
+  "MODULE_NOT_FOUND": "That module doesn't exist.",
+  "MODULE_DISABLED": "This module is turned off.",
+  "MODULE_NO_SETTINGS": "This module has no settings.",
+  "MODULE_NOT_UPCOMING": "This module is already available.",
+  "MODULE_SETTINGS_INVALID": "Some settings are not valid."
 }

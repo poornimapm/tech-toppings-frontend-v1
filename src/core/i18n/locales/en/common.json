@@ -10,8 +10,87 @@
     "toggle": "Theme: {{current}}. Switch to {{next}}."
   },
   "welcome": {
-    "title": "Welcome to {{appName}}",
-    "subtitle": "Your modules will appear here. The foundations are ready."
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}",
+      "night": "Hello, {{name}}"
+    },
+    "modulesCount_one": "{{count}} module",
+    "modulesCount_other": "{{count}} modules",
+    "favouritesCount_one": "{{count}} favourite",
+    "favouritesCount_other": "{{count}} favourites",
+    "search": "Search modules",
+    "searchPlaceholder": "Search, e.g. “bills”",
+    "filters": {
+      "label": "Show",
+      "all": "All",
+      "favourites": "Favourites",
+      "available": "Ready to use",
+      "soon": "Coming soon"
+    },
+    "sections": {
+      "favourites": "Favourites",
+      "all": "All modules",
+      "hidden": "Hidden modules",
+      "hiddenHint": "Turned off for you. Bring one back whenever you like."
+    },
+    "badge": {
+      "beta": "Beta",
+      "soon": "Coming soon",
+      "locked": "Turned off"
+    },
+    "tile": {
+      "open": "Open {{name}}",
+      "details": "About {{name}}",
+      "pin": "Add {{name}} to favourites",
+      "unpin": "Remove {{name}} from favourites",
+      "notifying": "We'll notify you",
+      "lockedHint": "Turned off by your administrator"
+    },
+    "customize": "Customize",
+    "done": "Done",
+    "arrangeHint": "Drag tiles or use the arrows to arrange your page. Changes save automatically.",
+    "moveEarlier": "Move {{name}} earlier",
+    "moveLater": "Move {{name}} later",
+    "hide": "Hide {{name}}",
+    "show": "Show {{name}}",
+    "dragHandle": "Drag to move {{name}}",
+    "dialog": {
+      "notify": "Notify me when it launches",
+      "notifyHint": "It will light up here the moment it's ready.",
+      "pin": "Favourite",
+      "pinHint": "Keep it at the top of your page.",
+      "visible": "Show on my page",
+      "visibleHint": "Turn off to hide it from your page.",
+      "open": "Open {{name}}",
+      "lockedBody": "Your administrator has turned this module off for now.",
+      "betaBody": "This module is new, so things may change as we improve it."
+    },
+    "toast": {
+      "pinned": "{{name}} added to favourites",
+      "unpinned": "{{name}} removed from favourites",
+      "notifyOn": "We'll let you know when {{name}} launches.",
+      "notifyOff": "You won't be notified about {{name}}.",
+      "hidden": "{{name}} is hidden",
+      "shown": "{{name}} is back on your page",
+      "failed": "Couldn't save that change. Please try again."
+    },
+    "empty": {
+      "title": "Nothing matches “{{query}}”",
+      "body": "Try another word, or clear the search.",
+      "clear": "Show all modules",
+      "favouritesTitle": "No favourites yet",
+      "favouritesBody": "Tap the star on any module to keep it here."
+    },
+    "loadError": "We couldn't load your modules.",
+    "dnd": {
+      "instructions": "To pick up a tile, press space or enter. Use the arrow keys to move it, then press space or enter again to drop it, or escape to cancel.",
+      "picked": "Picked up {{name}}.",
+      "over": "{{name}} is over position {{position}}.",
+      "dropped": "{{name}} dropped at position {{position}}.",
+      "cancelled": "Moving cancelled. {{name}} is back in place."
+    }
   },
   "status": {
     "title": "System status",
@@ -109,6 +188,17 @@
     "empty": "No other devices are signed in."
   },
   "actions": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "clearSearch": "Clear search",
+    "undo": "Undo",
+    "retry": "Try again"
+  },
+  "notifications": "Notifications",
+  "module": {
+    "unavailableTitle": "{{name}} isn't available",
+    "unavailableBody": "It's turned off or hasn't launched yet.",
+    "backHome": "Back to your modules"
   }
 }

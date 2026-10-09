@@ -43,6 +43,32 @@ export default defineConfig(
         },
       ],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // Tailwind removes list bullets, and Safari/VoiceOver then stops announcing lists:
+      // an explicit role="list" restores that, so it is not redundant here.
+      'jsx-a11y/no-redundant-roles': ['error', { ul: ['list'], ol: ['list'] }],
+    },
+  },
+  {
+    // Feature modules (ADR-0001): independent of each other and of platform internals. They
+    // build on src/core (API client, module types, i18n) and the design system.
+    files: ['src/modules/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message: 'Import through the @/ alias instead of climbing directories.',
+            },
+            {
+              group: ['@/platform/*', '@/modules/*'],
+              message:
+                'Modules use @/core and @/design-system only; never platform internals or another module.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

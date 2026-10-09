@@ -5,6 +5,7 @@ import type { createBrowserRouter } from 'react-router';
 
 import { AuthBootstrap } from '@/core/auth/auth-bootstrap';
 import { useApplyTheme } from '@/core/theme/theme-store';
+import { MotionProvider, Toaster } from '@/design-system';
 import { AppErrorBoundary } from '@/platform/shell/app-error-boundary';
 import { PreferenceSync } from '@/platform/shell/preference-sync';
 
@@ -25,10 +26,13 @@ export function AppProviders({
   return (
     <AppErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeEffect />
-        <AuthBootstrap />
-        <PreferenceSync />
-        {children}
+        <MotionProvider>
+          <ThemeEffect />
+          <AuthBootstrap />
+          <PreferenceSync />
+          {children}
+          <Toaster />
+        </MotionProvider>
       </QueryClientProvider>
     </AppErrorBoundary>
   );

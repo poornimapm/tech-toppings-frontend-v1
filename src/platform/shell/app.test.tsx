@@ -14,9 +14,7 @@ describe('app shell', () => {
   it('renders the welcome page with live API and database status', async () => {
     renderApp('/');
 
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Welcome to Tech-Toppings' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
     const status = screen.getByRole('region', { name: 'System status' });
     expect(await within(status).findByText('Online')).toBeInTheDocument();
     expect(within(status).getByText('Version 0.1.0')).toBeInTheDocument();
@@ -60,7 +58,7 @@ describe('app shell', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Language' }), 'ta');
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Tech-Toppings-க்கு வரவேற்கிறோம்' }),
+      await screen.findByRole('heading', { level: 1, name: /வணக்கம், Asha$/ }),
     ).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('ta');
     expect(localStorage.getItem('tt-language')).toBe('ta');

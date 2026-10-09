@@ -20,12 +20,22 @@ export function AppLayout() {
       >
         {t('skipToContent')}
       </a>
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <Link to="/" className="text-lg font-semibold">
-            {env.appName}
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-glass backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight"
+          >
+            <span
+              aria-hidden="true"
+              className="grid size-8 place-items-center rounded-xl bg-[linear-gradient(135deg,var(--tt-primary),var(--tt-accent-violet))] text-sm font-bold text-primary-contrast shadow-md shadow-primary/30"
+            >
+              {env.appName.charAt(0)}
+            </span>
+            {/* Phones show just the logo; the name stays the link's accessible name. */}
+            <span className="sr-only sm:not-sr-only">{env.appName}</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <LanguageSelect />
             <ThemeToggle />
             <AccountNav />
@@ -33,7 +43,11 @@ export function AppLayout() {
         </div>
       </header>
       <ServerStatusBanner status={server.status} onRetry={server.retry} />
-      <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8 focus:outline-none">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="relative mx-auto max-w-6xl px-4 py-8 focus:outline-none"
+      >
         <Outlet />
       </main>
     </div>

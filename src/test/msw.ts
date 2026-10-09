@@ -75,6 +75,62 @@ export const testSessions: Schemas['Page_SessionOut_'] = {
   has_next: false,
 };
 
+type ModuleView = Schemas['ModuleView'];
+
+function moduleView(key: string, position: number, changes: Partial<ModuleView> = {}): ModuleView {
+  return {
+    key,
+    slug: key.replaceAll('_', '-'),
+    version: '0.1.0',
+    status: 'coming_soon',
+    global_enabled: true,
+    enabled: true,
+    available: false,
+    pinned: false,
+    position,
+    notify_requested: false,
+    has_settings: false,
+    stat: null,
+    ...changes,
+  };
+}
+
+/** One module in every state the Welcome page distinguishes. */
+export const testModules: readonly ModuleView[] = [
+  moduleView('expenses', 0, {
+    status: 'live',
+    available: true,
+    stat: { value: 4320, format: 'currency', currency: 'INR', label: 'month_total' },
+  }),
+  moduleView('medicine', 1, { status: 'beta', available: true }),
+  moduleView('receipts', 2),
+  moduleView('study', 3, { pinned: true }),
+  moduleView('gov_docs', 4, { global_enabled: false }),
+  moduleView('meals', 5, { enabled: false }),
+  moduleView('habits', 6),
+  moduleView('journal', 7),
+];
+
+/** The fake API's module state; tests may edit it, and it resets after every test. */
+export let moduleState: ModuleView[] = structuredClone([...testModules]);
+
+export function resetModuleState(views: readonly ModuleView[] = testModules): void {
+  moduleState = structuredClone([...views]);
+}
+
+function updateModule(key: string, changes: Partial<ModuleView>): ModuleView | undefined {
+  const index = moduleState.findIndex((view) => view.key === key);
+  const current = moduleState[index];
+  if (!current) return undefined;
+  const next = { ...current, ...changes };
+  next.available = next.global_enabled && next.enabled && next.status !== 'coming_soon';
+  moduleState[index] = next;
+  return next;
+}
+
+const moduleNotFound = () =>
+  HttpResponse.json(errorEnvelope('MODULE_NOT_FOUND', 'no such module'), { status: 404 });
+
 export function errorEnvelope(
   code: string,
   message: string,
@@ -99,6 +155,33 @@ const handlers = [
   http.patch('*/api/v1/me', async ({ request }) =>
     HttpResponse.json({ ...testUser, ...((await request.json()) as object) }),
   ),
+  http.get('*/api/v1/modules', () =>
+    HttpResponse.json({
+      items: [...moduleState].sort((a, b) => a.position - b.position),
+      page: 1,
+      page_size: 100,
+      total: moduleState.length,
+      has_next: false,
+    }),
+  ),
+  http.patch('*/api/v1/modules/:key/preferences', async ({ params, request }) => {
+    const changes = (await request.json()) as Partial<ModuleView>;
+    const view = updateModule(String(params.key), changes);
+    return view ? HttpResponse.json(view) : moduleNotFound();
+  }),
+  http.put('*/api/v1/modules/order', async ({ request }) => {
+    const { keys } = (await request.json()) as { keys: string[] };
+    for (const view of moduleState) view.position = keys.indexOf(view.key);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post('*/api/v1/modules/:key/interest', ({ params }) => {
+    const view = updateModule(String(params.key), { notify_requested: true });
+    return view ? HttpResponse.json(view) : moduleNotFound();
+  }),
+  http.delete('*/api/v1/modules/:key/interest', ({ params }) => {
+    const view = updateModule(String(params.key), { notify_requested: false });
+    return view ? HttpResponse.json(view) : moduleNotFound();
+  }),
 ];
 
 export const server = setupServer(...handlers);

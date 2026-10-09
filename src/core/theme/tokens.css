@@ -21,6 +21,32 @@
   --tt-warning: #b45309;
   --tt-danger: #b91c1c;
   --tt-focus: #4f46e5;
+
+  /* Module accents: --tt-accent-<name> (icon, highlights) on --tt-accent-<name>-soft (tint). */
+  --tt-accent-emerald: #047857;
+  --tt-accent-emerald-soft: #ecfdf5;
+  --tt-accent-rose: #be123c;
+  --tt-accent-rose-soft: #fff1f2;
+  --tt-accent-amber: #b45309;
+  --tt-accent-amber-soft: #fffbeb;
+  --tt-accent-sky: #0369a1;
+  --tt-accent-sky-soft: #f0f9ff;
+  --tt-accent-indigo: #4338ca;
+  --tt-accent-indigo-soft: #eef2ff;
+  --tt-accent-orange: #c2410c;
+  --tt-accent-orange-soft: #fff7ed;
+  --tt-accent-violet: #6d28d9;
+  --tt-accent-violet-soft: #f5f3ff;
+  --tt-accent-teal: #0f766e;
+  --tt-accent-teal-soft: #f0fdfa;
+  --tt-accent-slate: #475569;
+  --tt-accent-slate-soft: #f1f5f9;
+
+  /* Decorative only (aurora background, glows): never carries text. */
+  --tt-aurora-1: #a5b4fc;
+  --tt-aurora-2: #f0abfc;
+  --tt-aurora-3: #5eead4;
+  --tt-glass: rgb(255 255 255 / 0.72);
 }
 
 [data-theme='dark'] {
@@ -36,6 +62,30 @@
   --tt-warning: #fbbf24;
   --tt-danger: #f87171;
   --tt-focus: #a5b4fc;
+
+  --tt-accent-emerald: #6ee7b7;
+  --tt-accent-emerald-soft: #022c22;
+  --tt-accent-rose: #fda4af;
+  --tt-accent-rose-soft: #4c0519;
+  --tt-accent-amber: #fcd34d;
+  --tt-accent-amber-soft: #451a03;
+  --tt-accent-sky: #7dd3fc;
+  --tt-accent-sky-soft: #082f49;
+  --tt-accent-indigo: #a5b4fc;
+  --tt-accent-indigo-soft: #1e1b4b;
+  --tt-accent-orange: #fdba74;
+  --tt-accent-orange-soft: #431407;
+  --tt-accent-violet: #c4b5fd;
+  --tt-accent-violet-soft: #2e1065;
+  --tt-accent-teal: #5eead4;
+  --tt-accent-teal-soft: #042f2e;
+  --tt-accent-slate: #cbd5e1;
+  --tt-accent-slate-soft: #1e293b;
+
+  --tt-aurora-1: #4338ca;
+  --tt-aurora-2: #86198f;
+  --tt-aurora-3: #0f766e;
+  --tt-glass: rgb(17 24 39 / 0.72);
 }
 
 @theme inline {
@@ -50,9 +100,46 @@
   --color-warning: var(--tt-warning);
   --color-danger: var(--tt-danger);
   --color-focus: var(--tt-focus);
+  --color-glass: var(--tt-glass);
+  /* A tile sets --tile-accent / --tile-soft to one accent pair; these classes follow it. */
+  --color-tile: var(--tile-accent, var(--tt-accent-slate));
+  --color-tile-soft: var(--tile-soft, var(--tt-accent-slate-soft));
+  --animate-shimmer: tt-shimmer 1.6s ease-in-out infinite;
+  --animate-aurora: tt-aurora 22s ease-in-out infinite alternate;
+  --animate-wiggle: tt-wiggle 0.35s ease-in-out infinite alternate;
   --font-sans:
     system-ui, 'Segoe UI', 'Noto Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'Nirmala UI',
     sans-serif;
+}
+
+@keyframes tt-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes tt-aurora {
+  0% {
+    transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 6%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(8%, -6%, 0) rotate(-6deg) scale(0.96);
+  }
+}
+
+@keyframes tt-wiggle {
+  from {
+    transform: rotate(-0.6deg);
+  }
+  to {
+    transform: rotate(0.6deg);
+  }
 }
 
 @layer base {

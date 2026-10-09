@@ -46,7 +46,13 @@ export default defineConfig(({ mode }) => {
                 priority: 30,
               },
               { name: 'router', test: /node_modules[/]react-router[/]/, priority: 20 },
-              { name: 'vendor', test: /node_modules[/]/, priority: 10 },
+              // Libraries only some pages use (drag and drop, dialogs) stay out of the shared
+              // vendor chunk, so they load with those pages instead of on first paint.
+              {
+                name: 'vendor',
+                test: /node_modules[/](?!@dnd-kit[/]|@radix-ui[/]|aria-hidden[/]|react-remove-scroll)/,
+                priority: 10,
+              },
             ],
           },
         },

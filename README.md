@@ -20,7 +20,8 @@ TypeScript PWA that supports English, Tamil and Hindi.
 | Runtime        | **Node 24 LTS**, scoped to this repo via `.node-version` + fnm. Your system Node is untouched.                      |
 | Framework      | React 19, Vite 8, TypeScript 5.9 (strict)                                                                           |
 | Routing / data | React Router 8 (data router, lazy routes, auth guards), TanStack Query 5                                            |
-| State          | Zustand (session in memory, theme)                                                                                  |
+| State          | Zustand (session in memory, theme, toasts)                                                                          |
+| Motion and UX  | motion (lazy-loaded, reduced-motion aware), dnd-kit (accessible drag and drop), Radix Dialog, lucide-react icons    |
 | Forms          | react-hook-form + zod (`zod/mini`, tree-shaken)                                                                     |
 | API client     | `openapi-fetch` with types generated from the backend OpenAPI schema                                                |
 | Styling        | Tailwind CSS 4 with semantic design tokens (WCAG-AA contrast checked in tests)                                      |
@@ -123,9 +124,11 @@ src/
   platform/              shell features shared by all modules
     shell/               app, routes, layout, error boundaries, banner, account nav, language/theme
     auth/                sign in, register, change password, security (devices), Google button
-    welcome/             landing page (becomes the module-tile Welcome page in Phase 3)
-  design-system/         shared UI primitives (Button, Card, ...): the only UI modules may use
-  modules/               feature modules (Phase 3+), discovered from their manifests
+    core/modules/        module registry (import.meta.glob), tiles query, optimistic preferences
+    welcome/             animated Welcome page: tiles, search, filters, favourites, customize
+  design-system/         shared UI (Button, Dialog, Toaster, FilterChips, SearchField, Switch,
+                         Skeleton, AnimatedNumber, MotionProvider ...): the only UI modules use
+  modules/               one folder per module (manifest.ts); expenses ... journal so far
   test/                  test setup, MSW server, render helpers, naming-convention test
 e2e/                     Playwright smoke tests
 scripts/                 use-node.ps1, gen-api-types.mjs

@@ -46,6 +46,12 @@ const PAIRS: [foreground: string, background: string][] = [
   ['danger', 'surface'],
 ];
 
+/** Module accents carry stat figures and icons: AA as text on their tint and on surfaces. */
+const ACCENTS = ['emerald', 'rose', 'amber', 'sky', 'indigo', 'orange', 'violet', 'teal', 'slate'];
+for (const accent of ACCENTS) {
+  PAIRS.push([`accent-${accent}`, `accent-${accent}-soft`], [`accent-${accent}`, 'surface']);
+}
+
 describe.each([
   ['light', ':root'],
   ['dark', "[data-theme='dark']"],

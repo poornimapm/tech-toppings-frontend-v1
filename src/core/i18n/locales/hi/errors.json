@@ -20,5 +20,10 @@
   "AUTH_GOOGLE_DISABLED": "Google साइन-इन चालू नहीं है।",
   "AUTH_REFRESH_INVALID": "आपका सत्र समाप्त हो गया। कृपया फिर से साइन इन करें।",
   "AUTH_REFRESH_REUSED": "आपकी सुरक्षा के लिए आपको साइन आउट किया गया। कृपया फिर से साइन इन करें।",
-  "AUTH_SESSION_REVOKED": "आपको साइन आउट कर दिया गया है। कृपया फिर से साइन इन करें।"
+  "AUTH_SESSION_REVOKED": "आपको साइन आउट कर दिया गया है। कृपया फिर से साइन इन करें।",
+  "MODULE_NOT_FOUND": "ऐसा कोई मॉड्यूल नहीं है।",
+  "MODULE_DISABLED": "यह मॉड्यूल बंद है।",
+  "MODULE_NO_SETTINGS": "इस मॉड्यूल में कोई सेटिंग नहीं है।",
+  "MODULE_NOT_UPCOMING": "यह मॉड्यूल पहले से उपलब्ध है।",
+  "MODULE_SETTINGS_INVALID": "कुछ सेटिंग सही नहीं हैं।"
 }

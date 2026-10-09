@@ -6,15 +6,15 @@ and [ADRs](https://github.com/poornimapm/tech-toppings-backend-v1/tree/develop/d
 
 ## Layers
 
-| Layer              | Folder              | May import                               |
-| ------------------ | ------------------- | ---------------------------------------- |
-| Core               | `src/core`          | libraries                                |
-| Platform           | `src/platform`      | core, design-system                      |
-| Design system      | `src/design-system` | core                                     |
-| Modules (Phase 3+) | `src/modules/<key>` | core, design-system, platform public API |
+| Layer         | Folder               | May import          |
+| ------------- | -------------------- | ------------------- |
+| Core          | `src/core`           | libraries           |
+| Platform      | `src/platform`       | core, design-system |
+| Design system | `src/design-system`  | core                |
+| Modules       | `src/modules/<slug>` | core, design-system |
 
-Imports always use the `@/` alias. From Phase 3, ESLint restricted-import rules stop modules
-importing each other, and stop them reaching into platform internals.
+Imports always use the `@/` alias. ESLint restricted-import rules stop modules importing each
+other or reaching into `src/platform`.
 
 ## Data flow
 
@@ -93,6 +93,77 @@ flowchart LR
   a polite live region.
 - `useReadiness()` (`/readyz`) runs only once the API is online.
 
+## Modules
+
+Each module is a folder `src/modules/<slug>/` (the backend key with `-` for `_`, e.g.
+`gov-docs`) with a `manifest.ts`:
+
+```ts
+export default defineModule({
+  key: 'expenses', // the backend manifest key
+  icon: Wallet, // lucide-react
+  accent: 'emerald', // a contrast-checked token pair in tokens.css
+  keywords: ['money', 'budget', 'பணம்', 'पैसा'],
+  strings: { en: { name, tagline, description, stats }, ta: {...}, hi: {...} },
+  routes: [...], // optional lazy pages, mounted at /m/<slug>/*
+});
+```
+
+- `core/modules/registry.ts` collects manifests with `import.meta.glob` at build time and
+  fails loudly if a folder doesn't match its key or a key repeats. Adding a folder is the only
+  step needed.
+- `core/modules/queries.ts` merges `GET /v1/modules` with the manifests into tiles, in the
+  user's order. The API decides status, availability, pins and order. A module the API lists
+  but this build has no folder for still shows, with a neutral placeholder.
+- Preference changes (pin, on/off, order, notify me) update the cache optimistically and roll
+  back if the API refuses.
+- `platform/shell/module-routes.tsx` mounts module pages behind `ModuleGate`, which explains
+  when a module is off. The API enforces the same rule (`403 MODULE_DISABLED`).
+- `ModuleRegistryContext` lets tests (and future previews) render with another registry.
+
+## Welcome page
+
+`platform/welcome/` is the home screen.
+
+**Layout**
+
+- A greeting for the time of day in the user's profile time zone, with today's date and a
+  compact API/database status pill.
+- Search (`/` or Ctrl/⌘+K to focus, Escape to clear), plural-tolerant and matching English
+  names and keywords in any UI language.
+- Filter chips with live counts (All, Favourites, Ready to use, Coming soon). The search and
+  filter are kept in the URL (`?q=&show=`).
+- Favourites and All modules sections. Hidden modules are listed separately so the user can
+  bring them back.
+
+**Tiles** (`module-tile.tsx`)
+
+- Glass cards with an accent icon, a status badge (Beta, Coming soon, Turned off), and a
+  count-up figure from the module's tile stat.
+- On hover: a slight 3D tilt with a cursor spotlight, a lift, and a press spring.
+- Favouriting plays a star burst, and the tile glides into Favourites (a shared layout
+  animation).
+- The tile body is a single link or button; the star is a separate button. There are no
+  nested controls.
+
+**Details and customising**
+
+- The details dialog (Radix + motion; a bottom sheet on phones) has switches for "Notify me",
+  Favourite, and Show on my page.
+- Customize mode: tiles wiggle and can be dragged with dnd-kit (pointer, touch or keyboard,
+  with translated screen-reader announcements). Each tile also has Move earlier/later and
+  hide/show buttons.
+- Every change confirms with a toast, with Undo where it makes sense.
+- Loading shows shimmer skeletons. Errors offer a retry. Empty searches offer a way back.
+
+**Motion**
+
+- `MotionProvider` loads motion's animation engine lazily (`LazyMotion` with `m.*`
+  components, strict).
+- Animations follow the OS reduced-motion setting: the tilt, burst and wiggle stop, and the
+  CSS animations freeze.
+- Tests run with `MotionGlobalConfig.skipAnimations`.
+
 ## Theming
 
 - `src/core/theme/tokens.css` defines semantic CSS variables for light (`:root`) and dark
@@ -100,11 +171,15 @@ flowchart LR
 - The theme store (Zustand, persisted as `tt-theme`) holds `light`, `dark` or `system`.
   `useApplyTheme()` resolves `system` via `matchMedia` and writes `<html data-theme>`.
 - `tokens.test.ts` parses the CSS and asserts WCAG-AA contrast (≥ 4.5:1) for every
-  foreground/background pair in both themes.
+  foreground/background pair in both themes, including each module accent on its tint and
+  on surfaces.
+- A tile sets `--tile-accent` / `--tile-soft`; the `text-tile`, `bg-tile-soft` utilities
+  follow them. The aurora and glass colours are decorative and never carry text.
 
 ## Internationalisation
 
-- i18next with namespaces `common` and `errors` (modules add their own lazily from Phase 3).
+- i18next with namespaces `common` and `errors`. Module names and descriptions live in each
+  module's manifest (`strings`), with English as the fallback.
 - Detection order: `localStorage` (`tt-language`), then the browser.
 - `<html lang>` follows the active language.
 - Keys are typed through `CustomTypeOptions`, so a misspelt key fails `tsc`.
@@ -116,7 +191,8 @@ flowchart LR
 - React Router 8 data router (`src/platform/shell/routes.tsx`).
 - The root route renders `AppLayout` (skip link, header, status banner, `<main>`), with
   `RouteErrorPage` as its error element.
-- Pages are lazy (`route.lazy`). Unknown paths render `NotFoundPage`.
+- Pages are lazy (`route.lazy`). Module pages mount at `/m/<slug>/*` from their manifests.
+  Unknown paths render `NotFoundPage`.
 - `AppErrorBoundary` catches failures outside the router.
 
 ## Testing

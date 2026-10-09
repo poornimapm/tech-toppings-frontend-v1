@@ -9,6 +9,13 @@ function keyPaths(value: unknown, prefix = ''): string[] {
   );
 }
 
+function valueAt(tree: unknown, path: string): string {
+  const value = path
+    .split('.')
+    .reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], tree);
+  return String(value);
+}
+
 describe('translations', () => {
   it.each(SUPPORTED_LANGUAGES.filter((language) => language !== 'en'))(
     '%s has exactly the same keys as English',
@@ -21,11 +28,18 @@ describe('translations', () => {
     },
   );
 
-  it('keeps interpolation placeholders in every language', () => {
+  it('keeps every interpolation placeholder in every language', () => {
+    const english = resources.en;
     for (const language of SUPPORTED_LANGUAGES) {
-      expect(resources[language].common.theme.toggle).toContain('{{current}}');
-      expect(resources[language].common.theme.toggle).toContain('{{next}}');
-      expect(resources[language].common.welcome.title).toContain('{{appName}}');
+      for (const namespace of ['common', 'errors'] as const) {
+        for (const path of keyPaths(english[namespace])) {
+          const source = valueAt(english[namespace], path);
+          const translated = valueAt(resources[language][namespace], path);
+          for (const placeholder of source.match(/{{\w+}}/g) ?? []) {
+            expect(translated, `${language} ${namespace}:${path}`).toContain(placeholder);
+          }
+        }
+      }
     }
   });
 });

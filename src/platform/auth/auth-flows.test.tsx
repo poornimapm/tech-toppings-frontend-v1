@@ -32,9 +32,7 @@ describe('route guards', () => {
   it('sends signed-in visitors away from the sign-in page', async () => {
     const { router } = renderApp('/login');
 
-    expect(
-      await screen.findByRole('heading', { name: 'Welcome to Tech-Toppings' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
   });
 
@@ -66,9 +64,7 @@ describe('route guards', () => {
     renderApp('/');
 
     expect(await screen.findByText('Signing you in…')).toBeInTheDocument();
-    expect(
-      await screen.findByRole('heading', { name: 'Welcome to Tech-Toppings' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
     expect(calls).toBe(2);
   });
 });
@@ -152,9 +148,7 @@ describe('sign in', () => {
     });
     callback?.({ credential: 'google-id-token' });
 
-    expect(
-      await screen.findByRole('heading', { name: 'Welcome to Tech-Toppings' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
     expect(posted).toEqual({ id_token: 'google-id-token' });
   });
 
@@ -240,9 +234,7 @@ describe('registration', () => {
     expect(screen.getByText('At least 10 characters')).toHaveClass('text-success');
     await user.click(screen.getByRole('button', { name: 'Create account' }));
 
-    expect(
-      await screen.findByRole('heading', { name: 'Welcome to Tech-Toppings' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
   });
 
   it('says so when registration is closed', async () => {
@@ -346,7 +338,7 @@ describe('account preferences', () => {
     renderApp('/');
 
     expect(
-      await screen.findByRole('heading', { name: 'Tech-Toppings-க்கு வரவேற்கிறோம்' }),
+      await screen.findByRole('heading', { level: 1, name: /வணக்கம், Asha$/ }),
     ).toBeInTheDocument();
     expect(useThemeStore.getState().preference).toBe('dark');
   });

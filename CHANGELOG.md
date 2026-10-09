@@ -6,6 +6,51 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 3: modules and the Welcome page (2026-10-09)
+
+**Module system**
+
+- Module folders `src/modules/<slug>/manifest.ts` (icon, accent, en/ta/hi text, keywords,
+  optional routes), discovered with `import.meta.glob`. A mismatched or duplicate key fails
+  loudly.
+- Manifests for expenses, medicine, receipts, study, government documents, meals, habits
+  and journal.
+- Tiles merge `/v1/modules` with manifests. Pin, on/off, order and notify-me update
+  optimistically and roll back on error.
+- Module pages mount at `/m/<slug>/*` behind a gate that explains unavailable modules.
+
+**Welcome page**
+
+- Time-of-day greeting in the user's time zone, gradient headline, drifting aurora
+  background, compact status pill.
+- Search with `/` and Ctrl/⌘+K shortcuts, plural-tolerant and cross-language. Counted
+  filter chips with a gliding highlight, kept in the URL.
+- Favourites and All modules sections with shared-layout animations; hidden modules can be
+  brought back.
+- Glass tiles with 3D tilt, cursor spotlight, hover lift, press spring, star burst on
+  favourite, count-up figures and status badges (Beta, Coming soon, Turned off).
+- A details dialog (a bottom sheet on phones) with switches for Notify me, Favourite and
+  Show on my page.
+- Customize mode: drag and drop with pointer, touch or keyboard (translated announcements),
+  Move earlier/later and hide buttons, saved automatically.
+- Toasts with Undo, shimmer skeletons, error retry, friendly empty states.
+
+**Design system**
+
+- New: `MotionProvider`, `Badge`, `Skeleton`, `Dialog`, `FilterChips`, `SearchField`,
+  `Switch`, `EmptyState`, `AnimatedNumber`, `Toaster` / `toast()`, `usePointerTilt`.
+- Module accent tokens (9 pairs), aurora and glass tokens, all contrast-tested in both
+  themes.
+- Sticky glass header.
+
+**Quality**
+
+- ESLint keeps modules away from platform internals and other modules.
+- Tests: registry and demo module, statuses, search, filters, pins with undo, rollback,
+  notify-me, customize, Tamil, module routes, toasts and primitives, and axe with and
+  without the dialog.
+- Playwright: favourite a module and request a launch notice in the real build.
+
 ### Added — Phase 2: auth (2026-10-08)
 
 **Session handling**

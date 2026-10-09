@@ -1,0 +1,17 @@
+import type { CSSProperties } from 'react';
+
+import type { ModuleTile } from '@/core/modules/types';
+
+/** CSS variables that point the `tile` / `tile-soft` colours at the module's accent pair. */
+export function accentStyle(tile: ModuleTile): CSSProperties {
+  const accent = tile.definition.accent;
+  return {
+    '--tile-accent': `var(--tt-accent-${accent})`,
+    '--tile-soft': `var(--tt-accent-${accent}-soft)`,
+  } as CSSProperties;
+}
+
+/** Can the module's own pages be opened from here? */
+export function isOpenable(tile: ModuleTile): boolean {
+  return tile.view.available && Boolean(tile.definition.routes?.length);
+}
