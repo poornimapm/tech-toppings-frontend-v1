@@ -1,5 +1,6 @@
 import '@/core/theme/tokens.css';
 import '@/core/i18n';
+import '@/core/auth/install';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

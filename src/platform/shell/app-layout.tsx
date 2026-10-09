@@ -3,6 +3,7 @@ import { Link, Outlet } from 'react-router';
 
 import { useServerStatus } from '@/core/api/server-status';
 import { env } from '@/core/config/env';
+import { AccountNav } from '@/platform/shell/account-nav';
 import { LanguageSelect } from '@/platform/shell/language-select';
 import { ServerStatusBanner } from '@/platform/shell/server-status-banner';
 import { ThemeToggle } from '@/platform/shell/theme-toggle';
@@ -27,6 +28,7 @@ export function AppLayout() {
           <div className="flex items-center gap-2">
             <LanguageSelect />
             <ThemeToggle />
+            <AccountNav />
           </div>
         </div>
       </header>

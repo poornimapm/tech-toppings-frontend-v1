@@ -4,5 +4,21 @@
   "NOT_FOUND": "माँगी गई चीज़ नहीं मिली।",
   "VALIDATION_ERROR": "कुछ जानकारी सही नहीं है।",
   "INTERNAL_ERROR": "सर्वर में त्रुटि हुई।",
-  "UNKNOWN": "कुछ गड़बड़ हो गई।"
+  "UNKNOWN": "कुछ गड़बड़ हो गई।",
+  "UNAUTHENTICATED": "कृपया साइन इन करें।",
+  "FORBIDDEN": "आपको यह करने की अनुमति नहीं है।",
+  "RATE_LIMITED": "बहुत ज़्यादा अनुरोध। कृपया थोड़ा रुकें।",
+  "AUTH_INVALID_CREDENTIALS": "ईमेल या पासवर्ड ग़लत है।",
+  "AUTH_EMAIL_TAKEN": "इस ईमेल से पहले से एक खाता मौजूद है।",
+  "AUTH_PASSWORD_POLICY": "पासवर्ड ज़रूरतें पूरी नहीं करता।",
+  "AUTH_CURRENT_PASSWORD_INVALID": "मौजूदा पासवर्ड ग़लत है।",
+  "AUTH_REGISTRATION_NOT_ALLOWED": "यह ईमेल आमंत्रित नहीं है। इसे जोड़ने के लिए अपने व्यवस्थापक से पूछें।",
+  "AUTH_REGISTRATION_CLOSED": "पंजीकरण बंद है।",
+  "AUTH_ACCOUNT_DISABLED": "यह खाता बंद कर दिया गया है। अपने व्यवस्थापक से संपर्क करें।",
+  "AUTH_ACCOUNT_LOCKED": "बहुत ज़्यादा असफल प्रयास। बाद में फिर कोशिश करें।",
+  "AUTH_GOOGLE_TOKEN_INVALID": "Google साइन-इन की पुष्टि नहीं हो सकी। फिर कोशिश करें।",
+  "AUTH_GOOGLE_DISABLED": "Google साइन-इन चालू नहीं है।",
+  "AUTH_REFRESH_INVALID": "आपका सत्र समाप्त हो गया। कृपया फिर से साइन इन करें।",
+  "AUTH_REFRESH_REUSED": "आपकी सुरक्षा के लिए आपको साइन आउट किया गया। कृपया फिर से साइन इन करें।",
+  "AUTH_SESSION_REVOKED": "आपको साइन आउट कर दिया गया है। कृपया फिर से साइन इन करें।"
 }

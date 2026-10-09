@@ -4,5 +4,21 @@
   "NOT_FOUND": "We couldn't find what you asked for.",
   "VALIDATION_ERROR": "Some details are not valid.",
   "INTERNAL_ERROR": "The server ran into an error.",
-  "UNKNOWN": "Something went wrong."
+  "UNKNOWN": "Something went wrong.",
+  "UNAUTHENTICATED": "Please sign in.",
+  "FORBIDDEN": "You don't have permission to do that.",
+  "RATE_LIMITED": "Too many requests. Please wait a moment.",
+  "AUTH_INVALID_CREDENTIALS": "Email or password is incorrect.",
+  "AUTH_EMAIL_TAKEN": "An account with this email already exists.",
+  "AUTH_PASSWORD_POLICY": "The password doesn't meet the requirements.",
+  "AUTH_CURRENT_PASSWORD_INVALID": "The current password is incorrect.",
+  "AUTH_REGISTRATION_NOT_ALLOWED": "This email isn't invited. Ask your administrator to add it.",
+  "AUTH_REGISTRATION_CLOSED": "Registration is closed.",
+  "AUTH_ACCOUNT_DISABLED": "This account is disabled. Contact your administrator.",
+  "AUTH_ACCOUNT_LOCKED": "Too many failed attempts. Try again later.",
+  "AUTH_GOOGLE_TOKEN_INVALID": "Google sign-in couldn't be verified. Try again.",
+  "AUTH_GOOGLE_DISABLED": "Google sign-in isn't enabled.",
+  "AUTH_REFRESH_INVALID": "Your session has ended. Please sign in again.",
+  "AUTH_REFRESH_REUSED": "You were signed out for your security. Please sign in again.",
+  "AUTH_SESSION_REVOKED": "You've been signed out. Please sign in again."
 }

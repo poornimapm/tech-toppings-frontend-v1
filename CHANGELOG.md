@@ -6,7 +6,47 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Added — Phase 1: foundations (2026-10-08)
+### Added — Phase 2: auth (2026-10-08)
+
+**Session handling**
+
+- Session store (Zustand) with the access token in memory only.
+- `refreshSession()`: one request shared by concurrent callers, serialised across tabs with
+  the Web Locks API, and retried once on `AUTH_REFRESH_RACE`.
+- API middleware:
+  - adds `Authorization` and the CSRF header to every request;
+  - on `AUTH_TOKEN_EXPIRED`, refreshes once and replays the original request, body included;
+  - signs out on a revoked session;
+  - flags a pending password change.
+- `AuthBootstrap` restores the session at startup and keeps retrying while the free backend
+  wakes up. It also drops cached data when the account changes.
+
+**Routes and pages**
+
+- Route guards: `RequireAuth` (redirects to `/login?next=…`), `RequirePasswordFresh`
+  (forced change after an admin reset) and `PublicOnly`.
+- Pages:
+  - **Sign in**: validation, translated server errors, lockout wait time, show/hide password,
+    optional Google button.
+  - **Register**: live password-rule checklist, allowlist and closed-mode messages.
+  - **Change password**: voluntary and forced.
+  - **Security**: devices, "This device", sign out a device, sign out everywhere with
+    confirmation.
+- Header account nav with Sign out.
+
+**Preferences and UI**
+
+- Language and theme are saved to the account and applied again on sign-in on any device.
+- Design system: `TextField`, `PasswordField` and `Alert`, all with accessible labels and
+  error wiring.
+- en/ta/hi strings for all auth screens and error codes.
+
+**Tests**
+
+- 128 unit and component tests.
+- 5 Playwright smoke tests, including a sign-in journey.
+
+## Phase 1 — foundations (2026-10-08)
 
 **Project setup**
 

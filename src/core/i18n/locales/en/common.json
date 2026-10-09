@@ -39,5 +39,76 @@
     "title": "Something went wrong",
     "body": "An unexpected error occurred. Please reload the page.",
     "reload": "Reload"
+  },
+  "nav": {
+    "security": "Security",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "account": "Signed in as {{name}}"
+  },
+  "auth": {
+    "restoring": "Signing you in…",
+    "email": "Email",
+    "password": "Password",
+    "name": "Your name",
+    "confirmPassword": "Confirm password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "noAccount": "New here?",
+      "register": "Create an account",
+      "forgot": "Forgot your password? Ask your administrator for a one-time password."
+    },
+    "register": {
+      "title": "Create your account",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "closed": "Registration is closed. Ask your administrator for an account."
+    },
+    "change": {
+      "title": "Change password",
+      "forcedTitle": "Choose a new password",
+      "forcedBody": "Your password was reset. Enter the one-time password you received, then choose your own.",
+      "current": "Current password",
+      "currentOneTime": "One-time or current password",
+      "new": "New password",
+      "submit": "Save new password"
+    },
+    "google": {
+      "divider": "or"
+    },
+    "rules": {
+      "title": "Your password needs",
+      "too_short": "At least {{count}} characters",
+      "too_simple": "At least {{count}} kinds of characters (lowercase, uppercase, digits, symbols)",
+      "too_long": "At most {{count}} characters",
+      "surrounding_whitespace": "No spaces at the start or end",
+      "same_as_current": "Something different from your current password"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address.",
+      "mismatch": "Passwords don't match.",
+      "tooLong": "That's too long."
+    },
+    "lockedFor": "Too many attempts. Try again in {{minutes}} min."
+  },
+  "security": {
+    "title": "Security",
+    "sessions": "Signed-in devices",
+    "thisDevice": "This device",
+    "lastActive": "Last active {{when}}",
+    "unknownDevice": "Unknown device",
+    "signOutDevice": "Sign out",
+    "signOutEverywhere": "Sign out of all devices",
+    "confirmEverywhere": "Sign out of every device, including this one?",
+    "changePassword": "Change password",
+    "empty": "No other devices are signed in."
+  },
+  "actions": {
+    "cancel": "Cancel"
   }
 }

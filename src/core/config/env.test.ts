@@ -10,6 +10,7 @@ describe('parseEnv', () => {
       wakeThresholdMs: 3000,
       wakeMaxWaitMs: 90_000,
       healthPollMs: 60_000,
+      csrfHeader: 'X-TT-CSRF',
     });
   });
 
@@ -20,6 +21,7 @@ describe('parseEnv', () => {
       VITE_WAKE_THRESHOLD_MS: '1500',
       VITE_WAKE_MAX_WAIT_MS: '30000',
       VITE_HEALTH_POLL_MS: '5000',
+      VITE_CSRF_HEADER: 'X-Custom',
     });
 
     expect(env).toEqual({
@@ -28,6 +30,7 @@ describe('parseEnv', () => {
       wakeThresholdMs: 1500,
       wakeMaxWaitMs: 30_000,
       healthPollMs: 5000,
+      csrfHeader: 'X-Custom',
     });
   });
 

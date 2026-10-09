@@ -9,8 +9,9 @@ TypeScript PWA that supports English, Tamil and Hindi.
   [`docs/`](https://github.com/poornimapm/tech-toppings-backend-v1/tree/develop/docs)
 - Frontend docs: [docs/](docs/)
 
-> **Status:** Phase 1 (foundations) is done. The app currently has a shell, a welcome page
-> showing live API/database status, an i18n setup (en/ta/hi) and light/dark/system themes.
+> **Status:** Phase 2 (auth) is done. Built so far: sign in, register (allowlist), forced or
+> voluntary password change, signed-in devices, optional Google sign-in, and protected routes
+> on top of the Phase 1 shell (live status, en/ta/hi, themes).
 
 ## Stack
 
@@ -18,8 +19,9 @@ TypeScript PWA that supports English, Tamil and Hindi.
 | -------------- | ------------------------------------------------------------------------------------------------------------------- |
 | Runtime        | **Node 24 LTS**, scoped to this repo via `.node-version` + fnm. Your system Node is untouched.                      |
 | Framework      | React 19, Vite 8, TypeScript 5.9 (strict)                                                                           |
-| Routing / data | React Router 8 (data router, lazy routes), TanStack Query 5                                                         |
-| State          | Zustand (small client state: theme)                                                                                 |
+| Routing / data | React Router 8 (data router, lazy routes, auth guards), TanStack Query 5                                            |
+| State          | Zustand (session in memory, theme)                                                                                  |
+| Forms          | react-hook-form + zod (`zod/mini`, tree-shaken)                                                                     |
 | API client     | `openapi-fetch` with types generated from the backend OpenAPI schema                                                |
 | Styling        | Tailwind CSS 4 with semantic design tokens (WCAG-AA contrast checked in tests)                                      |
 | i18n           | i18next + react-i18next (en / ta / hi), typed translation keys                                                      |
@@ -64,6 +66,17 @@ pattern, so the browser always talks to its own origin.
 | running, but MongoDB stopped            | Database _Not ready_, plus a translated reason                                                                                                   |
 | stopped                                 | After ~3 s, a "Waking up the server…" banner; after ~90 s, _Unreachable_ with **Try again**. It recovers automatically when the backend returns. |
 
+Sign-in flow, with the backend running and your email in its `AUTH_ALLOWED_EMAILS`:
+
+1. Open <http://localhost:5173>. You are sent to **Sign in** (`/login?next=/`).
+2. Choose **Create an account**, register, and land on the welcome page.
+3. Reload the page. You stay signed in: the refresh cookie is exchanged for a new access token.
+4. Open **Security** to see your devices ("This device" is marked). Sign in from another
+   browser, then sign that browser out from here.
+5. Choose **Sign out**, or **Sign out of all devices**.
+6. Admin reset: in the backend run `poe reset-password --email you@…` and sign in with the
+   one-time password. Only **Choose a new password** is reachable until you change it.
+
 Also try:
 
 - the **language** menu (English / தமிழ் / हिन्दी) and the **theme** button (Light → Dark →
@@ -101,12 +114,15 @@ src/
   main.tsx               entry: styles, i18n, providers, router
   core/                  framework plumbing (no feature knowledge)
     api/                 typed client, ApiError, query client, server-status hooks, generated schema
+    auth/                session store, refresh (single-flight, cross-tab lock), API middleware,
+                         route guards, bootstrap, password policy
     config/env.ts        validated VITE_* configuration
     i18n/                i18next setup, locales/{en,ta,hi}/{common,errors}.json
     theme/               design tokens (tokens.css), theme store
     utils/
   platform/              shell features shared by all modules
-    shell/               app, routes, layout, error boundaries, banner, language/theme controls
+    shell/               app, routes, layout, error boundaries, banner, account nav, language/theme
+    auth/                sign in, register, change password, security (devices), Google button
     welcome/             landing page (becomes the module-tile Welcome page in Phase 3)
   design-system/         shared UI primitives (Button, Card, ...): the only UI modules may use
   modules/               feature modules (Phase 3+), discovered from their manifests
@@ -124,6 +140,8 @@ scripts/                 use-node.ps1, gen-api-types.mjs
 - Every user-facing string goes through i18n. A test checks that Tamil and Hindi have
   exactly the same keys as English.
 - Server errors are shown by `code` (translated), never as raw messages.
+- The access token lives only in memory. The refresh token is an httpOnly cookie the app
+  never sees. Post-login redirects accept only same-app paths (`safeNext`).
 - Git hooks: husky + lint-staged run ESLint and Prettier on staged files, using this repo's
   Node through fnm.
 - Line endings: LF in git (`.gitattributes`).

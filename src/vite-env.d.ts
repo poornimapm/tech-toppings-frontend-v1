@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_WAKE_THRESHOLD_MS?: string;
   readonly VITE_WAKE_MAX_WAIT_MS?: string;
   readonly VITE_HEALTH_POLL_MS?: string;
+  readonly VITE_CSRF_HEADER?: string;
 }
 
 interface ImportMeta {

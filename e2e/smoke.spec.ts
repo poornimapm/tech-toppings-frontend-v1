@@ -1,7 +1,38 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// Stub the backend so the smoke test checks the built frontend in isolation.
-async function stubApi(page: Page, readiness: 'ready' | 'down' = 'ready') {
+// Smoke tests run the production build with the backend stubbed per test (page.route).
+
+const user = {
+  id: 'user-1',
+  email: 'asha@example.com',
+  name: 'Asha',
+  role: 'user',
+  locale: 'en',
+  theme: 'system',
+  ui_mode: 'standard',
+  base_currency: 'INR',
+  timezone: 'Asia/Kolkata',
+  ai_consent: false,
+  must_change_password: false,
+  has_password: true,
+  auth_providers: [],
+  created_at: '2026-10-01T10:00:00Z',
+};
+const token = { access_token: 'e2e-access', token_type: 'bearer', expires_in: 900, user };
+const config = {
+  registration_mode: 'open',
+  google_client_id: null,
+  password_policy: { min_length: 10, max_length: 128, min_classes: 2 },
+  csrf_header: 'X-TT-CSRF',
+};
+
+async function stubApi(
+  page: Page,
+  {
+    signedIn = true,
+    readiness = 'ready',
+  }: { signedIn?: boolean; readiness?: 'ready' | 'down' } = {},
+) {
   await page.route('**/api/healthz', (route) =>
     route.fulfill({ json: { status: 'ok', name: 'Tech-Toppings API', version: '0.1.0' } }),
   );
@@ -18,6 +49,17 @@ async function stubApi(page: Page, readiness: 'ready' | 'down' = 'ready') {
           },
         }),
   );
+  await page.route('**/api/v1/auth/config', (route) => route.fulfill({ json: config }));
+  await page.route('**/api/v1/auth/refresh', (route) =>
+    signedIn
+      ? route.fulfill({ json: token })
+      : route.fulfill({
+          status: 401,
+          json: { code: 'AUTH_REFRESH_INVALID', message: 'ended', details: null, request_id: 'r' },
+        }),
+  );
+  await page.route('**/api/v1/auth/login', (route) => route.fulfill({ json: token }));
+  await page.route('**/api/v1/me', (route) => route.fulfill({ json: user }));
 }
 
 test('home page loads and shows live system status', async ({ page }) => {
@@ -33,8 +75,26 @@ test('home page loads and shows live system status', async ({ page }) => {
   await expect(status.getByText('Ready')).toBeVisible();
 });
 
+test('a signed-out visitor signs in and lands where they were going', async ({ page }) => {
+  await stubApi(page, { signedIn: false });
+  await page.goto('/account/security');
+
+  await expect(page).toHaveURL(/\/login\?next=%2Faccount%2Fsecurity$/);
+  await page.getByLabel('Email').fill('asha@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('Correct-Horse-42');
+  await page.route('**/api/v1/me/sessions*', (route) =>
+    route.fulfill({
+      json: { items: [], page: 1, page_size: 50, total: 0, has_next: false },
+    }),
+  );
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Security' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Signed in as Asha' })).toBeVisible();
+});
+
 test('database outage is explained, not hidden', async ({ page }) => {
-  await stubApi(page, 'down');
+  await stubApi(page, { readiness: 'down' });
   await page.goto('/');
 
   const status = page.getByRole('region', { name: 'System status' });

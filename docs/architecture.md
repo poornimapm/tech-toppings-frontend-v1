@@ -39,6 +39,44 @@ flowchart LR
 - **Retries.** The default query client retries only transient failures (network, 502, 503,
   504), at most twice. 4xx responses are never retried.
 
+## Authentication
+
+```mermaid
+flowchart LR
+  Boot[AuthBootstrap] -->|refreshSession| R[POST /v1/auth/refresh]
+  R -->|200| S[(session store: token in memory)]
+  R -->|401| Anon[anonymous → RequireAuth redirects to /login?next=]
+  Req[any API call] --> M[auth middleware]
+  M -->|Bearer + X-TT-CSRF| API
+  API -->|401 AUTH_TOKEN_EXPIRED| M
+  M -->|refreshSession, single-flight + Web Lock| R
+  M -->|replay with new token| API
+```
+
+- **Session state** (`core/auth/session-store.ts`):
+  - `status` is `unknown` (splash), `authenticated` or `anonymous`.
+  - The access token and user are held in memory only. The refresh cookie is httpOnly and
+    the app never reads it.
+- **Refreshing** (`core/auth/session.ts`):
+  - Concurrent callers share one request.
+  - Tabs serialise through `navigator.locks` where available.
+  - A `409 AUTH_REFRESH_RACE` (another tab just rotated the cookie) is retried once.
+- **Middleware** (`core/auth/auth-middleware.ts`, installed by `core/auth/install.ts`):
+  - It keeps a clone of each request, so it can be replayed after a refresh, body included.
+  - Credential endpoints (login, register, refresh, logout, google) are never replayed.
+- **Guards** (`core/auth/guards.tsx`):
+
+  | Guard                  | Behaviour                                                         |
+  | ---------------------- | ----------------------------------------------------------------- |
+  | `RequireAuth`          | Redirects anonymous visitors to sign in                           |
+  | `RequirePasswordFresh` | Sends an account with a pending admin reset to `/change-password` |
+  | `PublicOnly`           | Sends signed-in users on to `next` (same-app paths only)          |
+
+- **Preferences:** the language and theme controls PATCH `/v1/me` when signed in, and
+  `PreferenceSync` applies the account's saved values on sign-in.
+- **Cache hygiene:** user-scoped queries live under `['user', …]` and are removed when the
+  signed-in account changes.
+
 ## Server availability (free-tier cold starts)
 
 `useServerStatus()` polls `/healthz`:

@@ -3,8 +3,10 @@ import type { ReactNode } from 'react';
 import { RouterProvider } from 'react-router/dom';
 import type { createBrowserRouter } from 'react-router';
 
+import { AuthBootstrap } from '@/core/auth/auth-bootstrap';
 import { useApplyTheme } from '@/core/theme/theme-store';
 import { AppErrorBoundary } from '@/platform/shell/app-error-boundary';
+import { PreferenceSync } from '@/platform/shell/preference-sync';
 
 type AppRouter = ReturnType<typeof createBrowserRouter>;
 
@@ -24,6 +26,8 @@ export function AppProviders({
     <AppErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeEffect />
+        <AuthBootstrap />
+        <PreferenceSync />
         {children}
       </QueryClientProvider>
     </AppErrorBoundary>

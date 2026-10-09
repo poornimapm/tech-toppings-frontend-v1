@@ -58,6 +58,9 @@ export default defineConfig(({ mode }) => {
       include: ['src/**/*.test.{ts,tsx}'],
       restoreMocks: true,
       unstubEnvs: true,
+      // First render of a lazy route compiles it; with coverage instrumentation that can take
+      // several seconds on a slow machine.
+      testTimeout: 15_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
