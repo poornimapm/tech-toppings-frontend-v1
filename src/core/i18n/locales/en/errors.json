@@ -25,5 +25,9 @@
   "MODULE_DISABLED": "This module is turned off.",
   "MODULE_NO_SETTINGS": "This module has no settings.",
   "MODULE_NOT_UPCOMING": "This module is already available.",
-  "MODULE_SETTINGS_INVALID": "Some settings are not valid."
+  "MODULE_SETTINGS_INVALID": "Some settings are not valid.",
+  "AGENT_NOT_FOUND": "That assistant doesn't exist.",
+  "AGENT_SKILL_NOT_FOUND": "The assistant doesn't have that skill.",
+  "AGENT_INPUT_TOO_LONG": "That request is too long. Please shorten it.",
+  "AGENT_PROPOSAL_CLOSED": "This change was already handled or has expired."
 }

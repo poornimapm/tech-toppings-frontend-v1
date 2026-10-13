@@ -25,5 +25,9 @@
   "MODULE_DISABLED": "यह मॉड्यूल बंद है।",
   "MODULE_NO_SETTINGS": "इस मॉड्यूल में कोई सेटिंग नहीं है।",
   "MODULE_NOT_UPCOMING": "यह मॉड्यूल पहले से उपलब्ध है।",
-  "MODULE_SETTINGS_INVALID": "कुछ सेटिंग सही नहीं हैं।"
+  "MODULE_SETTINGS_INVALID": "कुछ सेटिंग सही नहीं हैं।",
+  "AGENT_NOT_FOUND": "ऐसा कोई सहायक नहीं है।",
+  "AGENT_SKILL_NOT_FOUND": "सहायक के पास यह क्षमता नहीं है।",
+  "AGENT_INPUT_TOO_LONG": "अनुरोध बहुत लंबा है। कृपया छोटा करें।",
+  "AGENT_PROPOSAL_CLOSED": "यह बदलाव पहले ही हो चुका है या उसकी समय-सीमा खत्म हो गई।"
 }

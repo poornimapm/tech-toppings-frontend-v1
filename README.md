@@ -125,7 +125,9 @@ src/
     shell/               app, routes, layout, error boundaries, banner, account nav, language/theme
     auth/                sign in, register, change password, security (devices), Google button
     core/modules/        module registry (import.meta.glob), tiles query, optimistic preferences
+    core/agents/         agents API: availability, ask, confirm/reject proposals, AI consent
     welcome/             animated Welcome page: tiles, search, filters, favourites, customize
+    palette/             Ctrl/⌘+K command palette + "Ask the assistant" (agents API)
   design-system/         shared UI (Button, Dialog, Toaster, FilterChips, SearchField, Switch,
                          Skeleton, AnimatedNumber, MotionProvider ...): the only UI modules use
   modules/               one folder per module (manifest.ts); expenses ... journal so far

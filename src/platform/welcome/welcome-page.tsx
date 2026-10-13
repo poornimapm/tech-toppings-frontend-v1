@@ -2,7 +2,7 @@ import { Check, SearchX, SlidersHorizontal, Star } from 'lucide-react';
 import { AnimatePresence, LayoutGroup, m } from 'motion/react';
 import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { useSession } from '@/core/auth/session-store';
 import { matchesSearch } from '@/core/modules/module-text';
@@ -89,18 +89,23 @@ export function WelcomePage() {
   const { tiles, isPending, isError, refetch } = useModuleTiles();
   const actions = useModuleActions();
   const [params, setParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [arranging, setArranging] = useState(false);
-  const [dialog, setDialog] = useState<{ key: string; open: boolean } | null>(null);
 
+  // Search, filter and the open module live in the URL: shareable, and Back closes details.
   const query = params.get('q') ?? '';
   const filter = toFilter(params.get('show'));
-  function updateParams(changes: Record<string, string>) {
+  const detailsKey = params.get('module');
+  const [shownKey, setShownKey] = useState(detailsKey);
+  if (detailsKey && detailsKey !== shownKey) setShownKey(detailsKey); // kept while closing
+  function updateParams(changes: Record<string, string>, push = false) {
     const next = new URLSearchParams(params);
     for (const [name, value] of Object.entries(changes)) {
       if (value && value !== 'all') next.set(name, value);
       else next.delete(name);
     }
-    setParams(next, { replace: true });
+    setParams(next, push ? { state: { openedHere: true } } : { replace: true });
   }
 
   const now = new Date();
@@ -120,10 +125,10 @@ export function WelcomePage() {
     label: t(`welcome.filters.${value}`),
     count: searched.filter(MATCHES[value]).length,
   }));
-  const selected = dialog ? (tiles.find((tile) => tile.view.key === dialog.key) ?? null) : null;
+  const selected = tiles.find((tile) => tile.view.key === shownKey) ?? null;
 
   const openDetails = (tile: Tile) => {
-    setDialog({ key: tile.view.key, open: true });
+    updateParams({ module: tile.view.key }, true);
   };
   const togglePin = (tile: Tile) => {
     actions.setPinned(tile, !tile.view.pinned);
@@ -305,9 +310,12 @@ export function WelcomePage() {
 
       <ModuleDetailsDialog
         tile={selected}
-        open={dialog?.open ?? false}
+        open={detailsKey !== null && selected !== null}
         onClose={() => {
-          setDialog((current) => (current ? { ...current, open: false } : null));
+          // Opened from this page: step back, so Back doesn't reopen it. Deep link: just close.
+          const openedHere = (location.state as { openedHere?: boolean } | null)?.openedHere;
+          if (openedHere) void navigate(-1);
+          else updateParams({ module: '' });
         }}
         onPin={(tile, pinned) => {
           actions.setPinned(tile, pinned);

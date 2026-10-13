@@ -16,6 +16,7 @@ const schema = z.object({
   VITE_WAKE_MAX_WAIT_MS: milliseconds(90_000),
   VITE_HEALTH_POLL_MS: milliseconds(60_000),
   VITE_CSRF_HEADER: text('X-TT-CSRF'),
+  VITE_ASSISTANT_AGENT: text('assistant'),
 });
 
 export interface AppEnv {
@@ -26,6 +27,8 @@ export interface AppEnv {
   healthPollMs: number;
   /** Must match the backend AUTH_CSRF_HEADER; sent on every API request. */
   csrfHeader: string;
+  /** Backend agent behind "Ask" in the command palette (an agents/<name>.md file). */
+  assistantAgent: string;
 }
 
 export function parseEnv(raw: Record<string, unknown>): AppEnv {
@@ -41,6 +44,7 @@ export function parseEnv(raw: Record<string, unknown>): AppEnv {
     wakeMaxWaitMs: value.VITE_WAKE_MAX_WAIT_MS,
     healthPollMs: value.VITE_HEALTH_POLL_MS,
     csrfHeader: value.VITE_CSRF_HEADER,
+    assistantAgent: value.VITE_ASSISTANT_AGENT,
   };
 }
 

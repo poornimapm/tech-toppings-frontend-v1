@@ -11,6 +11,7 @@ describe('parseEnv', () => {
       wakeMaxWaitMs: 90_000,
       healthPollMs: 60_000,
       csrfHeader: 'X-TT-CSRF',
+      assistantAgent: 'assistant',
     });
   });
 
@@ -22,6 +23,7 @@ describe('parseEnv', () => {
       VITE_WAKE_MAX_WAIT_MS: '30000',
       VITE_HEALTH_POLL_MS: '5000',
       VITE_CSRF_HEADER: 'X-Custom',
+      VITE_ASSISTANT_AGENT: 'helper',
     });
 
     expect(env).toEqual({
@@ -31,6 +33,7 @@ describe('parseEnv', () => {
       wakeMaxWaitMs: 30_000,
       healthPollMs: 5000,
       csrfHeader: 'X-Custom',
+      assistantAgent: 'helper',
     });
   });
 

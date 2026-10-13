@@ -3,6 +3,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { PublicOnly, RequireAuth, RequirePasswordFresh } from '@/core/auth/guards';
 import { AppLayout } from '@/platform/shell/app-layout';
 import { moduleRoutes } from '@/platform/shell/module-routes';
+import { pages } from '@/platform/shell/pages';
 import { NotFoundPage } from '@/platform/shell/not-found-page';
 import { RouteErrorPage } from '@/platform/shell/route-error-page';
 
@@ -41,7 +42,7 @@ export const routes: RouteObject[] = [
         element: <RequireAuth />,
         children: [
           {
-            path: 'change-password',
+            path: pages.changePassword.path.slice(1),
             lazy: async () => ({
               Component: (await import('@/platform/auth/change-password-page')).ChangePasswordPage,
             }),
@@ -56,7 +57,7 @@ export const routes: RouteObject[] = [
                 }),
               },
               {
-                path: 'account/security',
+                path: pages.security.path.slice(1),
                 lazy: async () => ({
                   Component: (await import('@/platform/auth/security-page')).SecurityPage,
                 }),

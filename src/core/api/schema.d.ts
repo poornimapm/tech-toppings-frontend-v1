@@ -347,10 +347,116 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agents, and whether AI can run for me */
+        get: operations["list_agents_v1_agents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agents/{name}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask an agent */
+        post: operations["run_agent_v1_agents__name__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agents/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One of my runs */
+        get: operations["read_run_v1_agents_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agents/proposals/{proposal_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm a proposed change (runs it) */
+        post: operations["confirm_proposal_v1_agents_proposals__proposal_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agents/proposals/{proposal_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a proposed change */
+        post: operations["reject_proposal_v1_agents_proposals__proposal_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AgentMode
+         * @enum {string}
+         */
+        AgentMode: "agent" | "static";
+        /** AgentView */
+        AgentView: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** @description What a run would use right now; null = unavailable */
+            mode: components["schemas"]["AgentMode"] | null;
+            reason: components["schemas"]["Blocker"] | null;
+            /** Fallback */
+            fallback: boolean;
+            /** Quota Remaining */
+            quota_remaining: number;
+            /** Skills */
+            skills: components["schemas"]["SkillView"][];
+        };
         /** AuthConfigOut */
         AuthConfigOut: {
             registration_mode: components["schemas"]["RegistrationMode"];
@@ -359,6 +465,20 @@ export interface components {
             password_policy: components["schemas"]["PasswordPolicyOut"];
             /** Csrf Header */
             csrf_header: string;
+        };
+        /**
+         * Blocker
+         * @enum {string}
+         */
+        Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        /** ClientAction */
+        ClientAction: {
+            /** Tool */
+            tool: string;
+            /** Arguments */
+            arguments: {
+                [key: string]: unknown;
+            };
         };
         /**
          * ErrorResponse
@@ -417,6 +537,16 @@ export interface components {
             password: string;
         };
         /**
+         * ModuleName
+         * @description A module as the user sees it on screen, so agents and static scripts match their words.
+         */
+        ModuleName: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+        };
+        /**
          * ModuleStatus
          * @enum {string}
          */
@@ -457,6 +587,19 @@ export interface components {
              * @description Module keys, first to last
              */
             keys: string[];
+        };
+        /** Page[AgentView] */
+        Page_AgentView_: {
+            /** Items */
+            items: components["schemas"]["AgentView"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
         };
         /** Page[ModuleView] */
         Page_ModuleView_: {
@@ -507,6 +650,44 @@ export interface components {
             /** Pinned */
             pinned?: boolean | null;
         };
+        /**
+         * Proposal
+         * @description A write the agent prepared; nothing happens until the user confirms it.
+         */
+        Proposal: {
+            /** Id */
+            id: string;
+            /** Tool */
+            tool: string;
+            /** Arguments */
+            arguments: {
+                [key: string]: unknown;
+            };
+            /** Summary */
+            summary: string | null;
+            /** Summary Code */
+            summary_code: string | null;
+            /** Summary Params */
+            summary_params: {
+                [key: string]: unknown;
+            };
+            /** @default pending */
+            status: components["schemas"]["ProposalStatus"];
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Result */
+            result: unknown;
+            /** Error Code */
+            error_code: string | null;
+        };
+        /**
+         * ProposalStatus
+         * @enum {string}
+         */
+        ProposalStatus: "pending" | "confirmed" | "rejected" | "failed";
         /** ReadinessStatus */
         ReadinessStatus: {
             /**
@@ -541,6 +722,61 @@ export interface components {
          * @enum {string}
          */
         Role: "admin" | "user";
+        /** RunContext */
+        RunContext: {
+            /** Modules */
+            modules?: components["schemas"]["ModuleName"][];
+        };
+        /** RunIn */
+        RunIn: {
+            /**
+             * Input
+             * @description What the user asked (limit: AGENT_MAX_INPUT_CHARS)
+             */
+            input: string;
+            /**
+             * Skill
+             * @description Use only this skill
+             */
+            skill?: string | null;
+            /** @description Defaults to the user's language */
+            locale?: components["schemas"]["Locale"] | null;
+            context?: components["schemas"]["RunContext"];
+        };
+        /** RunOut */
+        RunOut: {
+            /** Id */
+            id: string;
+            /** Agent */
+            agent: string;
+            /** Skill */
+            skill: string | null;
+            status: components["schemas"]["RunStatus"];
+            mode: components["schemas"]["AgentMode"] | null;
+            reason: components["schemas"]["Blocker"] | null;
+            /** Message */
+            message: string | null;
+            /** Message Code */
+            message_code: string | null;
+            /** Message Params */
+            message_params: {
+                [key: string]: unknown;
+            };
+            /** Proposals */
+            proposals: components["schemas"]["Proposal"][];
+            /** Client Actions */
+            client_actions: components["schemas"]["ClientAction"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * RunStatus
+         * @enum {string}
+         */
+        RunStatus: "completed" | "unavailable" | "incomplete";
         /** SessionOut */
         SessionOut: {
             /** Id */
@@ -566,6 +802,16 @@ export interface components {
             ip: string | null;
             /** Current */
             current: boolean;
+        };
+        /** SkillView */
+        SkillView: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            mode: components["schemas"]["AgentMode"];
+            /** Has Static */
+            has_static: boolean;
         };
         /**
          * ThemePreference
@@ -1980,6 +2226,321 @@ export interface operations {
                 };
             };
             /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_agents_v1_agents_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_AgentView_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    run_agent_v1_agents__name__runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_run_v1_agents_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    confirm_proposal_v1_agents_proposals__proposal_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Proposal"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reject_proposal_v1_agents_proposals__proposal_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Proposal"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -164,6 +164,33 @@ export default defineModule({
   CSS animations freeze.
 - Tests run with `MotionGlobalConfig.skipAnimations`.
 
+## Command palette and assistant
+
+Ctrl/⌘+K (or the header button) opens `platform/palette/command-palette.tsx`, built on
+cmdk. It is shown to signed-in users only.
+
+**Commands without AI.** `commands.ts` builds them from the app's own registries; there is
+no hand-kept list:
+
+- pages: `platform/shell/pages.ts`, the same table the router mounts;
+- modules: open, pin or unpin, notify me, show (from the tiles and `useModuleActions`);
+- preferences: theme and language;
+- account: sign out.
+
+**Ask the assistant.** This sends the text to the backend agent named by
+`VITE_ASSISTANT_AGENT`, along with the module names on screen, so the user's own words
+match. The answer panel shows:
+
+- the agent's reply, or a static-mode message code translated from `agentMessages.*`;
+- a mode badge (AI or Quick mode) with the reason when the static script answered;
+- proposals with Confirm / Dismiss. A confirm refreshes every `['user', …]` query;
+- client actions from `client-actions.ts`, a small registry keyed by tool name
+  (`modules_open` navigates);
+- honest "unavailable" states with the reason, and a consent button that turns AI on
+  (`PATCH /v1/me`) and asks again.
+
+Module details are URL-driven (`/?module=<key>`), so the palette, links and Back all work.
+
 ## Theming
 
 - `src/core/theme/tokens.css` defines semantic CSS variables for light (`:root`) and dark

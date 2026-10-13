@@ -133,6 +133,17 @@
   }
 }
 
+@keyframes tt-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
 @keyframes tt-wiggle {
   from {
     transform: rotate(-0.6deg);
@@ -159,5 +170,16 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/* Command palette (cmdk renders these attributes). */
+@layer components {
+  [cmdk-group-heading] {
+    @apply px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-muted uppercase;
+  }
+
+  [cmdk-group][hidden] {
+    display: none;
   }
 }

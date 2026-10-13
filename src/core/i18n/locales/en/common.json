@@ -123,7 +123,8 @@
     "security": "Security",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "account": "Signed in as {{name}}"
+    "account": "Signed in as {{name}}",
+    "home": "Home"
   },
   "auth": {
     "restoring": "Signing you in…",
@@ -200,5 +201,93 @@
     "unavailableTitle": "{{name}} isn't available",
     "unavailableBody": "It's turned off or hasn't launched yet.",
     "backHome": "Back to your modules"
+  },
+  "palette": {
+    "title": "Command palette",
+    "trigger": "Search or ask…",
+    "placeholder": "Search pages, modules and settings, or ask…",
+    "ask": "Ask the assistant: “{{query}}”",
+    "notify": "Notify me when {{name}} launches",
+    "theme": "Theme: {{name}}",
+    "language": "Language: {{name}}",
+    "back": "Back to commands",
+    "groups": {
+      "assistant": "Assistant",
+      "pages": "Pages",
+      "modules": "Modules",
+      "preferences": "Preferences",
+      "account": "Account"
+    },
+    "hint": {
+      "move": "move",
+      "select": "select",
+      "close": "close"
+    }
+  },
+  "agents": {
+    "thinking": "Thinking…",
+    "mode": {
+      "agent": "AI",
+      "static": "Quick mode"
+    },
+    "aiStatus": {
+      "agent": "AI on",
+      "static": "Quick mode (no AI)",
+      "off": "AI off"
+    },
+    "quota_one": "{{count}} AI request left today",
+    "quota_other": "{{count}} AI requests left today",
+    "unavailable": "The assistant can't help with that right now.",
+    "incomplete": "The assistant stopped before finishing.",
+    "reason": {
+      "consent": "AI is off for your account.",
+      "quota": "Today's AI limit is used up. It resets tomorrow.",
+      "no_provider": "AI isn't set up on this server.",
+      "providers_failed": "The AI service isn't answering right now.",
+      "no_static": "This needs AI, which is switched off."
+    },
+    "enable": "Turn on the AI assistant",
+    "enableHint": "Your request goes to a free AI service. Email addresses and long numbers are masked first, and nothing changes until you confirm it.",
+    "confirm": "Confirm",
+    "rejectLabel": "Dismiss: {{change}}",
+    "status": {
+      "pending": "Waiting",
+      "confirmed": "Done",
+      "rejected": "Dismissed",
+      "failed": "Failed"
+    }
+  },
+  "agentMessages": {
+    "static": {
+      "no_match": "I can't do that without AI. Try “pin journal” or “open receipts”."
+    },
+    "manage-modules": {
+      "no-module": "I couldn't tell which module you mean.",
+      "change": {
+        "pin": "Add {{name}} to favourites",
+        "unpin": "Remove {{name}} from favourites",
+        "notify": "Notify me when {{name}} launches",
+        "stop-notify": "Stop the launch notice for {{name}}",
+        "hide": "Hide {{name}}",
+        "show": "Show {{name}}"
+      },
+      "ready": {
+        "pin": "Confirm to add {{name}} to your favourites.",
+        "unpin": "Confirm to remove {{name}} from your favourites.",
+        "notify": "Confirm and we'll tell you when {{name}} launches.",
+        "stop-notify": "Confirm to stop the launch notice for {{name}}.",
+        "hide": "Confirm to hide {{name}}.",
+        "show": "Confirm to show {{name}} again.",
+        "open": "Here's {{name}}."
+      },
+      "already": {
+        "pin": "{{name}} is already a favourite.",
+        "unpin": "{{name}} isn't a favourite.",
+        "notify": "You'll already hear when {{name}} launches.",
+        "stop-notify": "There's no launch notice for {{name}}.",
+        "hide": "{{name}} is already hidden.",
+        "show": "{{name}} is already on your page."
+      }
+    }
   }
 }

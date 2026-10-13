@@ -93,7 +93,36 @@ async function stubApi(
       json: { items: modules, page: 1, page_size: 100, total: modules.length, has_next: false },
     }),
   );
+  await page.route('**/api/v1/agents', (route) =>
+    route.fulfill({
+      json: { items: [assistant], page: 1, page_size: 20, total: 1, has_next: false },
+    }),
+  );
 }
+
+const assistant = {
+  name: 'assistant',
+  description: 'The in-app assistant.',
+  mode: 'static',
+  reason: 'consent',
+  fallback: true,
+  quota_remaining: 30,
+  skills: [
+    { name: 'manage-modules', description: 'Manage modules.', mode: 'agent', has_static: true },
+  ],
+};
+const proposal = {
+  id: 'proposal-1',
+  tool: 'modules_set_preferences',
+  arguments: { key: 'journal', pinned: true },
+  summary: null,
+  summary_code: 'manage-modules.change.pin',
+  summary_params: { name: 'Journal' },
+  status: 'pending',
+  expires_at: '2026-10-09T10:30:00Z',
+  result: null,
+  error_code: null,
+};
 
 test('home page greets the user, lists modules and shows live system status', async ({ page }) => {
   await stubApi(page);
@@ -180,4 +209,46 @@ test('unknown routes show the not-found page', async ({ page }) => {
   await page.goto('/definitely/not/here');
 
   await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible();
+});
+
+test('the command palette navigates and asks the assistant', async ({ page }) => {
+  await stubApi(page);
+  await page.route('**/api/v1/agents/assistant/runs', (route) =>
+    route.fulfill({
+      status: 201,
+      json: {
+        id: 'run-1',
+        agent: 'assistant',
+        skill: 'manage-modules',
+        status: 'completed',
+        mode: 'static',
+        reason: 'consent',
+        message: null,
+        message_code: 'manage-modules.ready.pin',
+        message_params: { name: 'Journal' },
+        proposals: [proposal],
+        client_actions: [],
+        created_at: '2026-10-09T10:00:00Z',
+      },
+    }),
+  );
+  await page.route('**/api/v1/agents/proposals/proposal-1/confirm', (route) =>
+    route.fulfill({ json: { ...proposal, status: 'confirmed' } }),
+  );
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+  await page.keyboard.press('Control+k');
+  const palette = page.getByRole('dialog', { name: 'Command palette' });
+  await palette.getByRole('combobox').fill('pin journal');
+  await palette.getByRole('option', { name: 'Ask the assistant: “pin journal”' }).click();
+
+  await expect(palette.getByText('Confirm to add Journal to your favourites.')).toBeVisible();
+  await palette.getByRole('button', { name: 'Confirm' }).click();
+  await expect(palette.getByText('Done')).toBeVisible();
+
+  await palette.getByRole('button', { name: 'Back to commands' }).click();
+  await palette.getByRole('combobox').fill('security');
+  await palette.getByRole('option', { name: 'Security', exact: true }).click();
+  await expect(page).toHaveURL(/\/account\/security$/);
 });

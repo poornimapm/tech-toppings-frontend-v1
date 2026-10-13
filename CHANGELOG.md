@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 4: command palette and assistant (2026-10-09)
+
+- Command palette (cmdk), opened with Ctrl/⌘+K or the header button:
+  - commands for pages, module actions (open, pin, notify, show), theme, language and
+    sign out, all built from existing registries;
+  - grouped, filterable, fully keyboard-operable.
+- "Ask the assistant" in the palette:
+  - the agent's reply or a translated static-mode message, with an AI / Quick mode badge;
+  - proposals with Confirm / Dismiss, and client actions such as opening a module;
+  - honest unavailable states, and an in-place switch to turn AI on.
+- The footer shows the AI state (on, quick mode or off) and today's remaining AI requests.
+- Module details open from the URL (`/?module=<key>`); Back closes them.
+- `useSignOut()` is shared by the header and the palette. `pages.ts` is the one page table
+  for the router and the palette.
+- `VITE_ASSISTANT_AGENT` configures which backend agent answers.
+- English, Tamil and Hindi strings for the palette, agent states and every static-mode
+  message code.
+- Tests: palette commands, asking in static and agent mode, confirm/dismiss, the consent
+  flow, client actions, errors, axe, signed-out visitors, deep links. A Playwright journey
+  covers asking, confirming and navigating.
+
 ### Added — Phase 3: modules and the Welcome page (2026-10-09)
 
 **Module system**

@@ -128,6 +128,56 @@ function updateModule(key: string, changes: Partial<ModuleView>): ModuleView | u
   return next;
 }
 
+type AgentRun = Schemas['RunOut'];
+type Proposal = Schemas['Proposal'];
+
+const assistantView: Schemas['AgentView'] = {
+  name: 'assistant',
+  description: 'The in-app assistant.',
+  mode: 'static',
+  reason: 'consent',
+  fallback: true,
+  quota_remaining: 30,
+  skills: [
+    { name: 'manage-modules', description: 'Manage modules.', mode: 'agent', has_static: true },
+  ],
+};
+
+export function testProposal(changes: Partial<Proposal> = {}): Proposal {
+  return {
+    id: 'proposal-1',
+    tool: 'modules_set_preferences',
+    arguments: { key: 'journal', pinned: true },
+    summary: null,
+    summary_code: 'manage-modules.change.pin',
+    summary_params: { name: 'Journal' },
+    status: 'pending',
+    expires_at: '2026-10-09T10:30:00Z',
+    result: null,
+    error_code: null,
+    ...changes,
+  };
+}
+
+/** A static-mode answer proposing to pin Journal (the default for POST .../runs). */
+export function testRun(changes: Partial<AgentRun> = {}): AgentRun {
+  return {
+    id: 'run-1',
+    agent: 'assistant',
+    skill: 'manage-modules',
+    status: 'completed',
+    mode: 'static',
+    reason: 'consent',
+    message: null,
+    message_code: 'manage-modules.ready.pin',
+    message_params: { name: 'Journal' },
+    proposals: [testProposal()],
+    client_actions: [],
+    created_at: '2026-10-09T10:00:00Z',
+    ...changes,
+  };
+}
+
 const moduleNotFound = () =>
   HttpResponse.json(errorEnvelope('MODULE_NOT_FOUND', 'no such module'), { status: 404 });
 
@@ -178,6 +228,23 @@ const handlers = [
     const view = updateModule(String(params.key), { notify_requested: true });
     return view ? HttpResponse.json(view) : moduleNotFound();
   }),
+  http.get('*/api/v1/agents', () =>
+    HttpResponse.json({
+      items: [assistantView],
+      page: 1,
+      page_size: 20,
+      total: 1,
+      has_next: false,
+    }),
+  ),
+  http.post('*/api/v1/agents/:name/runs', () => HttpResponse.json(testRun(), { status: 201 })),
+  http.post('*/api/v1/agents/proposals/:id/confirm', ({ params }) => {
+    updateModule('journal', { pinned: true });
+    return HttpResponse.json(testProposal({ id: String(params.id), status: 'confirmed' }));
+  }),
+  http.post('*/api/v1/agents/proposals/:id/reject', ({ params }) =>
+    HttpResponse.json(testProposal({ id: String(params.id), status: 'rejected' })),
+  ),
   http.delete('*/api/v1/modules/:key/interest', ({ params }) => {
     const view = updateModule(String(params.key), { notify_requested: false });
     return view ? HttpResponse.json(view) : moduleNotFound();

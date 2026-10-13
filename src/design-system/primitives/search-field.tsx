@@ -16,17 +16,14 @@ function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** Search box with the usual shortcuts: "/" or Ctrl/⌘+K focuses it, Escape clears it. */
+/** Search box: "/" focuses it, Escape clears it. (Ctrl/⌘+K is the command palette.) */
 export function SearchField({ label, value, onChange, placeholder }: SearchFieldProps) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      const shortcut =
-        (event.key === '/' && !isTypingTarget(event.target)) ||
-        (event.key.toLowerCase() === 'k' && (event.ctrlKey || event.metaKey));
-      if (shortcut) {
+      if (event.key === '/' && !isTypingTarget(event.target)) {
         event.preventDefault();
         input.current?.focus();
       }
@@ -47,7 +44,7 @@ export function SearchField({ label, value, onChange, placeholder }: SearchField
         ref={input}
         type="search"
         aria-label={label}
-        aria-keyshortcuts="/ Control+K Meta+K"
+        aria-keyshortcuts="/"
         value={value}
         placeholder={placeholder}
         onChange={(event) => {

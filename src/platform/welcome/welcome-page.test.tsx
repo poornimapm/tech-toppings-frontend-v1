@@ -232,6 +232,18 @@ describe('welcome page', () => {
     expect(within(await tile('Receipts & warranty')).getByText("We'll notify you")).toBeVisible();
   });
 
+  it('opens module details from a link and closes back to the page', async () => {
+    const { user, router } = renderWelcome(moduleRegistry, '/?module=receipts');
+
+    expect(await screen.findByRole('dialog', { name: 'Receipts & warranty' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(router.state.location.search).toBe('');
+  });
+
   it('arranges and hides modules in customize mode', async () => {
     const { user } = renderWelcome();
     await tile('Expenses');

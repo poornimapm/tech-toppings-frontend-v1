@@ -2,7 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { Link, Outlet } from 'react-router';
 
 import { useServerStatus } from '@/core/api/server-status';
+import { useSession } from '@/core/auth/session-store';
 import { env } from '@/core/config/env';
+import { CommandPalette } from '@/platform/palette/command-palette';
+import { PaletteTrigger } from '@/platform/palette/palette-trigger';
 import { AccountNav } from '@/platform/shell/account-nav';
 import { LanguageSelect } from '@/platform/shell/language-select';
 import { ServerStatusBanner } from '@/platform/shell/server-status-banner';
@@ -11,6 +14,8 @@ import { ThemeToggle } from '@/platform/shell/theme-toggle';
 export function AppLayout() {
   const { t } = useTranslation();
   const server = useServerStatus();
+  const user = useSession((state) => state.user);
+  const palette = Boolean(user && !user.must_change_password);
 
   return (
     <div className="min-h-dvh">
@@ -36,6 +41,7 @@ export function AppLayout() {
             <span className="sr-only sm:not-sr-only">{env.appName}</span>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
+            {palette && <PaletteTrigger />}
             <LanguageSelect />
             <ThemeToggle />
             <AccountNav />
@@ -50,6 +56,7 @@ export function AppLayout() {
       >
         <Outlet />
       </main>
+      {palette && <CommandPalette />}
     </div>
   );
 }
