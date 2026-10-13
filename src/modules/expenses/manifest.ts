@@ -7,6 +7,24 @@ export default defineModule({
   icon: Wallet,
   accent: 'emerald',
   keywords: ['money', 'spending', 'budget', 'பணம்', 'செலவு', 'पैसा', 'बजट'],
+  routes: [
+    {
+      index: true,
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/entries-page')).EntriesPage,
+      }),
+    },
+    {
+      path: 'entries/:id',
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/entry-page')).EntryPage,
+      }),
+    },
+  ],
+  // The assistant's "show my expenses" opens the module's first page.
+  actions: { expenses_open: '' },
+  // Only what the shell shows outside the module (tile, dashboard, feeds, assistant) is here;
+  // the module's own screens are worded in ./i18n and load with them.
   strings: {
     en: {
       name: 'Expenses',
@@ -14,6 +32,19 @@ export default defineModule({
       description:
         'Track spending by voice or text in your own language, with budgets, categories and gentle insights.',
       stats: { month_total: 'this month' },
+      widgets: {
+        expenses_spent: 'Spent',
+        expenses_received: 'Received',
+        expenses_spent_daily: 'Spending per day',
+      },
+      feed: {
+        'expenses.entry_added': 'Added “{{title}}” to {{module}}',
+        'expenses.entry_updated': 'Edited “{{title}}” in {{module}}',
+        'expenses.entry_deleted': 'Deleted “{{title}}” from {{module}}',
+        'expenses.entry_undeleted': 'Brought “{{title}}” back to {{module}}',
+        'expenses.entry_restored': 'Restored an earlier version of “{{title}}”',
+      },
+      replies: { 'track-expenses.ready.open': 'Here are your expenses.' },
     },
     ta: {
       name: 'செலவுகள்',
@@ -21,6 +52,19 @@ export default defineModule({
       description:
         'உங்கள் மொழியில் குரல் அல்லது உரை மூலம் செலவுகளைப் பதிவு செய்யுங்கள்; பட்ஜெட், வகைகள், எளிய பார்வைகளுடன்.',
       stats: { month_total: 'இந்த மாதம்' },
+      widgets: {
+        expenses_spent: 'செலவு',
+        expenses_received: 'வரவு',
+        expenses_spent_daily: 'தினசரி செலவு',
+      },
+      feed: {
+        'expenses.entry_added': '{{module}} இல் “{{title}}” சேர்க்கப்பட்டது',
+        'expenses.entry_updated': '{{module}} இல் “{{title}}” திருத்தப்பட்டது',
+        'expenses.entry_deleted': '{{module}} இலிருந்து “{{title}}” நீக்கப்பட்டது',
+        'expenses.entry_undeleted': '{{module}} இல் “{{title}}” மீட்டெடுக்கப்பட்டது',
+        'expenses.entry_restored': '“{{title}}” இன் முந்தைய பதிப்பு மீட்டமைக்கப்பட்டது',
+      },
+      replies: { 'track-expenses.ready.open': 'இதோ உங்கள் செலவுகள்.' },
     },
     hi: {
       name: 'खर्च',
@@ -28,6 +72,19 @@ export default defineModule({
       description:
         'अपनी भाषा में आवाज़ या टेक्स्ट से खर्च दर्ज करें, बजट, श्रेणियों और आसान जानकारियों के साथ।',
       stats: { month_total: 'इस महीने' },
+      widgets: {
+        expenses_spent: 'खर्च',
+        expenses_received: 'आमदनी',
+        expenses_spent_daily: 'रोज़ का खर्च',
+      },
+      feed: {
+        'expenses.entry_added': '{{module}} में “{{title}}” जोड़ा',
+        'expenses.entry_updated': '{{module}} में “{{title}}” बदला',
+        'expenses.entry_deleted': '{{module}} से “{{title}}” हटाया',
+        'expenses.entry_undeleted': '{{module}} में “{{title}}” वापस लाया',
+        'expenses.entry_restored': '“{{title}}” का पुराना संस्करण वापस लाया',
+      },
+      replies: { 'track-expenses.ready.open': 'ये रहे आपके खर्च।' },
     },
   },
 });

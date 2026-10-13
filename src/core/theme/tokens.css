@@ -42,6 +42,9 @@
   --tt-accent-slate: #475569;
   --tt-accent-slate-soft: #f1f5f9;
 
+  /* Chart marks (lines, areas, dots). Text in charts uses the text tokens, never this. */
+  --tt-chart: #4f46e5;
+
   /* Decorative only (aurora background, glows): never carries text. */
   --tt-aurora-1: #a5b4fc;
   --tt-aurora-2: #f0abfc;
@@ -82,6 +85,8 @@
   --tt-accent-slate: #cbd5e1;
   --tt-accent-slate-soft: #1e293b;
 
+  --tt-chart: #7880f6;
+
   --tt-aurora-1: #4338ca;
   --tt-aurora-2: #86198f;
   --tt-aurora-3: #0f766e;
@@ -101,6 +106,7 @@
   --color-danger: var(--tt-danger);
   --color-focus: var(--tt-focus);
   --color-glass: var(--tt-glass);
+  --color-chart: var(--tt-chart);
   /* A tile sets --tile-accent / --tile-soft to one accent pair; these classes follow it. */
   --color-tile: var(--tile-accent, var(--tt-accent-slate));
   --color-tile-soft: var(--tile-soft, var(--tt-accent-slate-soft));

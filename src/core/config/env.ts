@@ -17,6 +17,7 @@ const schema = z.object({
   VITE_HEALTH_POLL_MS: milliseconds(60_000),
   VITE_CSRF_HEADER: text('X-TT-CSRF'),
   VITE_ASSISTANT_AGENT: text('assistant'),
+  VITE_NOTIFICATIONS_POLL_MS: milliseconds(60_000),
 });
 
 export interface AppEnv {
@@ -29,6 +30,8 @@ export interface AppEnv {
   csrfHeader: string;
   /** Backend agent behind "Ask" in the command palette (an agents/<name>.md file). */
   assistantAgent: string;
+  /** How often the bell re-checks for unread notifications while the app is open. */
+  notificationsPollMs: number;
 }
 
 export function parseEnv(raw: Record<string, unknown>): AppEnv {
@@ -45,6 +48,7 @@ export function parseEnv(raw: Record<string, unknown>): AppEnv {
     healthPollMs: value.VITE_HEALTH_POLL_MS,
     csrfHeader: value.VITE_CSRF_HEADER,
     assistantAgent: value.VITE_ASSISTANT_AGENT,
+    notificationsPollMs: value.VITE_NOTIFICATIONS_POLL_MS,
   };
 }
 

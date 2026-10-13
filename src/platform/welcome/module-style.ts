@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 
+import { slugOf } from '@/core/modules/registry';
 import type { ModuleTile } from '@/core/modules/types';
 
 /** CSS variables that point the `tile` / `tile-soft` colours at the module's accent pair. */
@@ -14,4 +15,9 @@ export function accentStyle(tile: ModuleTile): CSSProperties {
 /** Can the module's own pages be opened from here? */
 export function isOpenable(tile: ModuleTile): boolean {
   return tile.view.available && Boolean(tile.definition.routes?.length);
+}
+
+/** Where "open" takes a module: its pages when it has them, otherwise its details. */
+export function moduleHref(tile: ModuleTile): string {
+  return isOpenable(tile) ? `/m/${slugOf(tile.view.key)}` : `/?module=${tile.view.key}`;
 }

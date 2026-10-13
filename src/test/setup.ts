@@ -12,7 +12,7 @@ import { useThemeStore } from '@/core/theme/theme-store';
 import { usePalette } from '@/platform/palette/palette-store';
 import { useToasts } from '@/design-system';
 import { installMatchMedia, resetMatchMedia } from '@/test/media';
-import { resetModuleState, server } from '@/test/msw';
+import { resetModuleState, resetNotificationState, server } from '@/test/msw';
 
 expect.extend(axeMatchers);
 // Lazy routes are compiled on first use in tests; allow for that beyond the 1s default.
@@ -43,6 +43,7 @@ afterEach(async () => {
   cleanup();
   server.resetHandlers();
   resetModuleState();
+  resetNotificationState();
   useToasts.getState().clear();
   usePalette.setState({ open: false });
   resetMatchMedia();

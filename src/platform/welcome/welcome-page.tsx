@@ -8,7 +8,7 @@ import { useSession } from '@/core/auth/session-store';
 import { matchesSearch } from '@/core/modules/module-text';
 import { useModuleTiles } from '@/core/modules/queries';
 import type { ModuleTile as Tile } from '@/core/modules/types';
-import { Alert, Button, EmptyState, FilterChips, SearchField, Skeleton } from '@/design-system';
+import { Button, EmptyState, FilterChips, LoadError, SearchField, Skeleton } from '@/design-system';
 import { ArrangeBoard } from '@/platform/welcome/arrange-board';
 import { AuroraBackground } from '@/platform/welcome/aurora-background';
 import { formatToday, partOfDay } from '@/platform/welcome/greeting';
@@ -105,7 +105,9 @@ export function WelcomePage() {
       if (value && value !== 'all') next.set(name, value);
       else next.delete(name);
     }
-    setParams(next, push ? { state: { openedHere: true } } : { replace: true });
+    // Replacements (typing, filters) apply at once: the search box shows the URL's value, and
+    // a keystroke that waited for a transition would be overwritten by the next one.
+    setParams(next, push ? { state: { openedHere: true } } : { replace: true, flushSync: true });
   }
 
   const now = new Date();
@@ -138,16 +140,7 @@ export function WelcomePage() {
   if (isPending) {
     content = <LoadingTiles />;
   } else if (isError) {
-    content = (
-      <Alert tone="danger">
-        <span className="flex flex-wrap items-center justify-between gap-3">
-          {t('welcome.loadError')}
-          <Button variant="secondary" onClick={() => void refetch()}>
-            {t('actions.retry')}
-          </Button>
-        </span>
-      </Alert>
-    );
+    content = <LoadError onRetry={() => void refetch()}>{t('welcome.loadError')}</LoadError>;
   } else if (arranging) {
     content = (
       <div className="space-y-3">

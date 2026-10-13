@@ -46,11 +46,19 @@ export default defineConfig(({ mode }) => {
                 priority: 30,
               },
               { name: 'router', test: /node_modules[/]react-router[/]/, priority: 20 },
-              // Libraries only some pages use (drag and drop, dialogs) stay out of the shared
-              // vendor chunk, so they load with those pages instead of on first paint.
+              // Libraries only some pages use (drag and drop, dialogs, the command palette) stay
+              // out of the shared vendor chunk, so they load on demand instead of on first paint.
+              // Dialogs get a chunk of their own: the Welcome page and the palette share them.
+              // (package.json "sideEffects" marks the design system as pure, so importing one
+              // primitive from its index doesn't pull the dialog code into the first load.)
+              {
+                name: 'overlays',
+                test: /node_modules[/](@radix-ui[/]|aria-hidden[/]|react-remove-scroll)/,
+                priority: 15,
+              },
               {
                 name: 'vendor',
-                test: /node_modules[/](?!@dnd-kit[/]|@radix-ui[/]|aria-hidden[/]|react-remove-scroll)/,
+                test: /node_modules[/](?!@dnd-kit[/]|@radix-ui[/]|aria-hidden[/]|react-remove-scroll|cmdk[/])/,
                 priority: 10,
               },
             ],

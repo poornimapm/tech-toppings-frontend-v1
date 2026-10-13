@@ -1,6 +1,6 @@
 import { Command as Cmdk } from 'cmdk';
 import { ArrowLeft, Search, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAgents, useAskAgent } from '@/core/agents/queries';
@@ -29,28 +29,15 @@ function AiStatus() {
   );
 }
 
-/** ⌘K / Ctrl+K: jump anywhere, change things, or ask the assistant. */
+/** Jump anywhere, change things, or ask the assistant. Loaded on first use (palette-host). */
 export function CommandPalette() {
   const { t, i18n } = useTranslation();
-  const { open, setOpen, toggle } = usePalette();
+  const { open, setOpen } = usePalette();
   const [query, setQuery] = useState('');
   const [asking, setAsking] = useState(false);
   const commands = useCommands();
   const { tiles } = useModuleTiles();
   const ask = useAskAgent(env.assistantAgent);
-
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        toggle();
-      }
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [toggle]);
 
   function close(next: boolean) {
     setOpen(next);

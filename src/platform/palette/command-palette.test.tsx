@@ -35,6 +35,8 @@ beforeAll(async () => {
     import('@/platform/welcome/welcome-page'),
     import('@/platform/auth/security-page'),
     import('@/platform/auth/login-page'),
+    import('@/platform/notifications/notifications-page'),
+    import('@/platform/palette/command-palette'),
   ]);
 }, 120_000);
 
@@ -187,6 +189,61 @@ describe('command palette', () => {
       expect(router.state.location.search).toBe('?module=journal');
     });
     expect(await screen.findByRole('dialog', { name: 'Journal' })).toBeInTheDocument();
+  });
+
+  it('tells the user what is new and opens their notifications', async () => {
+    server.use(
+      http.post('*/api/v1/agents/:name/runs', () =>
+        HttpResponse.json(
+          testRun({
+            skill: 'check-notifications',
+            message_code: 'check-notifications.ready.show',
+            message_params: { count: 2 },
+            proposals: [],
+            client_actions: [{ tool: 'notifications_open', arguments: {} }],
+          }),
+          { status: 201 },
+        ),
+      ),
+    );
+    const { user, router } = await openPalette();
+
+    await askAssistant(user, 'anything new');
+    expect(await screen.findByText('You have 2 unread notifications.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open notifications' }));
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/notifications');
+    });
+  });
+
+  it('proposes marking notifications as read, in the right number', async () => {
+    server.use(
+      http.post('*/api/v1/agents/:name/runs', () =>
+        HttpResponse.json(
+          testRun({
+            skill: 'check-notifications',
+            message_code: 'check-notifications.ready.mark-read',
+            message_params: { count: 1 },
+            proposals: [
+              testProposal({
+                tool: 'notifications_mark_all_read',
+                arguments: {},
+                summary_code: 'check-notifications.change.mark-read',
+                summary_params: { count: 1 },
+              }),
+            ],
+          }),
+          { status: 201 },
+        ),
+      ),
+    );
+    const { user } = await openPalette();
+
+    await askAssistant(user, 'mark all read');
+
+    expect(await screen.findByText('Confirm to mark 1 notification as read.')).toBeInTheDocument();
+    expect(screen.getByText('Mark 1 notification as read')).toBeInTheDocument();
   });
 
   it('explains failures and offers a retry', async () => {

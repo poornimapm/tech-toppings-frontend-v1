@@ -15,8 +15,14 @@ export {
   type FilterChip,
   type FilterChipsProps,
 } from '@/design-system/primitives/filter-chips';
+export { LoadError } from '@/design-system/primitives/load-error';
 export { PasswordField, type PasswordFieldProps } from '@/design-system/primitives/password-field';
 export { SearchField, type SearchFieldProps } from '@/design-system/primitives/search-field';
+export {
+  SelectField,
+  type SelectFieldProps,
+  type SelectOption,
+} from '@/design-system/primitives/select-field';
 export { Skeleton } from '@/design-system/primitives/skeleton';
 export { Switch, type SwitchProps } from '@/design-system/primitives/switch';
 export { TextField, type TextFieldProps } from '@/design-system/primitives/text-field';

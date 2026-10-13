@@ -36,9 +36,7 @@ export function AnimatedNumber({ value, locale, currency, className }: AnimatedN
 
   return (
     <span className={className}>
-      <m.span aria-hidden="true" className="tabular-nums">
-        {text}
-      </m.span>
+      <m.span aria-hidden="true">{text}</m.span>
       <span className="sr-only">{format(value)}</span>
     </span>
   );

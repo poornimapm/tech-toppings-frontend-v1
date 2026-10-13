@@ -4,6 +4,13 @@
   "private": true,
   "description": "Tech-Toppings web app: a modular, voice-first personal platform (React PWA).",
   "type": "module",
+  "sideEffects": [
+    "**/*.css",
+    "./src/main.tsx",
+    "./src/core/**",
+    "./src/platform/**",
+    "./src/modules/**"
+  ],
   "engines": {
     "node": ">=24"
   },

@@ -124,7 +124,11 @@
     "signIn": "Sign in",
     "signOut": "Sign out",
     "account": "Signed in as {{name}}",
-    "home": "Home"
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "notifications": "Notifications",
+    "activity": "Activity",
+    "main": "Main"
   },
   "auth": {
     "restoring": "Signing you in…",
@@ -194,7 +198,8 @@
     "dismiss": "Dismiss",
     "clearSearch": "Clear search",
     "undo": "Undo",
-    "retry": "Try again"
+    "retry": "Try again",
+    "showMore": "Show more"
   },
   "notifications": "Notifications",
   "module": {
@@ -222,6 +227,67 @@
       "move": "move",
       "select": "select",
       "close": "close"
+    }
+  },
+  "dashboard": {
+    "subtitle": "Your numbers at a glance",
+    "allUsers": "All users",
+    "allUsersHint": "Totals across every user, with no individual records",
+    "period": "Period",
+    "lastDays_one": "Last {{count}} day",
+    "lastDays_other": "Last {{count}} days",
+    "previousNone": "Nothing in the {{count}} days before",
+    "previousChange": "{{change}} vs the {{count}} days before",
+    "widgetFailed": "Couldn't load this one. The rest is up to date.",
+    "emptyList": "Nothing here yet.",
+    "loadError": "We couldn't load your dashboard.",
+    "empty": "Nothing to show yet",
+    "seeActivity": "See all your activity",
+    "chart": {
+      "explore": "{{title}}: use the arrow keys to read each day",
+      "table": "View as table",
+      "day": "Day",
+      "value": "Value"
+    },
+    "widgets": {
+      "activity_actions": "Actions taken",
+      "activity_recent": "Recent activity",
+      "agents_requests": "Assistant requests"
+    }
+  },
+  "inbox": {
+    "unread_one": "{{count}} unread",
+    "unread_other": "{{count}} unread",
+    "unreadMark": "Unread",
+    "caughtUp": "You're all caught up",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read: {{text}}",
+    "remove": "Remove: {{text}}",
+    "empty": {
+      "title": "No notifications",
+      "body": "Launch notices and other updates will show up here."
+    },
+    "loadError": "We couldn't load your notifications.",
+    "open": "Open notifications"
+  },
+  "activity": {
+    "subtitle": "A record of the changes you make",
+    "empty": {
+      "title": "No activity yet",
+      "body": "Changes you make will be listed here."
+    },
+    "loadError": "We couldn't load your activity."
+  },
+  "feed": {
+    "module": {
+      "pinned": "Added {{module}} to favourites",
+      "unpinned": "Removed {{module}} from favourites",
+      "shown": "Put {{module}} back on your page",
+      "hidden": "Hid {{module}}",
+      "notify_on": "Asked to hear when {{module}} launches",
+      "notify_off": "Cancelled the launch notice for {{module}}",
+      "arranged": "Rearranged your modules",
+      "launched": "{{module}} is here. Give it a try!"
     }
   },
   "agents": {
@@ -287,6 +353,20 @@
         "stop-notify": "There's no launch notice for {{name}}.",
         "hide": "{{name}} is already hidden.",
         "show": "{{name}} is already on your page."
+      }
+    },
+    "check-notifications": {
+      "none-unread": "Nothing new. You're all caught up.",
+      "ready": {
+        "show_zero": "Nothing unread. Here are your notifications.",
+        "show_one": "You have {{count}} unread notification.",
+        "show_other": "You have {{count}} unread notifications.",
+        "mark-read_one": "Confirm to mark {{count}} notification as read.",
+        "mark-read_other": "Confirm to mark {{count}} notifications as read."
+      },
+      "change": {
+        "mark-read_one": "Mark {{count}} notification as read",
+        "mark-read_other": "Mark {{count}} notifications as read"
       }
     }
   }

@@ -7,7 +7,8 @@ import { api, unwrap } from '@/core/api/client';
 import type { components } from '@/core/api/schema';
 import { userKeys } from '@/core/auth/queries';
 import { signOutEverywhere } from '@/core/auth/session';
-import { describeDevice, relativeTime } from '@/platform/auth/device';
+import { relativeTime } from '@/core/utils/relative-time';
+import { describeDevice } from '@/platform/auth/device';
 import { Button, Card } from '@/design-system';
 
 type Session = components['schemas']['SessionOut'];

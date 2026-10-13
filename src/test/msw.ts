@@ -128,6 +128,88 @@ function updateModule(key: string, changes: Partial<ModuleView>): ModuleView | u
   return next;
 }
 
+/** A one-page list envelope; `hasNext` says the server holds older items. */
+function pageOf<T>(items: T[], page = 1, hasNext = false) {
+  return { items, page, page_size: 50, total: items.length, has_next: hasNext };
+}
+
+const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+
+type Widget = Schemas['WidgetView'];
+
+/** One widget of each kind, as the API sends them for the signed-in user. */
+export const testWidgets = {
+  actions: {
+    key: 'activity_actions',
+    owner: 'activity',
+    kind: 'kpi',
+    data: { kind: 'kpi', value: 12, previous: 8, format: 'number' },
+  },
+  requests: {
+    key: 'agents_requests',
+    owner: 'agents',
+    kind: 'series',
+    data: {
+      kind: 'series',
+      format: 'number',
+      points: [
+        { day: '2026-10-06', value: 2 },
+        { day: '2026-10-07', value: 0 },
+        { day: '2026-10-08', value: 5 },
+      ],
+    },
+  },
+  recent: {
+    key: 'activity_recent',
+    owner: 'activity',
+    kind: 'list',
+    data: {
+      kind: 'list',
+      items: [
+        { code: 'module.pinned', params: { module: 'journal' }, at: minutesAgo(5) },
+        { code: 'module.arranged', params: {}, at: minutesAgo(180) },
+      ],
+    },
+  },
+} satisfies Record<string, Widget>;
+
+export function testDashboard(widgets: Widget[] = Object.values(testWidgets)) {
+  return { start: '2026-09-09', end: '2026-10-08', widgets } satisfies Schemas['DashboardOut'];
+}
+
+type AppNotification = Schemas['NotificationOut'];
+
+const testNotifications: readonly AppNotification[] = [
+  {
+    id: 'n-1',
+    type: 'module.launched',
+    params: { module: 'medicine' },
+    read: false,
+    at: minutesAgo(5),
+  },
+  {
+    id: 'n-2',
+    type: 'module.launched',
+    params: { module: 'expenses' },
+    read: true,
+    at: minutesAgo(2 * 1440),
+  },
+];
+
+/** The fake API's notifications; tests may edit them, and they reset after every test. */
+export let notificationState: AppNotification[] = structuredClone([...testNotifications]);
+
+export function resetNotificationState(
+  items: readonly AppNotification[] = testNotifications,
+): void {
+  notificationState = structuredClone([...items]);
+}
+
+export const testActivity: Schemas['ActivityOut'][] = [
+  { id: 'a-1', type: 'module.pinned', params: { module: 'journal' }, at: minutesAgo(5) },
+  { id: 'a-2', type: 'module.notify_on', params: { module: 'receipts' }, at: minutesAgo(90) },
+];
+
 type AgentRun = Schemas['RunOut'];
 type Proposal = Schemas['Proposal'];
 
@@ -206,13 +288,7 @@ const handlers = [
     HttpResponse.json({ ...testUser, ...((await request.json()) as object) }),
   ),
   http.get('*/api/v1/modules', () =>
-    HttpResponse.json({
-      items: [...moduleState].sort((a, b) => a.position - b.position),
-      page: 1,
-      page_size: 100,
-      total: moduleState.length,
-      has_next: false,
-    }),
+    HttpResponse.json(pageOf([...moduleState].sort((a, b) => a.position - b.position))),
   ),
   http.patch('*/api/v1/modules/:key/preferences', async ({ params, request }) => {
     const changes = (await request.json()) as Partial<ModuleView>;
@@ -228,15 +304,7 @@ const handlers = [
     const view = updateModule(String(params.key), { notify_requested: true });
     return view ? HttpResponse.json(view) : moduleNotFound();
   }),
-  http.get('*/api/v1/agents', () =>
-    HttpResponse.json({
-      items: [assistantView],
-      page: 1,
-      page_size: 20,
-      total: 1,
-      has_next: false,
-    }),
-  ),
+  http.get('*/api/v1/agents', () => HttpResponse.json(pageOf([assistantView]))),
   http.post('*/api/v1/agents/:name/runs', () => HttpResponse.json(testRun(), { status: 201 })),
   http.post('*/api/v1/agents/proposals/:id/confirm', ({ params }) => {
     updateModule('journal', { pinned: true });
@@ -248,6 +316,29 @@ const handlers = [
   http.delete('*/api/v1/modules/:key/interest', ({ params }) => {
     const view = updateModule(String(params.key), { notify_requested: false });
     return view ? HttpResponse.json(view) : moduleNotFound();
+  }),
+  http.get('*/api/v1/dashboard', () => HttpResponse.json(testDashboard())),
+  // All users: aggregates only, so no list of anyone's records.
+  http.get('*/api/v1/admin/dashboard', () =>
+    HttpResponse.json(testDashboard([testWidgets.actions, testWidgets.requests])),
+  ),
+  http.get('*/api/v1/activity', () => HttpResponse.json(pageOf(testActivity))),
+  http.get('*/api/v1/notifications', ({ request }) => {
+    const unreadOnly = new URL(request.url).searchParams.get('unread') === 'true';
+    return HttpResponse.json(pageOf(notificationState.filter((item) => !unreadOnly || !item.read)));
+  }),
+  http.post('*/api/v1/notifications/read-all', () => {
+    for (const item of notificationState) item.read = true;
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post('*/api/v1/notifications/:id/read', ({ params }) => {
+    const item = notificationState.find((candidate) => candidate.id === params.id);
+    if (item) item.read = true;
+    return HttpResponse.json(item);
+  }),
+  http.delete('*/api/v1/notifications/:id', ({ params }) => {
+    notificationState = notificationState.filter((item) => item.id !== params.id);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];
 

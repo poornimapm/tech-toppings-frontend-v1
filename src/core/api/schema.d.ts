@@ -432,10 +432,303 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My dashboard */
+        get: operations["read_dashboard_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My recent activity */
+        get: operations["list_activity_v1_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My notifications, newest first */
+        get: operations["list_notifications_v1_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark everything as read */
+        post: operations["read_all_v1_notifications_read_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark one as read */
+        post: operations["read_one_v1_notifications__notification_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/{notification_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove one */
+        delete: operations["remove_one_v1_notifications__notification_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dashboard across all users */
+        get: operations["read_all_users_dashboard_v1_admin_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My entries (sort by date, amount_minor, created_at, title) */
+        get: operations["list_entries_v1_expenses_entries_get"];
+        put?: never;
+        /** Add an entry (once per Idempotency-Key) */
+        post: operations["add_entry_v1_expenses_entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Totals of my entries */
+        get: operations["summarise_entries_v1_expenses_entries_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/facets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tags, people and merchants I have used */
+        get: operations["entry_facets_v1_expenses_entries_facets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One entry (also when deleted) */
+        get: operations["read_entry_v1_expenses_entries__entry_id__get"];
+        /** Save an edited entry */
+        put: operations["save_entry_v1_expenses_entries__entry_id__put"];
+        post?: never;
+        /** Delete an entry (it can be brought back) */
+        delete: operations["delete_entry_v1_expenses_entries__entry_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/{entry_id}/undelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bring a deleted entry back */
+        post: operations["undelete_entry_v1_expenses_entries__entry_id__undelete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/{entry_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An entry's history, newest first */
+        get: operations["entry_history_v1_expenses_entries__entry_id__revisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/{entry_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Put an entry back to an earlier revision */
+        post: operations["restore_entry_v1_expenses_entries__entry_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** System categories and my own */
+        get: operations["list_categories_v1_expenses_categories_get"];
+        put?: never;
+        /** Add a category of my own */
+        post: operations["add_category_v1_expenses_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Archive one of my categories (its entries keep it) */
+        delete: operations["archive_category_v1_expenses_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /** Rename or restyle one of my categories */
+        patch: operations["change_category_v1_expenses_categories__category_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActivityOut */
+        ActivityOut: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+        };
         /**
          * AgentMode
          * @enum {string}
@@ -457,6 +750,16 @@ export interface components {
             /** Skills */
             skills: components["schemas"]["SkillView"][];
         };
+        /** AttachmentIn */
+        AttachmentIn: {
+            /**
+             * Url
+             * Format: uri
+             */
+            url: string;
+            /** Label */
+            label?: string | null;
+        };
         /** AuthConfigOut */
         AuthConfigOut: {
             registration_mode: components["schemas"]["RegistrationMode"];
@@ -471,6 +774,56 @@ export interface components {
          * @enum {string}
          */
         Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        /** CategoryIn */
+        CategoryIn: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Name */
+            name: string;
+            /** Icon */
+            icon: string;
+            /** Accent */
+            accent: string;
+        };
+        /**
+         * CategoryOut
+         * @description ``key`` (system) is translated by the client; ``name`` (custom) is the user's text.
+         */
+        CategoryOut: {
+            /** Id */
+            id: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Key */
+            key?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Icon */
+            icon: string;
+            /** Accent */
+            accent: string;
+            /**
+             * System
+             * @default false
+             */
+            system: boolean;
+            /**
+             * Archived
+             * @default false
+             */
+            archived: boolean;
+        };
+        /**
+         * CategoryPatch
+         * @description The kind is fixed: entries already filed under the category rely on it.
+         */
+        CategoryPatch: {
+            /** Name */
+            name?: string | null;
+            /** Icon */
+            icon?: string | null;
+            /** Accent */
+            accent?: string | null;
+        };
         /** ClientAction */
         ClientAction: {
             /** Tool */
@@ -479,6 +832,207 @@ export interface components {
             arguments: {
                 [key: string]: unknown;
             };
+        };
+        /**
+         * CurrencyTotal
+         * @description Totals are per currency: amounts in different currencies are never added together.
+         */
+        CurrencyTotal: {
+            /** Currency */
+            currency: string;
+            /**
+             * Expense Minor
+             * @default 0
+             */
+            expense_minor: number;
+            /**
+             * Income Minor
+             * @default 0
+             */
+            income_minor: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Widgets */
+            widgets: components["schemas"]["WidgetView"][];
+        };
+        /** EntryIn */
+        EntryIn: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Currency
+             * @description Default: my base currency
+             */
+            currency?: string | null;
+            /** Category Id */
+            category_id: string;
+            /**
+             * Date
+             * Format: date
+             * @description The calendar day it happened
+             */
+            date: string;
+            /** Time */
+            time?: string | null;
+            /** Merchant */
+            merchant?: string | null;
+            payment_mode?: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Note */
+            note?: string | null;
+            /**
+             * Attachments
+             * @default []
+             */
+            attachments: components["schemas"]["AttachmentIn"][];
+        };
+        /**
+         * EntryKind
+         * @enum {string}
+         */
+        EntryKind: "expense" | "income";
+        /** EntryOut */
+        EntryOut: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /** Category Id */
+            category_id: string;
+            /**
+             * Date
+             * Format: date
+             * @description The calendar day it happened
+             */
+            date: string;
+            /** Time */
+            time?: string | null;
+            /** Merchant */
+            merchant?: string | null;
+            payment_mode?: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Note */
+            note?: string | null;
+            /**
+             * Attachments
+             * @default []
+             */
+            attachments: components["schemas"]["AttachmentIn"][];
+            /** Id */
+            id: string;
+            source: components["schemas"]["EntrySource"];
+            /** Revision No */
+            revision_no: number;
+            /** Deleted */
+            deleted: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * EntrySource
+         * @description How an entry, or a change to it, was made.
+         * @enum {string}
+         */
+        EntrySource: "manual" | "assistant";
+        /**
+         * EntryUpdate
+         * @description The whole entry as edited, plus the revision that was edited: if the entry has moved
+         *     on since, the answer is 409 rather than one change silently replacing the other.
+         */
+        EntryUpdate: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Currency
+             * @description Default: my base currency
+             */
+            currency?: string | null;
+            /** Category Id */
+            category_id: string;
+            /**
+             * Date
+             * Format: date
+             * @description The calendar day it happened
+             */
+            date: string;
+            /** Time */
+            time?: string | null;
+            /** Merchant */
+            merchant?: string | null;
+            payment_mode?: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Note */
+            note?: string | null;
+            /**
+             * Attachments
+             * @default []
+             */
+            attachments: components["schemas"]["AttachmentIn"][];
+            /** Revision No */
+            revision_no: number;
         };
         /**
          * ErrorResponse
@@ -503,6 +1057,27 @@ export interface components {
              */
             request_id?: string | null;
         };
+        /**
+         * FacetsOut
+         * @description What the user has typed before, for suggestions while they type.
+         */
+        FacetsOut: {
+            /** Tags */
+            tags: string[];
+            /** For Whom */
+            for_whom: string[];
+            /** Merchants */
+            merchants: string[];
+        };
+        /** FieldChange */
+        FieldChange: {
+            /** Field */
+            field: string;
+            /** Old */
+            old?: unknown;
+            /** New */
+            new?: unknown;
+        };
         /** GoogleSignInIn */
         GoogleSignInIn: {
             /** Id Token */
@@ -519,6 +1094,56 @@ export interface components {
             name: string;
             /** Version */
             version: string;
+        };
+        /**
+         * Item
+         * @description A row: either the user's own text (``title``) or a message ``code`` + ``params`` the
+         *     client translates.
+         */
+        Item: {
+            /** Title */
+            title?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Params */
+            params?: {
+                [key: string]: unknown;
+            };
+            /** At */
+            at?: string | null;
+        };
+        /** Items */
+        Items: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "list";
+            /** Items */
+            items: components["schemas"]["Item"][];
+        };
+        /**
+         * Kpi
+         * @description One figure for the period, with the previous period's for a trend.
+         */
+        Kpi: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "kpi";
+            /** Value */
+            value: number;
+            /** Previous */
+            previous?: number | null;
+            /**
+             * Format
+             * @default number
+             * @enum {string}
+             */
+            format: "number" | "currency";
+            /** Currency */
+            currency?: string | null;
         };
         /**
          * Locale
@@ -580,6 +1205,24 @@ export interface components {
             has_settings: boolean;
             stat: components["schemas"]["TileStat"] | null;
         };
+        /** NotificationOut */
+        NotificationOut: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+            /** Read */
+            read: boolean;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+        };
         /** OrderIn */
         OrderIn: {
             /**
@@ -587,6 +1230,19 @@ export interface components {
              * @description Module keys, first to last
              */
             keys: string[];
+        };
+        /** Page[ActivityOut] */
+        Page_ActivityOut_: {
+            /** Items */
+            items: components["schemas"]["ActivityOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
         };
         /** Page[AgentView] */
         Page_AgentView_: {
@@ -601,10 +1257,62 @@ export interface components {
             /** Has Next */
             has_next: boolean;
         };
+        /** Page[CategoryOut] */
+        Page_CategoryOut_: {
+            /** Items */
+            items: components["schemas"]["CategoryOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[EntryOut] */
+        Page_EntryOut_: {
+            /** Items */
+            items: components["schemas"]["EntryOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
         /** Page[ModuleView] */
         Page_ModuleView_: {
             /** Items */
             items: components["schemas"]["ModuleView"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[NotificationOut] */
+        Page_NotificationOut_: {
+            /** Items */
+            items: components["schemas"]["NotificationOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[RevisionOut] */
+        Page_RevisionOut_: {
+            /** Items */
+            items: components["schemas"]["RevisionOut"][];
             /** Page */
             page: number;
             /** Page Size */
@@ -642,6 +1350,21 @@ export interface components {
             max_length: number;
             /** Min Classes */
             min_classes: number;
+        };
+        /**
+         * PaymentMode
+         * @enum {string}
+         */
+        PaymentMode: "cash" | "upi" | "card" | "bank" | "wallet" | "other";
+        /** Point */
+        Point: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Value */
+            value: number;
         };
         /** PreferencesIn */
         PreferencesIn: {
@@ -717,6 +1440,35 @@ export interface components {
          * @enum {string}
          */
         RegistrationMode: "open" | "allowlist" | "closed";
+        /** RestoreIn */
+        RestoreIn: {
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * RevisionAction
+         * @enum {string}
+         */
+        RevisionAction: "create" | "update" | "delete" | "undelete" | "restore";
+        /** RevisionOut */
+        RevisionOut: {
+            /** Revision No */
+            revision_no: number;
+            action: components["schemas"]["RevisionAction"];
+            /**
+             * Changed At
+             * Format: date-time
+             */
+            changed_at: string;
+            /** Source */
+            source: string;
+            /** Changes */
+            changes: components["schemas"]["FieldChange"][];
+            /** Snapshot */
+            snapshot: {
+                [key: string]: unknown;
+            };
+        };
         /**
          * Role
          * @enum {string}
@@ -777,6 +1529,27 @@ export interface components {
          * @enum {string}
          */
         RunStatus: "completed" | "unavailable" | "incomplete";
+        /**
+         * Series
+         * @description One value per day of the period.
+         */
+        Series: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "series";
+            /** Points */
+            points: components["schemas"]["Point"][];
+            /**
+             * Format
+             * @default number
+             * @enum {string}
+             */
+            format: "number" | "currency";
+            /** Currency */
+            currency?: string | null;
+        };
         /** SessionOut */
         SessionOut: {
             /** Id */
@@ -812,6 +1585,11 @@ export interface components {
             mode: components["schemas"]["AgentMode"];
             /** Has Static */
             has_static: boolean;
+        };
+        /** SummaryOut */
+        SummaryOut: {
+            /** Totals */
+            totals: components["schemas"]["CurrencyTotal"][];
         };
         /**
          * ThemePreference
@@ -907,6 +1685,20 @@ export interface components {
             timezone?: string | null;
             /** Ai Consent */
             ai_consent?: boolean | null;
+        };
+        /** WidgetView */
+        WidgetView: {
+            /** Key */
+            key: string;
+            /** Owner */
+            owner: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "kpi" | "series" | "list";
+            /** Data */
+            data: (components["schemas"]["Kpi"] | components["schemas"]["Series"] | components["schemas"]["Items"]) | null;
         };
     };
     responses: never;
@@ -2515,6 +3307,1349 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_dashboard_v1_dashboard_get: {
+        parameters: {
+            query?: {
+                /** @description First day (default: recent) */
+                from?: string | null;
+                /** @description Last day, inclusive (default: today) */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_activity_v1_activity_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ActivityOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_notifications_v1_notifications_get: {
+        parameters: {
+            query?: {
+                /** @description true = only unread */
+                unread?: boolean | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_NotificationOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_all_v1_notifications_read_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_one_v1_notifications__notification_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_one_v1_notifications__notification_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_all_users_dashboard_v1_admin_dashboard_get: {
+        parameters: {
+            query?: {
+                /** @description First day (default: recent) */
+                from?: string | null;
+                /** @description Last day, inclusive (default: today) */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_entries_v1_expenses_entries_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+                /** @description e.g. -date,amount_minor */
+                sort?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_EntryOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_entry_v1_expenses_entries_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    summarise_entries_v1_expenses_entries_summary_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    entry_facets_v1_expenses_entries_facets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacetsOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_entry_v1_expenses_entries__entry_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    save_entry_v1_expenses_entries__entry_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_entry_v1_expenses_entries__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undelete_entry_v1_expenses_entries__entry_id__undelete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    entry_history_v1_expenses_entries__entry_id__revisions_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_RevisionOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    restore_entry_v1_expenses_entries__entry_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_categories_v1_expenses_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CategoryOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_category_v1_expenses_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    archive_category_v1_expenses_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_category_v1_expenses_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

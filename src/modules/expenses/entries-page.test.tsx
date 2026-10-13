@@ -1,0 +1,220 @@
+import { screen, waitFor, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw/http';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { axe } from 'vitest-axe';
+
+import { ACCENTS } from '@/core/modules/types';
+import { fakeExpenses } from '@/modules/expenses/testing/fake-api';
+import { errorEnvelope, server } from '@/test/msw';
+import { renderApp } from '@/test/render';
+
+// 11:30 on Thursday 8 October 2026 in Kolkata (the test user's time zone).
+const NOW = new Date('2026-10-08T06:00:00Z');
+let fake: ReturnType<typeof fakeExpenses>;
+
+async function open(path = '/m/expenses') {
+  const view = renderApp(path);
+  await screen.findByRole('heading', { level: 1, name: 'Expenses' });
+  return view;
+}
+
+/** Paths of the list requests the page made, without the page number. */
+function listRequests(): string[] {
+  return fake.requests
+    .map((request) => request.path)
+    .filter((path) => path.startsWith('/entries?'))
+    .map((path) => path.replace(/&?page=1/, ''));
+}
+
+beforeAll(async () => {
+  await import('@/modules/expenses/entries-page');
+}, 120_000);
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+  fake = fakeExpenses();
+  server.use(...fake.handlers);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+describe('expenses list', () => {
+  it('shows this month by day, with totals for what is shown', async () => {
+    await open();
+
+    const today = await screen.findByRole('region', { name: 'Today' });
+    expect(within(today).getByRole('link', { name: 'Rice' })).toHaveAttribute(
+      'href',
+      '/m/expenses/entries/e-rice',
+    );
+    expect(within(today).getByText('Groceries · Big Bazaar · #home')).toBeInTheDocument();
+    expect(within(today).getByText('−₹125')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('region', { name: 'Yesterday' })).getByText('Bus pass'),
+    ).toBeInTheDocument();
+    // Money received is marked with a plus, not only a colour.
+    expect(
+      within(screen.getByRole('region', { name: 'Thu, Oct 1' })).getByText('+₹50,000'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Dog food')).toBeNull(); // last month
+    expect(screen.queryByText('Mistake')).toBeNull(); // deleted
+
+    expect(screen.getByText('Spent', { selector: 'dt' }).nextElementSibling).toHaveTextContent(
+      '₹725',
+    );
+    expect(screen.getByText('Left over').nextElementSibling).toHaveTextContent('₹49,275');
+    expect(listRequests()).toContain('/entries?from=2026-10-01&to=2026-10-08');
+  });
+
+  it('filters by kind, period, category and words, and keeps them in the URL', async () => {
+    const { user, router } = await open();
+    await screen.findByRole('link', { name: 'Rice' });
+
+    await user.click(screen.getByRole('button', { name: 'Received' }));
+    expect(await screen.findByRole('link', { name: 'Salary' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('link', { name: 'Rice' })).toBeNull();
+    });
+    expect(router.state.location.search).toBe('?show=income');
+
+    await user.click(screen.getByRole('button', { name: 'Last month' }));
+    expect(await screen.findByText('Nothing matches')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'All' }));
+    expect(await screen.findByRole('link', { name: 'Dog food' })).toBeInTheDocument();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Category' }), '🐶 Pets');
+    await user.type(screen.getByRole('searchbox', { name: 'Search entries' }), 'dog');
+
+    await waitFor(() => {
+      expect(listRequests().at(-1)).toBe(
+        '/entries?from=2026-09-01&to=2026-09-30&q=dog&category_id=c-pets',
+      );
+    });
+    expect(router.state.location.search).toBe('?period=lastMonth&category=c-pets&q=dog');
+    expect(listRequests()).toContain('/entries?from=2026-10-01&to=2026-10-08&kind=income');
+  });
+
+  it('adds an entry: checks the form, sends it once, and shows it', async () => {
+    const { user } = await open();
+    await user.click(screen.getByRole('button', { name: 'Add entry' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Add an entry' });
+    const form = within(dialog);
+
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    expect(await form.findByText('Enter an amount, like 250 or 250.50.')).toBeInTheDocument();
+    expect(form.getByText('Say what it was.')).toBeInTheDocument();
+    expect(form.getByText('Choose a category.')).toBeInTheDocument();
+    expect(fake.requests.some((request) => request.method === 'POST')).toBe(false);
+
+    // Categories follow the kind: income has its own.
+    await user.click(form.getByRole('radio', { name: 'Received' }));
+    expect(form.getByRole('radio', { name: 'Salary' })).toBeInTheDocument();
+    expect(form.queryByRole('radio', { name: 'Groceries' })).toBeNull();
+    await user.click(form.getByRole('radio', { name: 'Spent' }));
+
+    await user.type(form.getByRole('textbox', { name: 'Amount (INR)' }), '250.50');
+    await user.type(form.getByRole('textbox', { name: 'What was it?' }), 'Vegetables');
+    await user.click(form.getByRole('radio', { name: 'Groceries' }));
+    await user.type(form.getByRole('combobox', { name: 'Where' }), 'Market');
+    await user.type(form.getByRole('combobox', { name: 'Tags' }), 'weekly, Home');
+    await user.selectOptions(form.getByRole('combobox', { name: 'Paid with' }), 'Cash');
+    await user.click(form.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Added Vegetables')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    const sent = fake.requests.filter((request) => request.method === 'POST');
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.key).toMatch(/^[0-9a-f-]{36}$/); // so a retry could never add it twice
+    expect(sent[0]?.body).toEqual({
+      kind: 'expense',
+      title: 'Vegetables',
+      amount_minor: 25050,
+      category_id: 'groceries',
+      date: '2026-10-08',
+      time: null,
+      merchant: 'Market',
+      payment_mode: 'cash',
+      for_whom: '',
+      tags: ['weekly', 'Home'],
+      note: '',
+      attachments: [],
+    });
+    const today = screen.getByRole('region', { name: 'Today' });
+    expect(await within(today).findByRole('link', { name: 'Vegetables' })).toBeInTheDocument();
+    expect(within(today).getByText('−₹250.50')).toBeInTheDocument();
+  });
+
+  it('shows deleted entries and brings one back', async () => {
+    const { user } = await open('/m/expenses?show=deleted');
+
+    const row = (await screen.findByRole('link', { name: 'Mistake' })).closest('li');
+    expect(screen.queryByText('Left over')).toBeNull(); // deleted entries are in no total
+    await user.click(within(row as HTMLElement).getByRole('button', { name: 'Bring back' }));
+
+    expect(await screen.findByText('Mistake is back')).toBeInTheDocument();
+    expect(fake.state.entries.find((entry) => entry.id === 'e-gone')?.deleted).toBe(false);
+    expect(await screen.findByText('Nothing matches')).toBeInTheDocument();
+  });
+
+  it('manages the categories the user added', async () => {
+    const { user } = await open();
+    await user.click(screen.getByRole('button', { name: 'Categories' }));
+    const dialog = within(await screen.findByRole('dialog', { name: 'Your categories' }));
+    expect(await dialog.findByText('Pets')).toBeInTheDocument();
+    expect(dialog.queryByText('Groceries')).toBeNull(); // built-in ones aren't theirs to change
+
+    await user.type(dialog.getByRole('textbox', { name: 'Name' }), 'pets');
+    await user.click(dialog.getByRole('button', { name: 'Add category' }));
+    expect(
+      await dialog.findByText('You already have a category with this name.'),
+    ).toBeInTheDocument();
+
+    await user.clear(dialog.getByRole('textbox', { name: 'Name' }));
+    await user.type(dialog.getByRole('textbox', { name: 'Name' }), 'Hobbies');
+    await user.click(dialog.getByRole('button', { name: 'Add category' }));
+    expect(await dialog.findByText('Hobbies')).toBeInTheDocument();
+    const added = fake.requests.findLast(
+      (request) => request.method === 'POST' && request.path === '/categories',
+    )?.body;
+    expect(added).toMatchObject({ kind: 'expense', name: 'Hobbies', icon: '🏷️' });
+    expect(ACCENTS).toContain((added as { accent: string }).accent);
+
+    await user.click(dialog.getByRole('button', { name: 'Archive Pets' }));
+    expect(await dialog.findByText('archived')).toBeInTheDocument();
+  });
+
+  it('says when there is nothing yet, and explains a failed load', async () => {
+    fake = fakeExpenses([]);
+    server.use(
+      http.get(
+        '*/api/v1/expenses/entries',
+        () => HttpResponse.json(errorEnvelope('INTERNAL_ERROR', 'boom'), { status: 500 }),
+        { once: true },
+      ),
+      ...fake.handlers,
+    );
+    const { user } = await open();
+
+    expect(await screen.findByText("We couldn't load your entries.")).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByText('Nothing here yet')).toBeInTheDocument();
+    expect(screen.getByText('Spent', { selector: 'dt' }).nextElementSibling).toHaveTextContent(
+      '₹0',
+    );
+  });
+
+  it('has no detectable accessibility violations', { timeout: 60_000 }, async () => {
+    const { user } = await open();
+    await screen.findByRole('link', { name: 'Rice' });
+    expect(await axe(document.body)).toHaveNoViolations();
+
+    await user.click(screen.getByRole('button', { name: 'Add entry' }));
+    await screen.findByRole('dialog', { name: 'Add an entry' });
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
+});

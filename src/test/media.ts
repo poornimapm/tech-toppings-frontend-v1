@@ -23,28 +23,40 @@ class FakeMediaQueryList extends EventTarget implements MediaQueryList {
   }
 }
 
-let prefersDark = false;
+/** Fragments of media queries that currently match; nothing matches until a test says so. */
+const matching = new Set<string>();
 const lists = new Set<FakeMediaQueryList>();
 
 export function installMatchMedia(): void {
   window.matchMedia = (query: string) => {
     const list = new FakeMediaQueryList(query, () =>
-      query.includes('prefers-color-scheme: dark') ? prefersDark : false,
+      [...matching].some((fragment) => query.includes(fragment)),
     );
     lists.add(list);
     return list;
   };
 }
 
-/** Simulate the OS switching colour scheme. */
-export function setPrefersDark(value: boolean): void {
-  prefersDark = value;
+/** Make every media query containing `fragment` match (or stop matching), and tell listeners. */
+function setMedia(fragment: string, matches: boolean): void {
+  if (matches) matching.add(fragment);
+  else matching.delete(fragment);
   for (const list of lists) {
     list.dispatchEvent(new Event('change'));
   }
 }
 
+/** Simulate the OS switching colour scheme. */
+export function setPrefersDark(value: boolean): void {
+  setMedia('prefers-color-scheme: dark', value);
+}
+
+/** Simulate a screen wide enough for the header navigation (Tailwind's `sm` and up). */
+export function setWideScreen(value: boolean): void {
+  setMedia('min-width', value);
+}
+
 export function resetMatchMedia(): void {
-  prefersDark = false;
+  matching.clear();
   lists.clear();
 }

@@ -114,7 +114,8 @@ Every variable is documented in [.env.example](.env.example).
 src/
   main.tsx               entry: styles, i18n, providers, router
   core/                  framework plumbing (no feature knowledge)
-    api/                 typed client, ApiError, query client, server-status hooks, generated schema
+    api/                 typed client, ApiError, query client, server-status hooks, usePages,
+                         generated schema
     auth/                session store, refresh (single-flight, cross-tab lock), API middleware,
                          route guards, bootstrap, password policy
     config/env.ts        validated VITE_* configuration
@@ -122,15 +123,25 @@ src/
     theme/               design tokens (tokens.css), theme store
     utils/
   platform/              shell features shared by all modules
-    shell/               app, routes, layout, error boundaries, banner, account nav, language/theme
+    shell/               app, routes, layout, main navigation (header or bottom bar), error
+                         boundaries, banner, account nav, language/theme
     auth/                sign in, register, change password, security (devices), Google button
     core/modules/        module registry (import.meta.glob), tiles query, optimistic preferences
     core/agents/         agents API: availability, ask, confirm/reject proposals, AI consent
+    core/dashboard/      dashboard query (own or, for admins, all users)
+    core/notifications/  notifications: list, unread count (polled), read / remove
+    core/activity/       the user's activity feed
     welcome/             animated Welcome page: tiles, search, filters, favourites, customize
-    palette/             Ctrl/⌘+K command palette + "Ask the assistant" (agents API)
+    palette/             Ctrl/⌘+K command palette + "Ask the assistant" (agents API), lazy
+    dashboard/           dashboard page: stat tile, area chart, widget card, period presets
+    notifications/       notifications page
+    activity/            activity page
+    feed/                FeedPage and FeedRow, shared by the feeds and the dashboard lists
   design-system/         shared UI (Button, Dialog, Toaster, FilterChips, SearchField, Switch,
                          Skeleton, AnimatedNumber, MotionProvider ...): the only UI modules use
-  modules/               one folder per module (manifest.ts); expenses ... journal so far
+  modules/               one folder per module (manifest.ts)
+    expenses/            entries with history, add/edit form, categories, i18n/{en,ta,hi}.json
+    medicine/ ...        the other seven: manifest only, coming soon
   test/                  test setup, MSW server, render helpers, naming-convention test
 e2e/                     Playwright smoke tests
 scripts/                 use-node.ps1, gen-api-types.mjs

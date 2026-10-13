@@ -6,6 +6,67 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 5: expenses (2026-10-13)
+
+- **Expenses module** (`/m/expenses`, beta):
+  - Entries by day with totals (spent, received, left over) for whatever is shown.
+  - Filters kept in the URL: spent, received or deleted; this month, last month, last 90
+    days or all time; a category; and search.
+  - Add or edit in a dialog: amount, what, category and date first; time, where, payment
+    mode, for whom, tags, note and a link under "More details", with suggestions from what
+    was typed before.
+  - An entry's page with its history in words, and "Restore this version" on any earlier one.
+  - Delete with Undo; deleted entries can be listed and brought back.
+  - The user's own categories: add with a name and an emoji, archive.
+  - A floating Add button on phones.
+- **Modules bring their own words:** activity entries, assistant replies, widget titles and
+  the pages the assistant may open are declared in the module's manifest; its screens are
+  worded in its own `i18n` folder, loaded with its pages and type-checked.
+- `core/utils/money.ts` and `core/utils/dates.ts`; a `SelectField` primitive.
+- English, Tamil and Hindi for all of the above (136 module strings).
+
+### Changed
+
+- Assistant text and client actions are looked up from modules first
+  (`useAgentText`, `actions`), so the shell no longer lists them.
+- ESLint lets each module import its own folder (still no other module or platform code).
+
+### Added — Phase 4b: dashboard, notifications and activity (2026-10-13)
+
+- **Dashboard** (`/dashboard`): widgets from every module and platform area, drawn by kind.
+  - Figures count up and show their change against the previous period in words.
+  - Area chart with a crosshair and tooltip; arrow keys, Home and End read each day; the
+    same numbers are available as a table.
+  - 7, 30 and 90 day periods, counted in the user's time zone and kept in the URL. The
+    previous figures stay on screen, dimmed, while a new period loads.
+  - A widget that failed on the server says so on its own card.
+  - Admins can switch to totals across all users.
+- **Notifications** (`/notifications`): unread marks, mark one or all as read, remove, and
+  follow a launch notice to its module. The navigation shows the unread count.
+- **Activity** (`/activity`): the user's own record of changes, with "show more".
+- **Navigation:** a bottom bar on phones (Home, Dashboard, Notifications) that becomes part
+  of the header on wider screens.
+- **Assistant:** "what's new" and "mark all as read" answers (the `check-notifications`
+  skill), and an action that opens the notifications page.
+- `FeedPage`, `FeedRow`, `usePages`, `useFeedText`, `useMediaQuery` and a `LoadError`
+  primitive, shared by the new pages and the Welcome page.
+- English, Tamil and Hindi strings for all of the above.
+
+### Changed
+
+- The command palette loads on first use instead of with the first page, and the header
+  button pre-fetches it on hover or focus.
+- Dialog code (Radix) moved to its own on-demand chunk. `package.json` `sideEffects` marks
+  the design system as pure, so importing one primitive no longer pulls in the rest.
+- First load: 248 kB to 232 kB gzip (JS and CSS together).
+- Toasts sit above the bottom bar on phones.
+
+### Fixed
+
+- Typing quickly in the module search could drop characters, because the box shows the
+  URL's value and the URL was updated in a later transition. It now updates within the
+  keystroke.
+
 ### Added — Phase 4: command palette and assistant (2026-10-09)
 
 - Command palette (cmdk), opened with Ctrl/⌘+K or the header button:

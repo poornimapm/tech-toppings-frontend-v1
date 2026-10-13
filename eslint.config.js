@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
@@ -48,10 +50,10 @@ export default defineConfig(
       'jsx-a11y/no-redundant-roles': ['error', { ul: ['list'], ol: ['list'] }],
     },
   },
-  {
-    // Feature modules (ADR-0001): independent of each other and of platform internals. They
-    // build on src/core (API client, module types, i18n) and the design system.
-    files: ['src/modules/**/*.{ts,tsx}'],
+  // Feature modules (ADR-0001): independent of each other and of platform internals. They
+  // build on src/core (API client, module types, i18n), the design system and their own folder.
+  ...readdirSync('src/modules').map((module) => ({
+    files: [`src/modules/${module}/**/*.{ts,tsx}`],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -62,15 +64,15 @@ export default defineConfig(
               message: 'Import through the @/ alias instead of climbing directories.',
             },
             {
-              group: ['@/platform/*', '@/modules/*'],
+              group: ['@/platform/*', '@/modules/*', `!@/modules/${module}`],
               message:
-                'Modules use @/core and @/design-system only; never platform internals or another module.',
+                'Modules use @/core, @/design-system and their own folder only; never platform internals or another module.',
             },
           ],
         },
       ],
     },
-  },
+  })),
   {
     // Node-side TypeScript (configs, e2e).
     files: ['vite.config.ts', 'playwright.config.ts', 'e2e/**/*.ts'],

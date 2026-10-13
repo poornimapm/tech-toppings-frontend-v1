@@ -1,47 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import i18n, { errorKey, resources, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
-
-function keyPaths(value: unknown, prefix = ''): string[] {
-  if (typeof value !== 'object' || value === null) return [prefix];
-  return Object.entries(value).flatMap(([key, child]) =>
-    keyPaths(child, prefix ? `${prefix}.${key}` : key),
-  );
-}
-
-function valueAt(tree: unknown, path: string): string {
-  const value = path
-    .split('.')
-    .reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], tree);
-  return String(value);
-}
+import i18n, { errorKey, resources, toLanguage } from '@/core/i18n';
+import { expectSameKeysAndPlaceholders } from '@/test/translations';
 
 describe('translations', () => {
-  it.each(SUPPORTED_LANGUAGES.filter((language) => language !== 'en'))(
-    '%s has exactly the same keys as English',
-    (language) => {
-      for (const namespace of ['common', 'errors'] as const) {
-        expect(keyPaths(resources[language][namespace]).sort()).toEqual(
-          keyPaths(resources.en[namespace]).sort(),
-        );
-      }
+  it.each(['common', 'errors'] as const)(
+    '%s has the same keys and placeholders in every language',
+    (namespace) => {
+      expectSameKeysAndPlaceholders({
+        en: resources.en[namespace],
+        ta: resources.ta[namespace],
+        hi: resources.hi[namespace],
+      });
     },
   );
-
-  it('keeps every interpolation placeholder in every language', () => {
-    const english = resources.en;
-    for (const language of SUPPORTED_LANGUAGES) {
-      for (const namespace of ['common', 'errors'] as const) {
-        for (const path of keyPaths(english[namespace])) {
-          const source = valueAt(english[namespace], path);
-          const translated = valueAt(resources[language][namespace], path);
-          for (const placeholder of source.match(/{{\w+}}/g) ?? []) {
-            expect(translated, `${language} ${namespace}:${path}`).toContain(placeholder);
-          }
-        }
-      }
-    }
-  });
 });
 
 describe('language handling', () => {

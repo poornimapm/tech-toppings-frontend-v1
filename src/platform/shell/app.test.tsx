@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
 import type { RouteObject } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import { AppLayout } from '@/platform/shell/app-layout';
@@ -9,6 +9,11 @@ import { AppErrorBoundary } from '@/platform/shell/app-error-boundary';
 import { RouteErrorPage } from '@/platform/shell/route-error-page';
 import { errorEnvelope, server } from '@/test/msw';
 import { renderApp, renderWithProviders } from '@/test/render';
+
+// Compile the lazy Welcome page once up front, so the first test doesn't pay for it.
+beforeAll(async () => {
+  await import('@/platform/welcome/welcome-page');
+}, 120_000);
 
 describe('app shell', () => {
   it('renders the welcome page with live API and database status', async () => {

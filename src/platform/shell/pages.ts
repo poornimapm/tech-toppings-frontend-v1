@@ -1,17 +1,49 @@
-import { House, KeyRound, ShieldCheck, type LucideIcon } from 'lucide-react';
+import {
+  Bell,
+  History,
+  House,
+  KeyRound,
+  LayoutDashboard,
+  ShieldCheck,
+  type LucideIcon,
+} from 'lucide-react';
 
 export interface PageMeta {
   path: string;
   /** Translation key of the page's name (common namespace). */
-  labelKey: 'nav.home' | 'nav.security' | 'security.changePassword';
+  labelKey:
+    | 'nav.home'
+    | 'nav.dashboard'
+    | 'nav.notifications'
+    | 'nav.activity'
+    | 'nav.security'
+    | 'security.changePassword';
   icon: LucideIcon;
   /** Extra search words for the command palette. */
   keywords: readonly string[];
 }
 
-/** The shell's pages: the router mounts them and the command palette lists them. */
+/** The shell's pages: the router mounts them, and the navigation and command palette list them. */
 export const pages = {
   home: { path: '/', labelKey: 'nav.home', icon: House, keywords: ['welcome', 'modules'] },
+  dashboard: {
+    path: '/dashboard',
+    labelKey: 'nav.dashboard',
+    icon: LayoutDashboard,
+    keywords: ['stats', 'charts', 'overview', 'insights'],
+  },
+  notifications: {
+    path: '/notifications',
+    labelKey: 'nav.notifications',
+    icon: Bell,
+    keywords: ['inbox', 'alerts', 'updates', 'news'],
+  },
+  activity: {
+    path: '/activity',
+    labelKey: 'nav.activity',
+    icon: History,
+    keywords: ['history', 'log', 'recent'],
+  },
   security: {
     path: '/account/security',
     labelKey: 'nav.security',

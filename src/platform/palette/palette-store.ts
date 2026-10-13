@@ -16,3 +16,6 @@ export const usePalette = create<PaletteState>()((set) => ({
     set((state) => ({ open: !state.open }));
   },
 }));
+
+/** The palette's code is fetched on first use, so it stays out of the first page load. */
+export const loadPalette = () => import('@/platform/palette/command-palette');

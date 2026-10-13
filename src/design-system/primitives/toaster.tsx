@@ -84,14 +84,14 @@ function ToastItem({ toast }: { toast: Toast }) {
 }
 
 /** Renders toasts in a polite live region, so screen readers announce them without stealing
- *  focus. Mounted once, near the app root. */
+ *  focus. Mounted once, near the app root. On phones they sit above the bottom navigation. */
 export function Toaster() {
   const { t } = useTranslation();
   const toasts = useToasts((state) => state.toasts);
   return (
     <section
       aria-label={t('notifications')}
-      className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4"
+      className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 sm:bottom-4"
     >
       <div role="status" aria-live="polite" className="w-full max-w-md">
         <ol className="flex flex-col gap-2">

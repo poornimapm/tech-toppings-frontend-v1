@@ -11,7 +11,7 @@ import {
   type Proposal,
 } from '@/core/agents/queries';
 import { Badge, Button, Skeleton } from '@/design-system';
-import { proposalText, runMessage } from '@/platform/palette/agent-text';
+import { useAgentText } from '@/platform/palette/agent-text';
 import { useClientActions } from '@/platform/palette/client-actions';
 
 function ProposalRow({ proposal }: { proposal: Proposal }) {
@@ -20,7 +20,7 @@ function ProposalRow({ proposal }: { proposal: Proposal }) {
   const resolve = useResolveProposal();
   const current = resolve.data ?? proposal;
   const failed = resolve.error instanceof ApiError ? resolve.error.code : current.error_code;
-  const text = proposalText(t, proposal);
+  const text = useAgentText().proposalText(proposal);
 
   return (
     <li className="flex items-center gap-3 rounded-2xl border border-border bg-bg/60 p-3">
@@ -71,6 +71,7 @@ export function AssistantPanel({ run, pending, error, onRetry, onClose }: Assist
   const { t: tError } = useTranslation('errors');
   const consent = useAiConsent();
   const clientAction = useClientActions();
+  const agentText = useAgentText();
 
   if (pending) {
     return (
@@ -124,7 +125,7 @@ export function AssistantPanel({ run, pending, error, onRetry, onClose }: Assist
   }
 
   const actions = run.client_actions.map(clientAction).filter((action) => action !== null);
-  const message = runMessage(t, run);
+  const message = agentText.runMessage(run);
   return (
     <m.div
       initial={{ opacity: 0, y: 6 }}

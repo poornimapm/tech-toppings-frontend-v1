@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { ApiError } from '@/core/api/api-error';
 import i18n from '@/core/i18n';
 import { describeError } from '@/platform/auth/describe-error';
-import { describeDevice, relativeTime } from '@/platform/auth/device';
+import { relativeTime } from '@/core/utils/relative-time';
+import { describeDevice } from '@/platform/auth/device';
 
 describe('describeDevice', () => {
   it.each([

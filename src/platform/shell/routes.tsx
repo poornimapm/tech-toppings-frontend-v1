@@ -12,7 +12,8 @@ import { RouteErrorPage } from '@/platform/shell/route-error-page';
  *
  * /login, /register        only when signed out (PublicOnly)
  * /change-password         signed in; also the only page while a reset password is pending
- * /, /account/security     signed in with a password of their own (RequirePasswordFresh)
+ * /, /dashboard, /notifications, /activity, /account/security
+ *                          signed in with a password of their own (RequirePasswordFresh)
  * /m/<slug>/*              a module's own pages, while it is available to the user
  */
 export const routes: RouteObject[] = [
@@ -54,6 +55,25 @@ export const routes: RouteObject[] = [
                 index: true,
                 lazy: async () => ({
                   Component: (await import('@/platform/welcome/welcome-page')).WelcomePage,
+                }),
+              },
+              {
+                path: pages.dashboard.path.slice(1),
+                lazy: async () => ({
+                  Component: (await import('@/platform/dashboard/dashboard-page')).DashboardPage,
+                }),
+              },
+              {
+                path: pages.notifications.path.slice(1),
+                lazy: async () => ({
+                  Component: (await import('@/platform/notifications/notifications-page'))
+                    .NotificationsPage,
+                }),
+              },
+              {
+                path: pages.activity.path.slice(1),
+                lazy: async () => ({
+                  Component: (await import('@/platform/activity/activity-page')).ActivityPage,
                 }),
               },
               {

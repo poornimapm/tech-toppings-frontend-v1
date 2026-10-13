@@ -4,18 +4,22 @@ import { Link, Outlet } from 'react-router';
 import { useServerStatus } from '@/core/api/server-status';
 import { useSession } from '@/core/auth/session-store';
 import { env } from '@/core/config/env';
-import { CommandPalette } from '@/platform/palette/command-palette';
+import { useMediaQuery } from '@/core/utils/use-media-query';
+import { PaletteHost } from '@/platform/palette/palette-host';
 import { PaletteTrigger } from '@/platform/palette/palette-trigger';
 import { AccountNav } from '@/platform/shell/account-nav';
 import { LanguageSelect } from '@/platform/shell/language-select';
 import { ServerStatusBanner } from '@/platform/shell/server-status-banner';
+import { ShellNav, WIDE_SCREEN } from '@/platform/shell/shell-nav';
 import { ThemeToggle } from '@/platform/shell/theme-toggle';
 
 export function AppLayout() {
   const { t } = useTranslation();
   const server = useServerStatus();
   const user = useSession((state) => state.user);
-  const palette = Boolean(user && !user.must_change_password);
+  const wide = useMediaQuery(WIDE_SCREEN);
+  /** Signed in with a password of their own: the pages behind the shell are reachable. */
+  const ready = Boolean(user && !user.must_change_password);
 
   return (
     <div className="min-h-dvh">
@@ -41,7 +45,8 @@ export function AppLayout() {
             <span className="sr-only sm:not-sr-only">{env.appName}</span>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
-            {palette && <PaletteTrigger />}
+            {ready && wide && <ShellNav />}
+            {ready && <PaletteTrigger />}
             <LanguageSelect />
             <ThemeToggle />
             <AccountNav />
@@ -52,11 +57,13 @@ export function AppLayout() {
       <main
         id="main"
         tabIndex={-1}
-        className="relative mx-auto max-w-6xl px-4 py-8 focus:outline-none"
+        // Room at the bottom on phones, so the navigation bar never covers the last row.
+        className="relative mx-auto max-w-6xl px-4 pt-8 pb-24 focus:outline-none sm:pb-8"
       >
         <Outlet />
       </main>
-      {palette && <CommandPalette />}
+      {ready && !wide && <ShellNav bar />}
+      {ready && <PaletteHost />}
     </div>
   );
 }

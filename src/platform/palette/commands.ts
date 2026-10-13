@@ -17,11 +17,9 @@ import { useSavePreferences } from '@/core/auth/use-save-preferences';
 import { useSignOut } from '@/core/auth/use-sign-out';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
 import { useModuleTiles } from '@/core/modules/queries';
-import { slugOf } from '@/core/modules/registry';
-import type { ModuleTile } from '@/core/modules/types';
 import { useThemeStore, type ThemePreference } from '@/core/theme/theme-store';
 import { pages } from '@/platform/shell/pages';
-import { isOpenable } from '@/platform/welcome/module-style';
+import { moduleHref } from '@/platform/welcome/module-style';
 import { useModuleActions } from '@/platform/welcome/use-module-actions';
 
 export type CommandGroup = 'pages' | 'modules' | 'preferences' | 'account';
@@ -40,11 +38,6 @@ const THEME_ICONS: Record<ThemePreference, LucideIcon> = {
   dark: Moon,
   system: Monitor,
 };
-
-/** Where "open" takes a module: its pages when it has them, otherwise its details. */
-export function moduleHref(tile: ModuleTile): string {
-  return isOpenable(tile) ? `/m/${slugOf(tile.view.key)}` : `/?module=${tile.view.key}`;
-}
 
 function usePageCommands(): Command[] {
   const { t } = useTranslation();

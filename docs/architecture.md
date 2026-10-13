@@ -121,6 +121,54 @@ export default defineModule({
   when a module is off. The API enforces the same rule (`403 MODULE_DISABLED`).
 - `ModuleRegistryContext` lets tests (and future previews) render with another registry.
 
+**What a module brings, so the shell never names it.** Beside `name`, `tagline` and
+`description`, a module's manifest can hold:
+
+| In the manifest   | Used by                                                             |
+| ----------------- | ------------------------------------------------------------------- |
+| `strings.stats`   | the figure on its Welcome tile                                      |
+| `strings.widgets` | titles of its dashboard widgets                                     |
+| `strings.feed`    | wording of its activity entries and notifications (`useFeedText`)   |
+| `strings.replies` | wording of its skills' static-mode answers (`useAgentText`)         |
+| `actions`         | pages the assistant's client tools may open: tool name to page path |
+
+Only that small, always-needed text is in the manifest. The module's own screens are worded
+in its `i18n/{en,ta,hi}.json`, registered under a namespace named after the module
+(`addModuleMessages`) and loaded with its pages. The module adds its English shape to
+`ModuleMessages`, so its keys are type-checked like the shell's, and its tests check that
+Tamil and Hindi have the same keys and placeholders (`expectSameKeysAndPlaceholders`).
+
+A module imports only `@/core`, `@/design-system` and its own folder; ESLint enforces it
+per module.
+
+## Expenses
+
+`src/modules/expenses/`, mounted at `/m/expenses`:
+
+| File                                              | What it is                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------------- |
+| `api.ts`                                          | queries and changes; a change refreshes every `['user', …]` query |
+| `entries-page.tsx`                                | the list by day, totals, filters in the URL, add                  |
+| `entry-form.tsx`                                  | add or edit, in a dialog                                          |
+| `entry-page.tsx`                                  | one entry, its history, restore, delete with undo                 |
+| `categories-dialog.tsx`                           | the user's own categories                                         |
+| `category-book.ts`, `field-text.ts`, `periods.ts` | names, values and periods as the user reads them                  |
+
+- **Money** is whole minor units everywhere; `core/utils/money.ts` reads what people type
+  (on the digits, never through floating point) and formats amounts with `Intl`.
+- **Adding** sends an `Idempotency-Key` made once per form, so saving again after a lost
+  reply cannot add the entry twice.
+- **Editing** sends the revision that was edited. If the entry changed elsewhere, the form
+  says so and offers to reload it; nothing is overwritten.
+- **Deleting** shows a toast with Undo; deleted entries have their own filter and can be
+  brought back there or on their page.
+- **History** lists each change with its fields in words (`Amount: ₹125 → ₹180`) and offers
+  "Restore this version" on every earlier one.
+- Money received is marked with a plus sign as well as a colour; a chosen category shows a
+  tick as well as a tint.
+- On phones the Add button floats above the navigation bar; on wider screens it is in the
+  page header. It is one button, moved by CSS.
+
 ## Welcome page
 
 `platform/welcome/` is the home screen.
@@ -169,6 +217,13 @@ export default defineModule({
 Ctrl/⌘+K (or the header button) opens `platform/palette/command-palette.tsx`, built on
 cmdk. It is shown to signed-in users only.
 
+The palette is not part of the first page load. `palette-host.tsx` listens for the shortcut
+and fetches the palette the first time it is asked for; the header button starts that fetch
+as the pointer or focus reaches it, so opening feels instant. The dialog code it shares with
+the Welcome page (Radix) is a separate on-demand chunk (`overlays`). `package.json`
+`sideEffects` lists the folders whose files do something on import; the design system is not
+among them, so importing `Button` from its index does not bring `Dialog` along.
+
 **Commands without AI.** `commands.ts` builds them from the app's own registries; there is
 no hand-kept list:
 
@@ -185,11 +240,48 @@ match. The answer panel shows:
 - a mode badge (AI or Quick mode) with the reason when the static script answered;
 - proposals with Confirm / Dismiss. A confirm refreshes every `['user', …]` query;
 - client actions from `client-actions.ts`, a small registry keyed by tool name
-  (`modules_open` navigates);
+  (`modules_open` and `notifications_open` navigate);
 - honest "unavailable" states with the reason, and a consent button that turns AI on
   (`PATCH /v1/me`) and asks again.
 
 Module details are URL-driven (`/?module=<key>`), so the palette, links and Back all work.
+
+## Dashboard, notifications and activity
+
+**Dashboard** (`/dashboard`, `platform/dashboard/`). `GET /v1/dashboard` returns widgets of
+three kinds, and the page has one component per kind, so a new module's figures appear
+without any change here:
+
+| Kind     | Component     | Notes                                                                   |
+| -------- | ------------- | ----------------------------------------------------------------------- |
+| `kpi`    | `StatTile`    | counts up; the trend against the previous period is words, never colour |
+| `series` | `SeriesChart` | area chart with a crosshair; arrow keys read each day; also a table     |
+| `list`   | `FeedRow`s    | the same row the feeds use                                              |
+
+- A widget's title comes from its module's manifest (`strings.widgets`), or from
+  `dashboard.widgets.*` for platform widgets. An unknown key is shown as the key.
+- `data: null` means that widget failed on the server: its card says so and the rest stay.
+- The period (`?range=7|30|90`) is counted in the user's time zone and kept in the URL.
+  While another period loads, the previous figures stay on screen, dimmed.
+- Admins get an "All users" switch (`?view=all`, `GET /v1/admin/dashboard`): totals only.
+  The server decides who may use it; the switch is only shown to admins.
+- The chart has one colour token (`--tt-chart`), checked for contrast in both themes. Text
+  in charts uses the text tokens.
+
+**Feeds.** The server sends a code and params for each activity entry and notification
+(ADR-0009). `useFeedText()` translates them from `feed.*` and turns `params.module` into
+that module's name. `FeedPage` gives both pages the same loading, error, empty and
+"show more" behaviour (`usePages`, an infinite query).
+
+- **Notifications** (`/notifications`): unread ones are marked in words, weight and a dot.
+  Mark one or all as read, remove one, or follow a launch notice to its module (which
+  marks it read). The unread count is polled every `VITE_NOTIFICATIONS_POLL_MS`.
+- **Activity** (`/activity`): what the user changed, newest first.
+
+**Navigation.** `ShellNav` lists the main destinations from `pages.ts` with the unread
+count on Notifications. On phones it is a bar along the bottom (Home, Dashboard,
+Notifications); from Tailwind's `sm` up it moves into the header. Only one of the two is
+ever rendered (`useMediaQuery`), so there is a single "Main" navigation landmark.
 
 ## Theming
 
@@ -216,8 +308,8 @@ Module details are URL-driven (`/?module=<key>`), so the palette, links and Back
 ## Routing
 
 - React Router 8 data router (`src/platform/shell/routes.tsx`).
-- The root route renders `AppLayout` (skip link, header, status banner, `<main>`), with
-  `RouteErrorPage` as its error element.
+- The root route renders `AppLayout` (skip link, header, status banner, `<main>`, main
+  navigation, palette host), with `RouteErrorPage` as its error element.
 - Pages are lazy (`route.lazy`). Module pages mount at `/m/<slug>/*` from their manifests.
   Unknown paths render `NotFoundPage`.
 - `AppErrorBoundary` catches failures outside the router.

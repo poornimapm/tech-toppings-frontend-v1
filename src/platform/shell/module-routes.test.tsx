@@ -44,7 +44,7 @@ function demoView(available: boolean) {
 describe('module routes', () => {
   it('mounts only modules that ship pages', () => {
     expect(moduleRoutes(registry).map((route) => route.path)).toEqual(['m/demo-notes']);
-    expect(moduleRoutes()).toEqual([]); // no real module has pages yet
+    expect(moduleRoutes().map((route) => route.path)).toEqual(['m/expenses']);
   });
 
   it('renders a module page while the module is available', async () => {

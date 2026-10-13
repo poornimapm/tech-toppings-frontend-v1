@@ -29,5 +29,11 @@
   "AGENT_NOT_FOUND": "That assistant doesn't exist.",
   "AGENT_SKILL_NOT_FOUND": "The assistant doesn't have that skill.",
   "AGENT_INPUT_TOO_LONG": "That request is too long. Please shorten it.",
-  "AGENT_PROPOSAL_CLOSED": "This change was already handled or has expired."
+  "AGENT_PROPOSAL_CLOSED": "This change was already handled or has expired.",
+  "RANGE_INVALID": "That date range isn't valid.",
+  "VERSION_CONFLICT": "This was changed somewhere else. Reload it and try again.",
+  "EXPENSE_CATEGORY_INVALID": "Choose one of your categories for this kind of entry.",
+  "EXPENSE_CATEGORY_EXISTS": "You already have a category with this name.",
+  "EXPENSE_CATEGORY_LIMIT": "You have reached the limit of your own categories.",
+  "EXPENSE_CURRENCY_UNSUPPORTED": "For now, entries are kept in your base currency."
 }

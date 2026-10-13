@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { usePalette } from '@/platform/palette/palette-store';
+import { loadPalette, usePalette } from '@/platform/palette/palette-store';
 
 /** Header button for the command palette, showing its shortcut. */
 export function PaletteTrigger() {
@@ -11,6 +11,9 @@ export function PaletteTrigger() {
     <button
       type="button"
       aria-keyshortcuts="Control+K Meta+K"
+      // Fetch the palette as the pointer or focus arrives, so it opens without a wait.
+      onPointerEnter={() => void loadPalette()}
+      onFocus={() => void loadPalette()}
       onClick={() => {
         setOpen(true);
       }}

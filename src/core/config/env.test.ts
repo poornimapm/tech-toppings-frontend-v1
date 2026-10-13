@@ -12,6 +12,7 @@ describe('parseEnv', () => {
       healthPollMs: 60_000,
       csrfHeader: 'X-TT-CSRF',
       assistantAgent: 'assistant',
+      notificationsPollMs: 60_000,
     });
   });
 
@@ -24,6 +25,7 @@ describe('parseEnv', () => {
       VITE_HEALTH_POLL_MS: '5000',
       VITE_CSRF_HEADER: 'X-Custom',
       VITE_ASSISTANT_AGENT: 'helper',
+      VITE_NOTIFICATIONS_POLL_MS: '15000',
     });
 
     expect(env).toEqual({
@@ -34,6 +36,7 @@ describe('parseEnv', () => {
       healthPollMs: 5000,
       csrfHeader: 'X-Custom',
       assistantAgent: 'helper',
+      notificationsPollMs: 15_000,
     });
   });
 
