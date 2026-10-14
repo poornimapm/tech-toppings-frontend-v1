@@ -139,10 +139,12 @@ src/
     activity/            activity page
     feed/                FeedPage and FeedRow, shared by the feeds and the dashboard lists
   design-system/         shared UI (Button, Dialog, Toaster, FilterChips, SearchField, Switch,
-                         Skeleton, AnimatedNumber, MotionProvider ...): the only UI modules use
+                         Skeleton, AnimatedNumber, MotionProvider, chart scale ...): the only
+                         UI modules use
   modules/               one folder per module (manifest.ts)
     expenses/            entries with history, add/edit form, categories, quick add and the
-                         confirm card, i18n/{en,ta,hi}.json
+                         confirm card, prices (products, price chart, matches),
+                         i18n/{en,ta,hi}.json
     medicine/ ...        the other seven: manifest only, coming soon
   test/                  test setup, MSW server, render helpers, naming-convention test
 e2e/                     Playwright smoke tests

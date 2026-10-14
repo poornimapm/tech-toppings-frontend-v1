@@ -14,6 +14,7 @@ import { CategoryIcon } from '@/modules/expenses/category-icon';
 import { EntryForm } from '@/modules/expenses/entry-form';
 import { useFieldText } from '@/modules/expenses/field-text';
 import { NS } from '@/modules/expenses/i18n';
+import { useUnitText } from '@/modules/expenses/units';
 
 /** Draft field names as the entry (and its translations) names them. */
 const FIELD: Record<string, string> = { amount: 'amount_minor' };
@@ -37,6 +38,7 @@ export function DraftsTray({
   const save = useSaveEntry();
   const readBack = useReadBack((state) => state.on);
   const text = useFieldText(currency);
+  const unitText = useUnitText();
   const [editing, setEditing] = useState<Draft | null>(null);
   if (drafts.length === 0 || !currency) return null;
 
@@ -44,6 +46,7 @@ export function DraftsTray({
   const ready = (draft: Draft) =>
     draft.title.trim() !== '' && minor(draft) > 0 && book.find(draft.category_id) !== undefined;
   const complete = drafts.filter(ready);
+  const measured = (draft: Draft) => draft.kind === 'expense' && draft.unit !== '';
   const failure = failureCode(save.error);
 
   function sayAloud(entry: Entry) {
@@ -61,6 +64,8 @@ export function DraftsTray({
             kind: draft.kind,
             title: draft.title,
             amount_minor: minor(draft),
+            quantity: measured(draft) ? Number(draft.quantity) : null,
+            unit: measured(draft) ? draft.unit : null,
             category_id: draft.category_id,
             date: draft.date,
             merchant: draft.merchant,
@@ -102,6 +107,7 @@ export function DraftsTray({
           const category = book.find(draft.category_id);
           const title = draft.title || t('capture.missingTitle');
           const details = [
+            measured(draft) && unitText.quantity(Number(draft.quantity), draft.unit),
             book.nameOf(category),
             text.value('date', draft.date),
             draft.merchant,

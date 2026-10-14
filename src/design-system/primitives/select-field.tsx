@@ -12,6 +12,8 @@ export interface SelectFieldProps extends Omit<ComponentProps<'select'>, 'childr
   options: readonly SelectOption[];
   /** Text of the "nothing chosen" option; leave out when a choice is required. */
   placeholder?: string;
+  /** Validation message; marks the select invalid and is announced with it. */
+  error?: string | undefined;
 }
 
 /** A labelled native select: the platform's own picker on phones, and fully keyboard-operable. */
@@ -19,12 +21,14 @@ export function SelectField({
   label,
   options,
   placeholder,
+  error,
   id,
   className,
   ...select
 }: SelectFieldProps) {
   const generatedId = useId();
   const selectId = id ?? generatedId;
+  const errorId = `${selectId}-error`;
   return (
     <div className={cx('space-y-1', className)}>
       <label htmlFor={selectId} className="block text-sm font-medium">
@@ -32,7 +36,9 @@ export function SelectField({
       </label>
       <select
         id={selectId}
-        className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-text"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-text aria-[invalid=true]:border-danger"
         {...select}
       >
         {placeholder !== undefined && <option value="">{placeholder}</option>}
@@ -42,6 +48,11 @@ export function SelectField({
           </option>
         ))}
       </select>
+      {error && (
+        <p id={errorId} className="text-sm text-danger">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { useFeedText } from '@/core/modules/feed-text';
+import { fill } from '@/core/utils/fill';
 import { useModuleTiles } from '@/core/modules/queries';
 import {
   useChangeNotifications,
@@ -53,6 +54,7 @@ export function NotificationsPage() {
       {(item) => {
         const text = feedText(item.type, item.params);
         const tile = tiles.find((candidate) => candidate.view.key === item.params.module);
+        const page = tile?.definition.links?.[item.type];
         const markRead = () => {
           if (!item.read) change.mutate({ read: item.id });
         };
@@ -65,7 +67,7 @@ export function NotificationsPage() {
               tile ? (
                 // A notice about a module leads to it, and following it counts as reading it.
                 <Link
-                  to={moduleHref(tile)}
+                  to={moduleHref(tile, page && encodeURI(fill(page, item.params)))}
                   onClick={markRead}
                   className="underline-offset-4 hover:underline"
                 >

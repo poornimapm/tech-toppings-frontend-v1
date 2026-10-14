@@ -7,6 +7,7 @@ import { Button } from '@/design-system';
 import type { Category, Entry } from '@/modules/expenses/api';
 import { CategoryIcon } from '@/modules/expenses/category-icon';
 import { NS } from '@/modules/expenses/i18n';
+import { useUnitText } from '@/modules/expenses/units';
 
 export interface EntryRowProps {
   entry: Entry;
@@ -20,8 +21,10 @@ export interface EntryRowProps {
  *  a colour. */
 export function EntryRow({ entry, category, categoryName, onUndelete }: EntryRowProps) {
   const { t, i18n } = useTranslation(NS);
+  const unitText = useUnitText();
   const income = entry.kind === 'income';
   const details = [
+    entry.quantity && entry.unit && unitText.quantity(entry.quantity, entry.unit),
     categoryName,
     entry.merchant,
     entry.for_whom,

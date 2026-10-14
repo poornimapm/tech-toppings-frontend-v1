@@ -199,6 +199,39 @@ flowchart LR
   (`MODULE_ACTION`): the shell passes any client action to the page it opens, so this needs
   nothing module-specific in the shell.
 
+**Quantities and prices** (`units.ts`, `prices-page.tsx`, `product-page.tsx`,
+`product-settings.tsx`, `price-chart.tsx`, `matches.ts`, `matches-panel.tsx`,
+`entry-price.tsx`):
+
+- The entry form, drafts and list show how much was bought ("2 kg"); the form says what that
+  comes to per unit while typing ("That's ₹50/kg"). Units come from `GET /units`; their names
+  and plurals are module strings (`unit.*`, `quantity.*`), falling back to the code.
+- **Entries | Prices** tabs (`section-tabs.tsx`) switch between the module's two sides;
+  `paths.ts` builds the module's links from its manifest key.
+- **Prices** lists what is bought: last price per unit, the change since the time before (an
+  arrow and words, not only colour), a small trend line, where it was last bought and where
+  it is cheapest. **Find matches** runs the `tidy-products` skill; its suggestions are cards
+  to combine, mark "not the same" or skip. Matches the command palette prepared arrive with
+  the page, as drafts do.
+- **A product**: price tiles, a price chart with a line per place, places by average price,
+  every purchase in a table (each links to its entry), and settings: price alert, price unit,
+  names, rename, combine with another product, stop following.
+- **The price chart** draws one line per place in the series colours (`--tt-series-1..5`,
+  validated together for colour-blind separation on the surface in both themes), behind them
+  a thin dashed line through every purchase in order (the trend when places alternate). A
+  place keeps its colour: colours go by the order places were first bought at, and past five
+  places those found last share "other places". Three light colours are under 3:1, so the
+  chart always has a legend in text and the purchases are listed beside it. A readout above
+  the plot says the purchase under the crosshair (pointer or arrow keys, `role="slider"`),
+  so nothing covers the marks. The chart scale helpers
+  (`niceRange`, `useMeasuredWidth`) live in `design-system/charts` and the dashboard chart
+  uses them too.
+- An entry of something bought shows what it came to per unit and leads to its price
+  history, or offers to follow its price.
+- **Notifications** say money in the user's language: a parameter `<name>_minor` beside a
+  `currency` is written as `{{<name>}}` (`core/modules/feed-text.ts`). A module can say
+  where a notification leads (`links` in its manifest): the price alert opens its product.
+
 ## Welcome page
 
 `platform/welcome/` is the home screen.

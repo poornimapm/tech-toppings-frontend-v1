@@ -92,6 +92,32 @@ describe('notifications', () => {
     });
   });
 
+  it("words a module's notice with money in the user's language, and leads to its page", async () => {
+    resetNotificationState([
+      {
+        id: 'n-price',
+        type: 'expenses.price_alert',
+        params: {
+          module: 'expenses',
+          product: 'Onion',
+          product_id: 'p-onion',
+          price_minor: 6000,
+          limit_minor: 5000,
+          currency: 'INR',
+          unit: 'kg',
+        },
+        read: false,
+        at: '2026-10-08T10:00:00Z',
+      },
+    ]);
+    await open('/notifications', 'Notifications');
+
+    const notice = await screen.findByRole('link', {
+      name: 'Onion cost ₹60/kg, more than the ₹50 you set',
+    });
+    expect(notice).toHaveAttribute('href', '/m/expenses/prices/p-onion');
+  });
+
   it('shows an unknown kind of notice by its code rather than hiding it', async () => {
     resetNotificationState([
       { id: 'n-9', type: 'budget.exceeded', params: {}, read: false, at: '2026-10-08T10:00:00Z' },

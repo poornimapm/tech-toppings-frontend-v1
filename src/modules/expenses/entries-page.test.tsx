@@ -116,6 +116,12 @@ describe('expenses list', () => {
 
     await user.type(form.getByRole('textbox', { name: 'Amount (INR)' }), '250.50');
     await user.type(form.getByRole('textbox', { name: 'What was it?' }), 'Vegetables');
+    // How much was bought needs its unit, and then says what that comes to per unit.
+    await user.type(form.getByRole('textbox', { name: 'How much (optional)' }), '500');
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    expect(await form.findByText('Choose a unit.')).toBeInTheDocument();
+    await user.selectOptions(await form.findByRole('combobox', { name: 'Unit' }), 'g');
+    expect(form.getByText("That's ₹501/kg.")).toBeInTheDocument();
     await user.click(form.getByRole('radio', { name: 'Groceries' }));
     await user.type(form.getByRole('combobox', { name: 'Where' }), 'Market');
     await user.type(form.getByRole('combobox', { name: 'Tags' }), 'weekly, Home');
@@ -133,6 +139,8 @@ describe('expenses list', () => {
       kind: 'expense',
       title: 'Vegetables',
       amount_minor: 25050,
+      quantity: 500,
+      unit: 'g',
       category_id: 'groceries',
       date: '2026-10-08',
       time: null,

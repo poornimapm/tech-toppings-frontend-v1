@@ -62,7 +62,13 @@
     "linkError": "Enter a full link, starting with https://",
     "tagsError": "Use at most {{max}} tags.",
     "conflict": "This entry was changed somewhere else. Reload it, then make your change again.",
-    "reload": "Reload entry"
+    "reload": "Reload entry",
+    "quantity": "How much (optional)",
+    "quantityPlaceholder": "e.g. 2",
+    "unit": "Unit",
+    "quantityError": "Enter how much, like 2 or 0.5.",
+    "unitError": "Choose a unit.",
+    "each": "That's {{price}}."
   },
   "paymentMode": {
     "cash": "Cash",
@@ -112,7 +118,9 @@
       "tags": "Tags",
       "note": "Note",
       "attachments": "Links",
-      "source": "Added"
+      "source": "Added",
+      "quantity": "Quantity",
+      "unit": "Unit"
     }
   },
   "toast": {
@@ -182,5 +190,154 @@
     "dismissLabel": "Dismiss {{title}}",
     "readBack": "Read saved entries aloud",
     "spoken": "Added {{title}}, {{amount}}"
+  },
+  "tabs": {
+    "label": "Expenses sections",
+    "entries": "Entries",
+    "prices": "Prices"
+  },
+  "unit": {
+    "kg": "kg",
+    "g": "g",
+    "l": "litre",
+    "ml": "ml",
+    "piece": "piece",
+    "dozen": "dozen",
+    "packet": "packet",
+    "bottle": "bottle",
+    "box": "box",
+    "plate": "plate",
+    "cup": "cup"
+  },
+  "quantity": {
+    "kg_one": "{{value}} kg",
+    "kg_other": "{{value}} kg",
+    "g_one": "{{value}} g",
+    "g_other": "{{value}} g",
+    "l_one": "{{value}} litre",
+    "l_other": "{{value}} litres",
+    "ml_one": "{{value}} ml",
+    "ml_other": "{{value}} ml",
+    "piece_one": "{{value}} piece",
+    "piece_other": "{{value}} pieces",
+    "dozen_one": "{{value}} dozen",
+    "dozen_other": "{{value}} dozen",
+    "packet_one": "{{value}} packet",
+    "packet_other": "{{value}} packets",
+    "bottle_one": "{{value}} bottle",
+    "bottle_other": "{{value}} bottles",
+    "box_one": "{{value}} box",
+    "box_other": "{{value}} boxes",
+    "plate_one": "{{value}} plate",
+    "plate_other": "{{value}} plates",
+    "cup_one": "{{value}} cup",
+    "cup_other": "{{value}} cups"
+  },
+  "price": {
+    "perUnit": "{{price}}/{{unit}}"
+  },
+  "prices": {
+    "title": "Prices",
+    "subtitle": "What the things you buy cost, and where they're cheapest",
+    "find": "Find matches",
+    "findPrompt": "Find products that are the same thing",
+    "finding": "Looking for matches…",
+    "emptyTitle": "No prices yet",
+    "emptyBody": "Note how much you bought, like “1 kg tomato 40”, and its price per kg shows up here.",
+    "loadError": "We couldn't load your prices.",
+    "purchases_one": "{{count}} purchase",
+    "purchases_other": "{{count}} purchases",
+    "otherNames_one": "{{count}} other name",
+    "otherNames_other": "{{count}} other names",
+    "noPrice": "No price to compare yet",
+    "last": "Last bought {{date}}",
+    "lastAt": "Last bought {{date}} at {{merchant}}",
+    "cheapest": "Cheapest at {{merchant}}",
+    "up": "Up {{pct}}%",
+    "down": "Down {{pct}}%",
+    "same": "Same as last time",
+    "matches": {
+      "title": "These look like the same thing",
+      "hint": "Combine them to see one price history. Nothing changes until you choose.",
+      "into": "is the same as",
+      "combine": "Combine",
+      "combineLabel": "Combine into {{name}}",
+      "apart": "Not the same",
+      "skipLabel": "Skip the suggestion for {{name}}",
+      "none": "Nothing looks like the same thing under another name.",
+      "combined": "Combined into {{name}}",
+      "keptApart": "Got it: they stay apart",
+      "unknown": "another product"
+    }
+  },
+  "product": {
+    "back": "All prices",
+    "notFound": "We couldn't find this product.",
+    "alsoCalled": "Also called {{names}}",
+    "stats": "Prices",
+    "last": "Last price",
+    "lowest": "Lowest",
+    "highest": "Highest",
+    "average": "Average",
+    "cheapestAt": "Cheapest at {{merchant}}: {{price}} on average",
+    "chart": "Price per {{unit}}",
+    "chartExplore": "Explore the price of {{name}}",
+    "otherPlaces": "Other places",
+    "notNoted": "Not noted",
+    "places": "Where you bought it",
+    "placeFigures": "{{average}} on average, lowest {{lowest}}",
+    "purchases": "Purchases",
+    "date": "Date",
+    "where": "Where",
+    "howMuch": "How much",
+    "paid": "Paid",
+    "each": "Per {{unit}}",
+    "unpriced": "Not comparable",
+    "settings": "Settings",
+    "priceUnit": "Show prices per",
+    "saved": "Saved {{name}}",
+    "rename": "Name",
+    "save": "Save",
+    "alert": {
+      "title": "Price alert",
+      "label": "Tell me when it costs more than ({{currency}} per {{unit}})",
+      "save": "Set alert",
+      "off": "Turn off",
+      "hint": "Get a notification when you pay more than this.",
+      "on": "You'll be told when it costs more than {{price}}.",
+      "set": "Price alert set for {{name}}",
+      "cleared": "Price alert turned off"
+    },
+    "names": {
+      "title": "Names it goes by",
+      "hint": "Entries with any of these names count as {{name}}.",
+      "add": "Add a name",
+      "addButton": "Add",
+      "remove": "Remove {{name}}",
+      "saved": "Names saved"
+    },
+    "combine": {
+      "title": "Combine with another product",
+      "hint": "Its names and purchases join {{name}}.",
+      "choose": "Product",
+      "none": "Choose one",
+      "button": "Combine",
+      "done": "{{other}} is now part of {{name}}"
+    },
+    "stop": {
+      "button": "Stop following",
+      "confirm": "Stop following {{name}}? Its entries stay as they are.",
+      "yes": "Stop following",
+      "no": "Keep it",
+      "done": "Stopped following {{name}}"
+    }
+  },
+  "track": {
+    "prompt": "Follow what this costs over time.",
+    "bought": "Bought {{quantity}} · {{price}}",
+    "boughtOnly": "Bought {{quantity}}",
+    "history": "{{name}} price history",
+    "button": "Follow its price",
+    "done": "Following the price of {{title}}"
   }
 }

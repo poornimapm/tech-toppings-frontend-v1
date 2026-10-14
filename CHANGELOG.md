@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 7: products and prices (2026-10-14)
+
+- **How much was bought**: quantity and unit in the entry form (with the price per unit as
+  you type), on drafts and in the list.
+- **Prices**: a new tab in Expenses listing what you buy, with the latest price per unit,
+  how it moved since the time before, a trend line, and where it is cheapest.
+- **A product's page**: price tiles, a chart with a line per shop (readable by keyboard and
+  screen readers), prices by place, every purchase, and settings for its price alert, price
+  unit, names, combining and stopping.
+- **Find matches**: suggestions of products that are the same thing under another name
+  (another language, a spelling, a plural), to combine or keep apart.
+- **Price alerts** in the notification centre, worded with money in your language and leading
+  to the product.
+- An entry page shows what it came to per unit and leads to its price history (or follows
+  its price).
+- English, Tamil and Hindi for all of the above.
+
+### Changed
+
+- The series colours (`--tt-series-1..5`) and chart scale helpers are in the design system;
+  `SelectField` shows a validation message like `TextField`.
+- A module manifest can link notifications to its pages (`links`).
+
 ### Added — Phase 6: capture by voice, text and SMS (2026-10-14)
 
 - **Quick add** on the Expenses page: type, dictate (where the browser can listen) or paste a

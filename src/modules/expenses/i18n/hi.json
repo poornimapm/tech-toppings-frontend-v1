@@ -62,7 +62,13 @@
     "linkError": "https:// से शुरू होने वाला पूरा लिंक लिखें",
     "tagsError": "ज़्यादा से ज़्यादा {{max}} टैग।",
     "conflict": "यह प्रविष्टि कहीं और बदली गई है। इसे फिर से लोड करें, फिर अपना बदलाव दोबारा करें।",
-    "reload": "प्रविष्टि फिर लोड करें"
+    "reload": "प्रविष्टि फिर लोड करें",
+    "quantity": "कितना (वैकल्पिक)",
+    "quantityPlaceholder": "जैसे 2",
+    "unit": "इकाई",
+    "quantityError": "कितना, यह लिखें, जैसे 2 या 0.5।",
+    "unitError": "एक इकाई चुनें।",
+    "each": "यानी {{price}}।"
   },
   "paymentMode": {
     "cash": "नकद",
@@ -112,7 +118,9 @@
       "tags": "टैग",
       "note": "नोट",
       "attachments": "लिंक",
-      "source": "जोड़ा"
+      "source": "जोड़ा",
+      "quantity": "मात्रा",
+      "unit": "इकाई"
     }
   },
   "toast": {
@@ -182,5 +190,154 @@
     "dismissLabel": "{{title}} हटाएँ",
     "readBack": "सहेजी गई प्रविष्टियाँ बोलकर सुनाएँ",
     "spoken": "{{title}} जोड़ा गया, {{amount}}"
+  },
+  "tabs": {
+    "label": "खर्च के हिस्से",
+    "entries": "एंट्री",
+    "prices": "कीमतें"
+  },
+  "unit": {
+    "kg": "किलो",
+    "g": "ग्राम",
+    "l": "लीटर",
+    "ml": "मि.ली.",
+    "piece": "पीस",
+    "dozen": "दर्जन",
+    "packet": "पैकेट",
+    "bottle": "बोतल",
+    "box": "डिब्बा",
+    "plate": "प्लेट",
+    "cup": "कप"
+  },
+  "quantity": {
+    "kg_one": "{{value}} किलो",
+    "kg_other": "{{value}} किलो",
+    "g_one": "{{value}} ग्राम",
+    "g_other": "{{value}} ग्राम",
+    "l_one": "{{value}} लीटर",
+    "l_other": "{{value}} लीटर",
+    "ml_one": "{{value}} मि.ली.",
+    "ml_other": "{{value}} मि.ली.",
+    "piece_one": "{{value}} पीस",
+    "piece_other": "{{value}} पीस",
+    "dozen_one": "{{value}} दर्जन",
+    "dozen_other": "{{value}} दर्जन",
+    "packet_one": "{{value}} पैकेट",
+    "packet_other": "{{value}} पैकेट",
+    "bottle_one": "{{value}} बोतल",
+    "bottle_other": "{{value}} बोतलें",
+    "box_one": "{{value}} डिब्बा",
+    "box_other": "{{value}} डिब्बे",
+    "plate_one": "{{value}} प्लेट",
+    "plate_other": "{{value}} प्लेट",
+    "cup_one": "{{value}} कप",
+    "cup_other": "{{value}} कप"
+  },
+  "price": {
+    "perUnit": "{{price}}/{{unit}}"
+  },
+  "prices": {
+    "title": "कीमतें",
+    "subtitle": "आप जो खरीदते हैं उसकी कीमत, और वह कहाँ सबसे सस्ता है",
+    "find": "एक जैसी चीज़ें ढूँढें",
+    "findPrompt": "एक ही चीज़ वाली चीज़ें ढूँढो",
+    "finding": "ढूँढ रहे हैं…",
+    "emptyTitle": "अभी कोई कीमत नहीं",
+    "emptyBody": "कितना खरीदा, यह भी लिखें, जैसे “1 किलो टमाटर 40”, तो उसकी प्रति किलो कीमत यहाँ दिखेगी।",
+    "loadError": "आपकी कीमतें लोड नहीं हो सकीं।",
+    "purchases_one": "{{count}} बार खरीदा",
+    "purchases_other": "{{count}} बार खरीदा",
+    "otherNames_one": "{{count}} और नाम",
+    "otherNames_other": "{{count}} और नाम",
+    "noPrice": "तुलना के लिए अभी कीमत नहीं",
+    "last": "आख़िरी बार {{date}} को खरीदा",
+    "lastAt": "आख़िरी बार {{date}} को {{merchant}} से खरीदा",
+    "cheapest": "{{merchant}} पर सबसे सस्ता",
+    "up": "{{pct}}% बढ़ी",
+    "down": "{{pct}}% घटी",
+    "same": "पिछली बार जितनी",
+    "matches": {
+      "title": "ये एक ही चीज़ लगती हैं",
+      "hint": "एक ही कीमत इतिहास देखने के लिए इन्हें मिलाएँ। आपके चुनने तक कुछ नहीं बदलेगा।",
+      "into": "भी यही है:",
+      "combine": "मिलाएँ",
+      "combineLabel": "{{name}} में मिलाएँ",
+      "apart": "एक नहीं हैं",
+      "skipLabel": "{{name}} का सुझाव छोड़ें",
+      "none": "किसी दूसरे नाम से कोई एक जैसी चीज़ नहीं मिली।",
+      "combined": "{{name}} में मिला दिया",
+      "keptApart": "ठीक है, ये अलग रहेंगी",
+      "unknown": "कोई और चीज़"
+    }
+  },
+  "product": {
+    "back": "सभी कीमतें",
+    "notFound": "यह चीज़ नहीं मिली।",
+    "alsoCalled": "दूसरे नाम: {{names}}",
+    "stats": "कीमतें",
+    "last": "आख़िरी कीमत",
+    "lowest": "सबसे कम",
+    "highest": "सबसे ज़्यादा",
+    "average": "औसत",
+    "cheapestAt": "{{merchant}} पर सबसे सस्ता: औसतन {{price}}",
+    "chart": "प्रति {{unit}} कीमत",
+    "chartExplore": "{{name}} की कीमत देखें",
+    "otherPlaces": "दूसरी जगहें",
+    "notNoted": "नहीं लिखा",
+    "places": "आपने कहाँ से खरीदा",
+    "placeFigures": "औसतन {{average}}, सबसे कम {{lowest}}",
+    "purchases": "खरीदारी",
+    "date": "तारीख़",
+    "where": "कहाँ",
+    "howMuch": "कितना",
+    "paid": "दिए",
+    "each": "प्रति {{unit}}",
+    "unpriced": "तुलना नहीं हो सकती",
+    "settings": "सेटिंग",
+    "priceUnit": "कीमत किस इकाई में दिखाएँ",
+    "saved": "{{name}} सहेजा",
+    "rename": "नाम",
+    "save": "सहेजें",
+    "alert": {
+      "title": "कीमत अलर्ट",
+      "label": "इससे ज़्यादा हो तो बताएँ ({{currency}} प्रति {{unit}})",
+      "save": "अलर्ट लगाएँ",
+      "off": "बंद करें",
+      "hint": "इससे ज़्यादा देने पर आपको सूचना मिलेगी।",
+      "on": "{{price}} से ज़्यादा होने पर आपको बताया जाएगा।",
+      "set": "{{name}} के लिए कीमत अलर्ट लगा",
+      "cleared": "कीमत अलर्ट बंद किया"
+    },
+    "names": {
+      "title": "इसके नाम",
+      "hint": "इनमें से किसी भी नाम वाली एंट्री {{name}} में गिनी जाएगी।",
+      "add": "नाम जोड़ें",
+      "addButton": "जोड़ें",
+      "remove": "{{name}} हटाएँ",
+      "saved": "नाम सहेजे"
+    },
+    "combine": {
+      "title": "किसी और चीज़ से मिलाएँ",
+      "hint": "उसके नाम और खरीदारी {{name}} में जुड़ जाएँगे।",
+      "choose": "चीज़",
+      "none": "एक चुनें",
+      "button": "मिलाएँ",
+      "done": "{{other}} अब {{name}} का हिस्सा है"
+    },
+    "stop": {
+      "button": "कीमत देखना बंद करें",
+      "confirm": "{{name}} की कीमत देखना बंद करें? इसकी एंट्री वैसी ही रहेंगी।",
+      "yes": "बंद करें",
+      "no": "रहने दें",
+      "done": "{{name}} की कीमत देखना बंद किया"
+    }
+  },
+  "track": {
+    "prompt": "इसकी कीमत समय के साथ देखें।",
+    "bought": "{{quantity}} खरीदा · {{price}}",
+    "boughtOnly": "{{quantity}} खरीदा",
+    "history": "{{name}} का कीमत इतिहास",
+    "button": "कीमत पर नज़र रखें",
+    "done": "अब {{title}} की कीमत पर नज़र है"
   }
 }

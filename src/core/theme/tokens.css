@@ -44,6 +44,14 @@
 
   /* Chart marks (lines, areas, dots). Text in charts uses the text tokens, never this. */
   --tt-chart: #4f46e5;
+  /* One colour per series, in this order (never cycled). Validated as a set for colour-blind
+     separation on --tt-surface; three are under 3:1 in light, so every chart that uses them
+     labels its series in text and offers its numbers as a table. */
+  --tt-series-1: #2a78d6;
+  --tt-series-2: #eb6834;
+  --tt-series-3: #1baf7a;
+  --tt-series-4: #eda100;
+  --tt-series-5: #e87ba4;
 
   /* Decorative only (aurora background, glows): never carries text. */
   --tt-aurora-1: #a5b4fc;
@@ -86,6 +94,11 @@
   --tt-accent-slate-soft: #1e293b;
 
   --tt-chart: #7880f6;
+  --tt-series-1: #3987e5;
+  --tt-series-2: #d95926;
+  --tt-series-3: #199e70;
+  --tt-series-4: #c98500;
+  --tt-series-5: #d55181;
 
   --tt-aurora-1: #4338ca;
   --tt-aurora-2: #86198f;
@@ -107,6 +120,11 @@
   --color-focus: var(--tt-focus);
   --color-glass: var(--tt-glass);
   --color-chart: var(--tt-chart);
+  --color-series-1: var(--tt-series-1);
+  --color-series-2: var(--tt-series-2);
+  --color-series-3: var(--tt-series-3);
+  --color-series-4: var(--tt-series-4);
+  --color-series-5: var(--tt-series-5);
   /* A tile sets --tile-accent / --tile-soft to one accent pair; these classes follow it. */
   --color-tile: var(--tile-accent, var(--tt-accent-slate));
   --color-tile-soft: var(--tile-soft, var(--tt-accent-slate-soft));

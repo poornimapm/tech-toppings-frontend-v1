@@ -21,6 +21,9 @@ export interface Draft {
   kind: EntryKind;
   title: string;
   amount: string;
+  /** How much was bought ("2" kg), with its unit code; both empty when not said. */
+  quantity: string;
+  unit: string;
   category_id: string;
   date: string;
   merchant: string;
@@ -31,6 +34,8 @@ export interface Draft {
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+const positive = (value: unknown): string =>
+  typeof value === 'number' && value > 0 ? String(value) : '';
 
 /**
  * Drafts out of a client action's arguments. They come from an AI model or a parser, so
@@ -46,7 +51,10 @@ export function draftsFrom(action: ClientAction | undefined, today: string): Dra
       key: crypto.randomUUID(),
       kind: item.kind === 'income' ? 'income' : 'expense',
       title: text(item.title),
-      amount: typeof item.amount === 'number' && item.amount > 0 ? String(item.amount) : '',
+      amount: positive(item.amount),
+      ...(positive(item.quantity) && text(item.unit)
+        ? { quantity: positive(item.quantity), unit: text(item.unit) }
+        : { quantity: '', unit: '' }),
       category_id: text(item.category_id),
       date: DAY.test(text(item.date)) ? text(item.date) : today,
       merchant: text(item.merchant),

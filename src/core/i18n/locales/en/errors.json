@@ -35,5 +35,9 @@
   "EXPENSE_CATEGORY_INVALID": "Choose one of your categories for this kind of entry.",
   "EXPENSE_CATEGORY_EXISTS": "You already have a category with this name.",
   "EXPENSE_CATEGORY_LIMIT": "You have reached the limit of your own categories.",
+  "EXPENSE_PRODUCT_EXISTS": "You already follow a product with this name.",
+  "EXPENSE_PRODUCT_NAME_TAKEN": "Another product already goes by this name. Combine them instead.",
+  "EXPENSE_PRODUCT_LIMIT": "You follow as many products as you can.",
+  "EXPENSE_PRODUCT_INVALID": "That can't be done with these products.",
   "EXPENSE_CURRENCY_UNSUPPORTED": "For now, entries are kept in your base currency."
 }

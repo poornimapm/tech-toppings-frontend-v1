@@ -14,6 +14,12 @@ export type EntryInput = Schemas['EntryIn'];
 export type EntryKind = Schemas['EntryKind'];
 export type Category = Schemas['CategoryOut'];
 export type Revision = Schemas['RevisionOut'];
+export type Unit = Schemas['UnitOut'];
+export type Product = Schemas['ProductOut'];
+export type ProductSummary = Schemas['ProductSummary'];
+export type ProductDetail = Schemas['ProductDetail'];
+export type ProductPatch = Schemas['ProductPatch'];
+export type Purchase = Schemas['Purchase'];
 
 export const PAYMENT_MODES = [
   'cash',
@@ -74,6 +80,38 @@ export function useCategories() {
   return useQuery({
     queryKey: [...root, 'categories'] as const,
     queryFn: async () => (await unwrap(api.GET('/v1/expenses/categories'))).items,
+  });
+}
+
+/** Units a quantity can be in; they change only with a new release. */
+export function useUnits() {
+  return useQuery({
+    queryKey: [...root, 'units'] as const,
+    queryFn: () => unwrap(api.GET('/v1/expenses/units')),
+    staleTime: Infinity,
+  });
+}
+
+/** What the user buys, recently bought first; with `title`, only the product that claims it. */
+export function useProducts(title?: string) {
+  return usePages([...root, 'products', title ?? null], (page) =>
+    unwrap(
+      api.GET('/v1/expenses/products', {
+        params: { query: { page, ...(title ? { title } : {}) } },
+      }),
+    ),
+  );
+}
+
+export function useProduct(id: string, range: { from?: string; to?: string } = {}) {
+  return useQuery({
+    queryKey: [...root, 'product', id, range] as const,
+    queryFn: () =>
+      unwrap(
+        api.GET('/v1/expenses/products/{product_id}', {
+          params: { path: { product_id: id }, query: range },
+        }),
+      ),
   });
 }
 
@@ -177,5 +215,52 @@ export function useArchiveCategory() {
         params: { path: { category_id: id } },
       }),
     ),
+  );
+}
+
+const productPath = (id: string) => ({ params: { path: { product_id: id } } });
+
+/** Follow the price of what an entry is called. */
+export function useTrackProduct() {
+  return useChange((title: string) =>
+    unwrap(api.POST('/v1/expenses/products', { body: { title } })),
+  );
+}
+
+export function useUpdateProduct() {
+  return useChange(
+    ({ id, body }: { id: string; body: ProductPatch }) =>
+      unwrap(api.PATCH('/v1/expenses/products/{product_id}', { ...productPath(id), body })),
+    { quiet: true },
+  );
+}
+
+/** `other` joins `id`: its names, and so its purchases. */
+export function useMergeProduct() {
+  return useChange(({ id, other }: { id: string; other: string }) =>
+    unwrap(
+      api.POST('/v1/expenses/products/{product_id}/merge', {
+        ...productPath(id),
+        body: { product_id: other },
+      }),
+    ),
+  );
+}
+
+/** The two are different things: they won't be suggested together again. */
+export function useKeepApart() {
+  return useChange(({ id, other }: { id: string; other: string }) =>
+    unwrap(
+      api.POST('/v1/expenses/products/{product_id}/apart', {
+        ...productPath(id),
+        body: { product_id: other },
+      }),
+    ),
+  );
+}
+
+export function useStopProduct() {
+  return useChange((id: string) =>
+    unwrap(api.DELETE('/v1/expenses/products/{product_id}', productPath(id))),
   );
 }

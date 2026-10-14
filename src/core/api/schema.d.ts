@@ -709,6 +709,94 @@ export interface paths {
         patch: operations["change_category_v1_expenses_categories__category_id__patch"];
         trace?: never;
     };
+    "/v1/expenses/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What I buy, with how its price is going (recently bought first) */
+        get: operations["list_products_v1_expenses_products_get"];
+        put?: never;
+        /** Follow the price of what an entry is called */
+        post: operations["track_product_v1_expenses_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/products/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A product: every purchase, its price per unit, and where it's cheapest */
+        get: operations["read_product_v1_expenses_products__product_id__get"];
+        put?: never;
+        post?: never;
+        /** Stop following a product (its entries stay) */
+        delete: operations["stop_product_v1_expenses_products__product_id__delete"];
+        options?: never;
+        head?: never;
+        /** Rename a product, change its names, price unit or price alert */
+        patch: operations["change_product_v1_expenses_products__product_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/products/{product_id}/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Combine another product into this one (its names and entries join it) */
+        post: operations["merge_product_v1_expenses_products__product_id__merge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/products/{product_id}/apart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Say two products are different things (no more suggestions to combine them) */
+        post: operations["keep_apart_v1_expenses_products__product_id__apart_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Units a quantity can be in */
+        get: operations["list_units_v1_expenses_units_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -887,6 +975,16 @@ export interface components {
              * @description Default: my base currency
              */
             currency?: string | null;
+            /**
+             * Quantity
+             * @description How much was bought, in `unit`
+             */
+            quantity?: number | null;
+            /**
+             * Unit
+             * @description A code from GET /units
+             */
+            unit?: string | null;
             /** Category Id */
             category_id: string;
             /**
@@ -933,6 +1031,16 @@ export interface components {
             amount_minor: number;
             /** Currency */
             currency: string;
+            /**
+             * Quantity
+             * @description How much was bought, in `unit`
+             */
+            quantity?: number | null;
+            /**
+             * Unit
+             * @description A code from GET /units
+             */
+            unit?: string | null;
             /** Category Id */
             category_id: string;
             /**
@@ -1004,6 +1112,16 @@ export interface components {
              * @description Default: my base currency
              */
             currency?: string | null;
+            /**
+             * Quantity
+             * @description How much was bought, in `unit`
+             */
+            quantity?: number | null;
+            /**
+             * Unit
+             * @description A code from GET /units
+             */
+            unit?: string | null;
             /** Category Id */
             category_id: string;
             /**
@@ -1145,6 +1263,18 @@ export interface components {
             /** Currency */
             currency?: string | null;
         };
+        /** LastPrice */
+        LastPrice: {
+            /** Unit Price Minor */
+            unit_price_minor: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Merchant */
+            merchant: string | null;
+        };
         /**
          * Locale
          * @description UI languages the platform supports (ADR-0009).
@@ -1160,6 +1290,19 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** MerchantPrices */
+        MerchantPrices: {
+            /** Merchant */
+            merchant: string | null;
+            /** Count */
+            count: number;
+            /** Min Minor */
+            min_minor: number;
+            /** Avg Minor */
+            avg_minor: number;
+            /** Last Minor */
+            last_minor: number;
         };
         /**
          * ModuleName
@@ -1230,6 +1373,11 @@ export interface components {
              * @description Module keys, first to last
              */
             keys: string[];
+        };
+        /** OtherProductIn */
+        OtherProductIn: {
+            /** Product Id */
+            product_id: string;
         };
         /** Page[ActivityOut] */
         Page_ActivityOut_: {
@@ -1309,6 +1457,19 @@ export interface components {
             /** Has Next */
             has_next: boolean;
         };
+        /** Page[ProductSummary] */
+        Page_ProductSummary_: {
+            /** Items */
+            items: components["schemas"]["ProductSummary"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
         /** Page[RevisionOut] */
         Page_RevisionOut_: {
             /** Items */
@@ -1373,6 +1534,117 @@ export interface components {
             /** Pinned */
             pinned?: boolean | null;
         };
+        /** PriceStats */
+        PriceStats: {
+            /** Count */
+            count: number;
+            /** Min Minor */
+            min_minor: number;
+            /** Max Minor */
+            max_minor: number;
+            /** Avg Minor */
+            avg_minor: number;
+            /** Last Minor */
+            last_minor: number;
+            /** Previous Minor */
+            previous_minor: number | null;
+            /** Change Pct */
+            change_pct: number | null;
+        };
+        /** ProductDetail */
+        ProductDetail: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Aliases */
+            aliases: string[];
+            /** Dimension */
+            dimension: string;
+            /** Price Unit */
+            price_unit: string;
+            /** Alert Above Minor */
+            alert_above_minor: number | null;
+            /** Apart */
+            apart: string[];
+            /** Currency */
+            currency: string;
+            /** Purchases */
+            purchases: components["schemas"]["Purchase"][];
+            stats: components["schemas"]["PriceStats"] | null;
+            /** Merchants */
+            merchants: components["schemas"]["MerchantPrices"][];
+            /** Cheapest */
+            cheapest: string | null;
+        };
+        /** ProductOut */
+        ProductOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Aliases */
+            aliases: string[];
+            /** Dimension */
+            dimension: string;
+            /** Price Unit */
+            price_unit: string;
+            /** Alert Above Minor */
+            alert_above_minor: number | null;
+            /** Apart */
+            apart: string[];
+        };
+        /**
+         * ProductPatch
+         * @description Only what is sent changes; ``alert_above_minor: null`` turns the alert off.
+         */
+        ProductPatch: {
+            /** Name */
+            name?: string | null;
+            /** Aliases */
+            aliases?: string[] | null;
+            /**
+             * Price Unit
+             * @description A code from GET /units, of the product's dimension
+             */
+            price_unit?: string | null;
+            /**
+             * Alert Above Minor
+             * @description Per price_unit, in minor units
+             */
+            alert_above_minor?: number | null;
+        };
+        /**
+         * ProductSummary
+         * @description A product with how its price is going, for the list.
+         */
+        ProductSummary: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Aliases */
+            aliases: string[];
+            /** Dimension */
+            dimension: string;
+            /** Price Unit */
+            price_unit: string;
+            /** Alert Above Minor */
+            alert_above_minor: number | null;
+            /** Apart */
+            apart: string[];
+            /** Currency */
+            currency: string;
+            /** Purchases */
+            purchases: number;
+            last: components["schemas"]["LastPrice"] | null;
+            /** Change Pct */
+            change_pct: number | null;
+            /** Trend */
+            trend: number[];
+            /** Cheapest */
+            cheapest: string | null;
+        };
         /**
          * Proposal
          * @description A write the agent prepared; nothing happens until the user confirms it.
@@ -1411,6 +1683,26 @@ export interface components {
          * @enum {string}
          */
         ProposalStatus: "pending" | "confirmed" | "rejected" | "failed";
+        /** Purchase */
+        Purchase: {
+            /** Entry Id */
+            entry_id: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Merchant */
+            merchant: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Unit Price Minor */
+            unit_price_minor: number | null;
+        };
         /** ReadinessStatus */
         ReadinessStatus: {
             /**
@@ -1640,10 +1932,29 @@ export interface components {
             user: components["schemas"]["UserOut"];
         };
         /**
+         * TrackIn
+         * @description Follow the price of what an entry is called (and every entry with that title).
+         */
+        TrackIn: {
+            /** Title */
+            title: string;
+            /** Name */
+            name?: string | null;
+        };
+        /**
          * UiMode
          * @enum {string}
          */
         UiMode: "standard" | "simple";
+        /** UnitOut */
+        UnitOut: {
+            /** Code */
+            code: string;
+            /** Dimension */
+            dimension: string;
+            /** Factor */
+            factor: number;
+        };
         /** UserOut */
         UserOut: {
             /** Id */
@@ -4673,6 +4984,551 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_products_v1_expenses_products_get: {
+        parameters: {
+            query?: {
+                /** @description Only the one it claims */
+                title?: string | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ProductSummary_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    track_product_v1_expenses_products_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrackIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_product_v1_expenses_products__product_id__get: {
+        parameters: {
+            query?: {
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    stop_product_v1_expenses_products__product_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_product_v1_expenses_products__product_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    merge_product_v1_expenses_products__product_id__merge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtherProductIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    keep_apart_v1_expenses_products__product_id__apart_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtherProductIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_units_v1_expenses_units_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

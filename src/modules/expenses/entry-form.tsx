@@ -13,6 +13,7 @@ import {
   PAYMENT_MODES,
   useFacets,
   useSaveEntry,
+  useUnits,
   type Entry,
   type EntryInput,
   type EntryKind,
@@ -20,6 +21,7 @@ import {
 import type { Draft } from '@/modules/expenses/capture';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { NS } from '@/modules/expenses/i18n';
+import { priceUnitFor, unitPrice, useUnitText } from '@/modules/expenses/units';
 
 const MAX_TAGS = 10;
 const KINDS = ['expense', 'income'] as const satisfies readonly EntryKind[];
@@ -35,6 +37,8 @@ interface FormValues {
   kind: EntryKind;
   amount: string;
   title: string;
+  quantity: string;
+  unit: string;
   category_id: string;
   date: string;
   time: string;
@@ -54,6 +58,8 @@ function valuesOf(entry: Entry | null, draft: Draft | undefined, today: string):
     kind: entry?.kind ?? draft?.kind ?? 'expense',
     amount: entry ? toInput(entry.amount_minor, entry.currency) : (draft?.amount ?? ''),
     title: entry?.title ?? draft?.title ?? '',
+    quantity: entry ? String(entry.quantity ?? '') : (draft?.quantity ?? ''),
+    unit: entry ? (entry.unit ?? '') : (draft?.unit ?? ''),
     category_id: entry?.category_id ?? draft?.category_id ?? '',
     date: entry?.date ?? draft?.date ?? today,
     time: entry?.time?.slice(0, 5) ?? '',
@@ -64,6 +70,12 @@ function valuesOf(entry: Entry | null, draft: Draft | undefined, today: string):
     note: entry?.note ?? '',
     link: entry?.attachments[0]?.url ?? '',
   };
+}
+
+/** "0.5", "0,5" or "2" as a number; `null` for anything that isn't a positive one. */
+function quantityOf(text: string): number | null {
+  const value = Number(text.trim().replace(',', '.'));
+  return text.trim() !== '' && Number.isFinite(value) && value > 0 ? value : null;
 }
 
 function tagsOf(text: string): string[] {
@@ -81,6 +93,10 @@ function bodyOf(values: FormValues, currency: string, entry: Entry | null): Entr
     kind: values.kind,
     title: values.title,
     amount_minor: toMinor(values.amount, currency) ?? 0,
+    // How much was bought is about spending; and a quantity means nothing without its unit.
+    ...(values.kind === 'expense' && values.unit && quantityOf(values.quantity)
+      ? { quantity: quantityOf(values.quantity), unit: values.unit }
+      : { quantity: null, unit: null }),
     category_id: values.category_id,
     date: values.date,
     time: values.time || null,
@@ -120,6 +136,12 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
     defaultValues: valuesOf(entry, draft, todayIn(user?.timezone)),
   });
   const kind = useWatch({ control: form.control, name: 'kind' });
+  const [amount, quantity, unit] = useWatch({
+    control: form.control,
+    name: ['amount', 'quantity', 'unit'],
+  });
+  const units = useUnits().data ?? [];
+  const unitText = useUnitText();
   const { errors } = form.formState;
   const currency = entry?.currency ?? user?.base_currency;
   if (!currency) return null;
@@ -130,6 +152,10 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
       category.kind === kind && (!category.archived || category.id === entry?.category_id),
   );
   const failure = failureCode(save.error);
+  const minor = toMinor(amount, currency);
+  const counted = quantityOf(quantity);
+  const per = priceUnitFor(units, unit);
+  const each = minor && counted && unit ? unitPrice(units, minor, counted, unit, per) : null;
 
   const submit = form.handleSubmit(async (values) => {
     const body = bodyOf(values, currency, entry);
@@ -207,6 +233,44 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
             validate: (value) => value.trim() !== '' || t('form.titleError'),
           })}
         />
+
+        {kind === 'expense' && (
+          <div>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField
+                label={t('form.quantity')}
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder={t('form.quantityPlaceholder')}
+                error={errors.quantity?.message}
+                {...form.register('quantity', {
+                  validate: (value, values) =>
+                    value.trim() === ''
+                      ? values.unit === '' || t('form.quantityError')
+                      : quantityOf(value) !== null || t('form.quantityError'),
+                })}
+              />
+              <SelectField
+                label={t('form.unit')}
+                placeholder={t('form.notSet')}
+                options={units.map((item) => ({
+                  value: item.code,
+                  label: unitText.name(item.code),
+                }))}
+                error={errors.unit?.message}
+                {...form.register('unit', {
+                  validate: (value, values) =>
+                    value !== '' || values.quantity.trim() === '' || t('form.unitError'),
+                })}
+              />
+            </div>
+            {each !== null && (
+              <p className="mt-1 text-sm text-muted" aria-live="polite">
+                {t('form.each', { price: unitText.perUnit(each, currency, per) })}
+              </p>
+            )}
+          </div>
+        )}
 
         <fieldset aria-describedby={errors.category_id ? `${listId}-category` : undefined}>
           <legend className="mb-1 text-sm font-medium">{t('form.category')}</legend>

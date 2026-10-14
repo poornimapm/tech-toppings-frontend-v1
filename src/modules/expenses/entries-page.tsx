@@ -28,6 +28,7 @@ import { EntryForm } from '@/modules/expenses/entry-form';
 import { EntryRow } from '@/modules/expenses/entry-row';
 import { NS } from '@/modules/expenses/i18n';
 import { daysOf, PERIODS, toPeriod } from '@/modules/expenses/periods';
+import { SectionTabs } from '@/modules/expenses/section-tabs';
 import { Totals } from '@/modules/expenses/totals';
 
 /** What the list shows. The first is the default. */
@@ -114,6 +115,7 @@ export function EntriesPage() {
           </Button>
         </div>
       </header>
+      <SectionTabs />
 
       <CapturePanel />
 

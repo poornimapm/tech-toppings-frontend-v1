@@ -1,4 +1,5 @@
 // Shared UI primitives. Modules import UI only from here (ADR-0001).
+export { niceMax, niceRange, useMeasuredWidth } from '@/design-system/charts/scale';
 export { MotionProvider } from '@/design-system/motion/motion-provider';
 export { Alert, type AlertTone } from '@/design-system/primitives/alert';
 export {

@@ -18,6 +18,7 @@ export function isOpenable(tile: ModuleTile): boolean {
 }
 
 /** Where "open" takes a module: its pages when it has them, otherwise its details. */
-export function moduleHref(tile: ModuleTile): string {
-  return isOpenable(tile) ? `/m/${slugOf(tile.view.key)}` : `/?module=${tile.view.key}`;
+export function moduleHref(tile: ModuleTile, page = ''): string {
+  if (!isOpenable(tile)) return `/?module=${tile.view.key}`;
+  return [`/m/${slugOf(tile.view.key)}`, page].filter(Boolean).join('/');
 }

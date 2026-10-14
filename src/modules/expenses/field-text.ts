@@ -4,6 +4,7 @@ import { displayDate } from '@/core/utils/dates';
 import { formatMoney } from '@/core/utils/money';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { NS } from '@/modules/expenses/i18n';
+import { useUnitText } from '@/modules/expenses/units';
 
 /** Field names and enum values in history come from the server at runtime. */
 type LooseT = (key: string, options?: Record<string, unknown>) => string;
@@ -16,6 +17,7 @@ export function useFieldText(currency: string) {
   const { t, i18n } = useTranslation(NS);
   const book = useCategoryBook();
   const loose = t as unknown as LooseT;
+  const units = useUnitText();
 
   const formats: Record<string, (value: never) => string> = {
     amount_minor: (value: number) => formatMoney(value, currency, i18n.language),
@@ -26,6 +28,8 @@ export function useFieldText(currency: string) {
     date: (value: string) =>
       new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(displayDate(value)),
     time: (value: string) => value.slice(0, 5),
+    quantity: (value: number) => new Intl.NumberFormat(i18n.language).format(value),
+    unit: (value: string) => units.name(value),
     tags: (value: string[]) => value.map((tag) => `#${tag}`).join(' '),
     attachments: (value: { url: string }[]) => value.map((item) => item.url).join(', '),
   };

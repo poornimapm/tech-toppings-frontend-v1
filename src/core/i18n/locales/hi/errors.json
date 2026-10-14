@@ -35,5 +35,9 @@
   "EXPENSE_CATEGORY_INVALID": "इस तरह की प्रविष्टि के लिए अपनी कोई श्रेणी चुनें।",
   "EXPENSE_CATEGORY_EXISTS": "इस नाम की श्रेणी पहले से है।",
   "EXPENSE_CATEGORY_LIMIT": "आप अपनी श्रेणियों की सीमा तक पहुँच गए हैं।",
+  "EXPENSE_PRODUCT_EXISTS": "इस नाम की चीज़ पर आप पहले से नज़र रखते हैं।",
+  "EXPENSE_PRODUCT_NAME_TAKEN": "कोई और चीज़ पहले से इस नाम से है। उन्हें मिला दें।",
+  "EXPENSE_PRODUCT_LIMIT": "आप जितनी चीज़ों पर नज़र रख सकते हैं, उतनी हो चुकी हैं।",
+  "EXPENSE_PRODUCT_INVALID": "इन चीज़ों के साथ यह नहीं हो सकता।",
   "EXPENSE_CURRENCY_UNSUPPORTED": "फ़िलहाल प्रविष्टियाँ आपकी मूल मुद्रा में ही रखी जाती हैं।"
 }

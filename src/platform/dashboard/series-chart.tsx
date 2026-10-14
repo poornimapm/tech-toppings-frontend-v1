@@ -1,49 +1,12 @@
-import {
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type PointerEvent,
-} from 'react';
+import { useId, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { SeriesData } from '@/core/dashboard/queries';
 import { displayDate } from '@/core/utils/dates';
+import { niceMax, useMeasuredWidth } from '@/design-system';
 
 const HEIGHT = 184;
 const PAD = { top: 18, right: 18, bottom: 26, left: 40 };
-/** Used until the card has been measured (and in tests, where nothing has a size). */
-const FALLBACK_WIDTH = 480;
-
-/** A round number at or above `max`, so the axis reads 0 / 5 / 10 rather than 0 / 3.5 / 7. */
-function niceMax(max: number): number {
-  if (max <= 4) return 4;
-  const power = 10 ** Math.floor(Math.log10(max));
-  const lead = max / power;
-  return (lead <= 1 ? 1 : lead <= 2 ? 2 : lead <= 5 ? 5 : 10) * power;
-}
-
-function useMeasuredWidth() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(FALLBACK_WIDTH);
-  // Before paint, so the chart is never drawn at the fallback width first.
-  useLayoutEffect(() => {
-    const node = ref.current;
-    if (!node) return undefined;
-    const measure = () => {
-      const measured = node.getBoundingClientRect().width;
-      if (measured > 0) setWidth(measured);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-  return [ref, width] as const;
-}
 
 /**
  * One value per day as an area chart. Pointing or arrow keys move a crosshair that reads out

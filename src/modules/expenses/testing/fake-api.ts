@@ -6,6 +6,8 @@ type Schemas = components['schemas'];
 type Entry = Schemas['EntryOut'];
 type Category = Schemas['CategoryOut'];
 type Revision = Schemas['RevisionOut'];
+type Product = Schemas['ProductDetail'];
+type Purchase = Schemas['Purchase'];
 
 const API = '*/api/v1/expenses';
 
@@ -36,6 +38,8 @@ export function entryOf(changes: Partial<Entry> = {}): Entry {
     title: 'Rice',
     amount_minor: 12500,
     currency: 'INR',
+    quantity: null,
+    unit: null,
     category_id: 'groceries',
     date: '2026-10-08',
     time: null,
@@ -51,6 +55,135 @@ export function entryOf(changes: Partial<Entry> = {}): Entry {
     created_at: '2026-10-08T04:00:00Z',
     updated_at: '2026-10-08T04:00:00Z',
     ...changes,
+  };
+}
+
+export const UNITS: Schemas['UnitOut'][] = [
+  { code: 'kg', dimension: 'mass', factor: 1 },
+  { code: 'g', dimension: 'mass', factor: 0.001 },
+  { code: 'l', dimension: 'volume', factor: 1 },
+  { code: 'piece', dimension: 'count', factor: 1 },
+  { code: 'dozen', dimension: 'count', factor: 12 },
+];
+
+export function purchaseOf(changes: Partial<Purchase> = {}): Purchase {
+  return {
+    entry_id: 'e-tomato-1',
+    date: '2026-10-01',
+    merchant: 'A',
+    quantity: 1,
+    unit: 'kg',
+    amount_minor: 4000,
+    unit_price_minor: 4000,
+    ...changes,
+  };
+}
+
+/** Tomato as the server would describe it: bought at A, at B, and somewhere not noted. */
+export function productOf(changes: Partial<Product> = {}): Product {
+  return {
+    id: 'p-tomato',
+    name: 'Tomato',
+    aliases: ['tomato'],
+    dimension: 'mass',
+    price_unit: 'kg',
+    alert_above_minor: null,
+    apart: [],
+    currency: 'INR',
+    purchases: [
+      purchaseOf(),
+      purchaseOf({
+        entry_id: 'e-tomato-2',
+        date: '2026-10-04',
+        merchant: 'B',
+        quantity: 500,
+        unit: 'g',
+        amount_minor: 2500,
+        unit_price_minor: 5000,
+      }),
+      purchaseOf({
+        entry_id: 'e-tomato-3',
+        date: '2026-10-07',
+        merchant: null,
+        quantity: 2,
+        amount_minor: 7000,
+        unit_price_minor: 3500,
+      }),
+    ],
+    stats: null,
+    merchants: [],
+    cheapest: null,
+    ...changes,
+  };
+}
+
+const average = (values: number[]) =>
+  Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+
+/** The figures the server draws from a product's purchases (stats, places, the list's
+ *  summary), so fixtures only need to give the purchases. */
+function figuresOf(product: Product) {
+  const priced = product.purchases.filter((item) => item.unit_price_minor !== null);
+  const prices = priced.map((item) => item.unit_price_minor ?? 0);
+  const last = prices.at(-1);
+  const previous = prices.at(-2);
+  const change =
+    last !== undefined && previous ? Math.round(((last - previous) / previous) * 1000) / 10 : null;
+  const places = [...new Set(priced.map((item) => item.merchant))]
+    .map((merchant) => {
+      const own = priced
+        .filter((item) => item.merchant === merchant)
+        .map((item) => item.unit_price_minor ?? 0);
+      return {
+        merchant,
+        count: own.length,
+        min_minor: Math.min(...own),
+        avg_minor: average(own),
+        last_minor: own.at(-1) ?? 0,
+      };
+    })
+    .sort((a, b) => a.avg_minor - b.avg_minor);
+  const cheapest = places.find((place) => place.merchant)?.merchant ?? null;
+  const latest = priced.at(-1);
+  return {
+    detail: {
+      ...product,
+      stats:
+        last === undefined
+          ? null
+          : {
+              count: prices.length,
+              min_minor: Math.min(...prices),
+              max_minor: Math.max(...prices),
+              avg_minor: average(prices),
+              last_minor: last,
+              previous_minor: previous ?? null,
+              change_pct: change,
+            },
+      merchants: places,
+      cheapest,
+    },
+    summary: {
+      id: product.id,
+      name: product.name,
+      aliases: product.aliases,
+      dimension: product.dimension,
+      price_unit: product.price_unit,
+      alert_above_minor: product.alert_above_minor,
+      apart: product.apart,
+      currency: product.currency,
+      purchases: priced.length,
+      last: latest
+        ? {
+            unit_price_minor: latest.unit_price_minor ?? 0,
+            date: latest.date,
+            merchant: latest.merchant,
+          }
+        : null,
+      change_pct: change,
+      trend: prices,
+      cheapest,
+    } satisfies Schemas['ProductSummary'],
   };
 }
 
@@ -109,12 +242,14 @@ const notFound = () =>
  * A small in-memory expenses API for tests: `server.use(...fake.handlers)`. `fake.requests`
  * records what the page sent (method, path with query, body and Idempotency-Key).
  */
-export function fakeExpenses(entries: Entry[] = seed()) {
+export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []) {
   const state = {
     entries: structuredClone(entries),
     categories: structuredClone(CATEGORIES),
     revisions: new Map<string, Revision[]>(),
+    products: structuredClone(products),
   };
+  const product = (id: unknown) => state.products.find((item) => item.id === id);
   const requests: { method: string; path: string; body: unknown; key: string | null }[] = [];
   for (const entry of state.entries)
     state.revisions.set(entry.id, [revisionOf(entry, 'create', [])]);
@@ -283,6 +418,60 @@ export function fakeExpenses(entries: Entry[] = seed()) {
     http.get(`${API}/entries/:id/revisions`, ({ params }) =>
       HttpResponse.json(page(state.revisions.get(String(params.id)) ?? [])),
     ),
+    http.get(`${API}/units`, () => HttpResponse.json(UNITS)),
+    http.get(`${API}/products`, ({ request }) => {
+      const title = new URL(request.url).searchParams.get('title')?.toLowerCase();
+      const found = state.products.filter((item) => !title || item.aliases.includes(title));
+      return HttpResponse.json(page(found.map((item) => figuresOf(item).summary)));
+    }),
+    http.post(`${API}/products`, async ({ request }) => {
+      const { title } = (await request.json()) as Schemas['TrackIn'];
+      const created = productOf({
+        id: `p-${String(state.products.length)}`,
+        name: title,
+        aliases: [title.toLowerCase()],
+        dimension: 'count',
+        price_unit: 'piece',
+        purchases: [],
+      });
+      state.products.push(created);
+      return HttpResponse.json(created, { status: 201 });
+    }),
+    http.get(`${API}/products/:id`, ({ params }) => {
+      const found = product(params.id);
+      return found ? HttpResponse.json(figuresOf(found).detail) : notFound();
+    }),
+    http.patch(`${API}/products/:id`, async ({ params, request }) => {
+      const found = product(params.id);
+      if (!found) return notFound();
+      const body = (await request.json()) as Schemas['ProductPatch'];
+      const aliases = body.aliases?.map((alias) => alias.toLowerCase());
+      Object.assign(found, body, aliases ? { aliases } : {});
+      return HttpResponse.json(found);
+    }),
+    http.post(`${API}/products/:id/merge`, async ({ params, request }) => {
+      const { product_id } = (await request.json()) as Schemas['OtherProductIn'];
+      const target = product(params.id);
+      const source = product(product_id);
+      if (!target || !source) return notFound();
+      target.aliases = [...target.aliases, ...source.aliases];
+      target.purchases = [...target.purchases, ...source.purchases].sort((a, b) =>
+        a.date.localeCompare(b.date),
+      );
+      state.products = state.products.filter((item) => item !== source);
+      return HttpResponse.json(target);
+    }),
+    http.post(`${API}/products/:id/apart`, async ({ params, request }) => {
+      const { product_id } = (await request.json()) as Schemas['OtherProductIn'];
+      const found = product(params.id);
+      if (!found) return notFound();
+      found.apart.push(product_id);
+      return new HttpResponse(null, { status: 204 });
+    }),
+    http.delete(`${API}/products/:id`, ({ params }) => {
+      state.products = state.products.filter((item) => item.id !== params.id);
+      return new HttpResponse(null, { status: 204 });
+    }),
   ];
   return { state, requests, handlers };
 }

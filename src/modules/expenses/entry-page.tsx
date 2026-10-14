@@ -18,6 +18,7 @@ import {
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { CategoryIcon } from '@/modules/expenses/category-icon';
 import { EntryForm } from '@/modules/expenses/entry-form';
+import { EntryPrice } from '@/modules/expenses/entry-price';
 import { useFieldText } from '@/modules/expenses/field-text';
 import { NS } from '@/modules/expenses/i18n';
 
@@ -206,6 +207,8 @@ export function EntryPage() {
             </div>
           ))}
         </dl>
+
+        <EntryPrice entry={current} />
 
         <div className="flex flex-wrap gap-2">
           {current.deleted ? (

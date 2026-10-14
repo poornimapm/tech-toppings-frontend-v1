@@ -55,6 +55,9 @@ export interface ModuleDefinition {
   routes?: RouteObject[];
   /** Pages an agent's client tools may show: tool name -> path under `/m/<slug>` ('' = home). */
   actions?: Record<string, string>;
+  /** Where a notification leads, by its code: a path under `/m/<slug>` with `{{param}}`s filled
+   *  from the notification (otherwise it leads to the module's home). */
+  links?: Record<string, string>;
 }
 
 /** A module ready to render: the API's view merged with its frontend definition. */

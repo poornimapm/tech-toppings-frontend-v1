@@ -118,6 +118,25 @@ describe('capturing an entry', () => {
     expect(await screen.findByRole('link', { name: 'Vegetables' })).toBeInTheDocument();
   });
 
+  it('keeps how much was bought, and saves it with its unit', async () => {
+    answerWith([{ ...VEGETABLES, title: 'Tomatoes', amount: 80, quantity: 2, unit: 'kg' }]);
+    const { user } = await open();
+
+    await say(user, '2 kg tomatoes 80');
+
+    expect(
+      await tray().findByText('2 kg · Groceries · Oct 7, 2026 · Big Bazaar'),
+    ).toBeInTheDocument();
+    await user.click(tray().getByRole('button', { name: 'Save Tomatoes' }));
+    expect(await screen.findByText('Added Tomatoes')).toBeInTheDocument();
+    expect(fake.requests.find((request) => request.method === 'POST')?.body).toMatchObject({
+      title: 'Tomatoes',
+      amount_minor: 8000,
+      quantity: 2,
+      unit: 'kg',
+    });
+  });
+
   it('asks for what is missing instead of guessing it', async () => {
     answerWith([SOMETHING]);
     const { user } = await open();

@@ -210,6 +210,16 @@ async function stubExpenses(page: Page): Promise<string[]> {
   });
   const history = new Map<string, unknown[]>();
 
+  await page.route('**/api/v1/expenses/units', (route) =>
+    route.fulfill({
+      json: [
+        { code: 'kg', dimension: 'mass', factor: 1 },
+        { code: 'g', dimension: 'mass', factor: 0.001 },
+      ],
+    }),
+  );
+  // Nothing followed yet (stubProducts, registered later, takes over when a test needs them).
+  await page.route('**/api/v1/expenses/products**', (route) => route.fulfill({ json: listOf([]) }));
   await page.route('**/api/v1/expenses/categories', (route) =>
     route.fulfill({
       json: listOf([category('groceries', 'expense', '🛒'), category('salary', 'income', '💼')]),
@@ -490,6 +500,154 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
 /** True when the page is no wider than the screen, so nothing scrolls sideways. */
 const fitsWidth = (page: Page) =>
   page.evaluate<boolean>('document.documentElement.scrollWidth <= window.innerWidth');
+
+/** Tomato (bought at A and at B) and Thakkali, as the server would describe them. */
+function stubProducts(page: Page) {
+  const bought = (
+    id: string,
+    date: string,
+    merchant: string | null,
+    paid: number,
+    each: number,
+  ) => ({
+    entry_id: id,
+    date,
+    merchant,
+    quantity: paid / each,
+    unit: 'kg',
+    amount_minor: paid,
+    unit_price_minor: each,
+  });
+  const products = [
+    {
+      id: 'p-tomato',
+      name: 'Tomato',
+      aliases: ['tomato'],
+      purchases: [
+        bought('e-1', '2026-10-01', 'A', 4000, 4000),
+        bought('e-2', '2026-10-04', 'B', 2500, 5000),
+      ],
+    },
+    {
+      id: 'p-thakkali',
+      name: 'Thakkali',
+      aliases: ['thakkali'],
+      purchases: [bought('e-3', '2026-10-07', null, 7000, 3500)],
+    },
+  ];
+  const shaped = (item: (typeof products)[number]) => {
+    const prices = item.purchases.map((purchase) => purchase.unit_price_minor);
+    const last = item.purchases.at(-1);
+    const common = {
+      id: item.id,
+      name: item.name,
+      aliases: item.aliases,
+      dimension: 'mass',
+      price_unit: 'kg',
+      alert_above_minor: null,
+      apart: [],
+      currency: 'INR',
+    };
+    return {
+      summary: {
+        ...common,
+        purchases: prices.length,
+        last: last && {
+          unit_price_minor: last.unit_price_minor,
+          date: last.date,
+          merchant: last.merchant,
+        },
+        change_pct: null,
+        trend: prices,
+        cheapest: 'A',
+      },
+      detail: {
+        ...common,
+        purchases: item.purchases,
+        stats: {
+          count: prices.length,
+          min_minor: Math.min(...prices),
+          max_minor: Math.max(...prices),
+          avg_minor: Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length),
+          last_minor: prices.at(-1),
+          previous_minor: prices.at(-2) ?? null,
+          change_pct: null,
+        },
+        merchants: [],
+        cheapest: 'A',
+      },
+    };
+  };
+  return page.route('**/api/v1/expenses/products**', (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    const merged = /products\/([^/]+)\/merge$/.exec(path);
+    if (merged) {
+      const { product_id: other } = request.postDataJSON() as { product_id: string };
+      const target = products.find((item) => item.id === merged[1]);
+      const source = products.find((item) => item.id === other);
+      if (!target || !source) return route.fulfill({ status: 404, json: { code: 'NOT_FOUND' } });
+      target.aliases.push(...source.aliases);
+      target.purchases.push(...source.purchases);
+      products.splice(products.indexOf(source), 1);
+      return route.fulfill({ json: shaped(target).summary });
+    }
+    const one = products.find((item) => path.endsWith(`/products/${item.id}`));
+    if (one) return route.fulfill({ json: shaped(one).detail });
+    return route.fulfill({ json: listOf(products.map((item) => shaped(item).summary)) });
+  });
+}
+
+test('one thing bought under two names becomes one price history, per kg', async ({ page }) => {
+  await stubApi(page);
+  await stubExpenses(page);
+  await stubProducts(page);
+  await page.route('**/api/v1/agents/assistant/runs', (route) =>
+    route.fulfill({
+      status: 201,
+      json: {
+        id: 'run-3',
+        agent: 'assistant',
+        skill: 'tidy-products',
+        status: 'completed',
+        mode: 'static',
+        reason: 'consent',
+        message: null,
+        message_code: 'tidy-products.ready.find',
+        message_params: { count: 1 },
+        proposals: [],
+        client_actions: [
+          {
+            tool: 'expenses_product_matches',
+            arguments: { matches: [{ product_id: 'p-tomato', products: ['p-thakkali'] }] },
+          },
+        ],
+        created_at: '2026-10-09T10:00:00Z',
+      },
+    }),
+  );
+  await page.goto('/m/expenses');
+  await page.getByRole('link', { name: 'Prices' }).click();
+  await expect(page.getByRole('link', { name: 'Thakkali' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Find matches' }).click();
+  await page
+    .getByRole('region', { name: 'These look like the same thing' })
+    .getByRole('button', { name: 'Combine into Tomato' })
+    .click();
+
+  await expect(page.getByText('Combined into Tomato')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Thakkali' })).toHaveCount(0);
+  await page.getByRole('link', { name: 'Tomato' }).click();
+  const chart = page.getByRole('slider', { name: 'Explore the price of Tomato' });
+  await expect(chart).toHaveAttribute('aria-valuetext', '₹35/kg, Oct 7, Not noted');
+  await chart.focus();
+  await page.keyboard.press('Home');
+  await expect(chart).toHaveAttribute('aria-valuetext', '₹40/kg, Oct 1, A');
+  await page.keyboard.press('ArrowRight');
+  await expect(chart).toHaveAttribute('aria-valuetext', '₹50/kg, Oct 4, B');
+  expect(await fitsWidth(page)).toBe(true);
+});
 
 test('an expense is added, opened, deleted and brought back', async ({ page }) => {
   await stubApi(page);
