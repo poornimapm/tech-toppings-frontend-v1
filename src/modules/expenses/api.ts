@@ -35,6 +35,8 @@ export interface EntryFilters {
   from?: string;
   to?: string;
   category_id?: string;
+  for_whom?: string;
+  merchant?: string;
   q?: string;
   deleted?: boolean;
 }

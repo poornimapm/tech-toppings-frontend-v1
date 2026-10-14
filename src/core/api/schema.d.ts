@@ -780,6 +780,244 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/expenses/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Spent, received and kept, against the days before */
+        get: operations["summary_v1_expenses_analytics_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Totals by category (default: spending) */
+        get: operations["by_category_v1_expenses_analytics_by_category_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/by-person": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Totals by who it was for (U6) */
+        get: operations["by_person_v1_expenses_analytics_by_person_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A total for every day */
+        get: operations["daily_v1_expenses_analytics_daily_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Spent and received, month by month */
+        get: operations["monthly_v1_expenses_analytics_monthly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/net": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Net savings, month by month and in all (U1) */
+        get: operations["net_v1_expenses_analytics_net_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/top-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What was spent on each product */
+        get: operations["top_products_v1_expenses_analytics_top_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/top-merchants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where the money went */
+        get: operations["top_merchants_v1_expenses_analytics_top_merchants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/weekday-heatmap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Each day by week, and each weekday */
+        get: operations["weekday_heatmap_v1_expenses_analytics_weekday_heatmap_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/cumulative": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The running total, against the days before */
+        get: operations["cumulative_v1_expenses_analytics_cumulative_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/forecast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where this month's spending is heading */
+        get: operations["forecast_v1_expenses_analytics_forecast_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/analytics/anomalies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Expenses far above the usual for their category */
+        get: operations["anomalies_v1_expenses_analytics_anomalies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A week or month in figures, and a summary of them (kept while they don't change) */
+        get: operations["read_insight_v1_expenses_insights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/insights/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Write the summary again, even if the figures haven't changed */
+        post: operations["refresh_insight_v1_expenses_insights_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/expenses/units": {
         parameters: {
             query?: never;
@@ -838,6 +1076,23 @@ export interface components {
             /** Skills */
             skills: components["schemas"]["SkillView"][];
         };
+        /** AnomaliesOut */
+        AnomaliesOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: components["schemas"]["Unusual"][];
+        };
         /** AttachmentIn */
         AttachmentIn: {
             /**
@@ -862,6 +1117,46 @@ export interface components {
          * @enum {string}
          */
         Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        /** ByCategoryOut */
+        ByCategoryOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Total Minor */
+            total_minor: number;
+            /** Items */
+            items: components["schemas"]["CategoryShare"][];
+        };
+        /** ByPersonOut */
+        ByPersonOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Total Minor */
+            total_minor: number;
+            /** Items */
+            items: components["schemas"]["PersonShare"][];
+        };
         /** CategoryIn */
         CategoryIn: {
             /** @default expense */
@@ -912,6 +1207,17 @@ export interface components {
             /** Accent */
             accent?: string | null;
         };
+        /** CategoryShare */
+        CategoryShare: {
+            /** Amount Minor */
+            amount_minor: number;
+            /** Count */
+            count: number;
+            /** Share Pct */
+            share_pct: number;
+            /** Category Id */
+            category_id: string;
+        };
         /** ClientAction */
         ClientAction: {
             /** Tool */
@@ -920,6 +1226,27 @@ export interface components {
             arguments: {
                 [key: string]: unknown;
             };
+        };
+        /** CumulativeOut */
+        CumulativeOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Points */
+            points: components["schemas"]["RunningTotal"][];
+            previous: components["schemas"]["Span"];
+            /** Previous Points */
+            previous_points: components["schemas"]["RunningTotal"][];
         };
         /**
          * CurrencyTotal
@@ -944,6 +1271,24 @@ export interface components {
              */
             count: number;
         };
+        /** DailyOut */
+        DailyOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Points */
+            points: components["schemas"]["DayAmount"][];
+        };
         /** DashboardOut */
         DashboardOut: {
             /**
@@ -958,6 +1303,21 @@ export interface components {
             end: string;
             /** Widgets */
             widgets: components["schemas"]["WidgetView"][];
+        };
+        /** DayAmount */
+        DayAmount: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
         };
         /** EntryIn */
         EntryIn: {
@@ -1196,6 +1556,44 @@ export interface components {
             /** New */
             new?: unknown;
         };
+        /** ForecastOut */
+        ForecastOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Month */
+            month: string;
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Spent Minor */
+            spent_minor: number;
+            /** Days Left */
+            days_left: number;
+            /** Pace Daily Minor */
+            pace_daily_minor: number;
+            /** Projected Minor */
+            projected_minor: number;
+            /** Low Minor */
+            low_minor: number;
+            /** High Minor */
+            high_minor: number;
+            /** Lookback Days */
+            lookback_days: number;
+            /** Previous Month Minor */
+            previous_month_minor: number;
+        };
         /** GoogleSignInIn */
         GoogleSignInIn: {
             /** Id Token */
@@ -1212,6 +1610,84 @@ export interface components {
             name: string;
             /** Version */
             version: string;
+        };
+        /** HeatDay */
+        HeatDay: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Amount Minor */
+            amount_minor: number;
+        };
+        /** HeatWeek */
+        HeatWeek: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Days */
+            days: (components["schemas"]["HeatDay"] | null)[];
+        };
+        /** HeatmapOut */
+        HeatmapOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Weeks */
+            weeks: components["schemas"]["HeatWeek"][];
+            /** Weekdays */
+            weekdays: components["schemas"]["WeekdayAmount"][];
+        };
+        /**
+         * InsightOut
+         * @description What the week or month looked like: the facts, and a summary of them in the user's
+         *     language (``message`` from the AI, or ``message_code`` + ``message_params`` worded by the
+         *     client when no AI was used).
+         */
+        InsightOut: {
+            period: components["schemas"]["Period"];
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            status: components["schemas"]["RunStatus"];
+            /** Mode */
+            mode: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Message */
+            message: string | null;
+            /** Message Code */
+            message_code: string | null;
+            /** Message Params */
+            message_params: {
+                [key: string]: unknown;
+            };
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
+            /** Cached */
+            cached: boolean;
         };
         /**
          * Item
@@ -1304,6 +1780,17 @@ export interface components {
             /** Last Minor */
             last_minor: number;
         };
+        /** MerchantShare */
+        MerchantShare: {
+            /** Amount Minor */
+            amount_minor: number;
+            /** Count */
+            count: number;
+            /** Share Pct */
+            share_pct: number;
+            /** Merchant */
+            merchant: string;
+        };
         /**
          * ModuleName
          * @description A module as the user sees it on screen, so agents and static scripts match their words.
@@ -1347,6 +1834,85 @@ export interface components {
             /** Has Settings */
             has_settings: boolean;
             stat: components["schemas"]["TileStat"] | null;
+        };
+        /** Month */
+        Month: {
+            /**
+             * Spent Minor
+             * @default 0
+             */
+            spent_minor: number;
+            /**
+             * Received Minor
+             * @default 0
+             */
+            received_minor: number;
+            /**
+             * Net Minor
+             * @default 0
+             */
+            net_minor: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /** Month */
+            month: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Savings Rate Pct */
+            savings_rate_pct?: number | null;
+            /**
+             * Cumulative Net Minor
+             * @default 0
+             */
+            cumulative_net_minor: number;
+        };
+        /** MonthlyOut */
+        MonthlyOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Months */
+            months: components["schemas"]["Month"][];
+        };
+        /** NetOut */
+        NetOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Months */
+            months: components["schemas"]["Month"][];
+            total: components["schemas"]["Totals"];
+            /** Savings Rate Pct */
+            savings_rate_pct: number | null;
         };
         /** NotificationOut */
         NotificationOut: {
@@ -1517,6 +2083,22 @@ export interface components {
          * @enum {string}
          */
         PaymentMode: "cash" | "upi" | "card" | "bank" | "wallet" | "other";
+        /**
+         * Period
+         * @enum {string}
+         */
+        Period: "week" | "month";
+        /** PersonShare */
+        PersonShare: {
+            /** Amount Minor */
+            amount_minor: number;
+            /** Count */
+            count: number;
+            /** Share Pct */
+            share_pct: number;
+            /** Name */
+            name: string | null;
+        };
         /** Point */
         Point: {
             /**
@@ -1826,6 +2408,16 @@ export interface components {
          * @enum {string}
          */
         RunStatus: "completed" | "unavailable" | "incomplete";
+        /** RunningTotal */
+        RunningTotal: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Total Minor */
+            total_minor: number;
+        };
         /**
          * Series
          * @description One value per day of the period.
@@ -1883,10 +2475,18 @@ export interface components {
             /** Has Static */
             has_static: boolean;
         };
-        /** SummaryOut */
-        SummaryOut: {
-            /** Totals */
-            totals: components["schemas"]["CurrencyTotal"][];
+        /** Span */
+        Span: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
         };
         /**
          * ThemePreference
@@ -1931,6 +2531,81 @@ export interface components {
             expires_in: number;
             user: components["schemas"]["UserOut"];
         };
+        /** TopMerchantsOut */
+        TopMerchantsOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            kind: components["schemas"]["EntryKind"];
+            /** Total Minor */
+            total_minor: number;
+            /** Items */
+            items: components["schemas"]["MerchantShare"][];
+        };
+        /** TopProduct */
+        TopProduct: {
+            /** Product Id */
+            product_id: string;
+            /** Name */
+            name: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Count */
+            count: number;
+            /** Price Unit */
+            price_unit: string;
+            /** Last Unit Price Minor */
+            last_unit_price_minor: number | null;
+        };
+        /** TopProductsOut */
+        TopProductsOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: components["schemas"]["TopProduct"][];
+        };
+        /** Totals */
+        Totals: {
+            /**
+             * Spent Minor
+             * @default 0
+             */
+            spent_minor: number;
+            /**
+             * Received Minor
+             * @default 0
+             */
+            received_minor: number;
+            /**
+             * Net Minor
+             * @default 0
+             */
+            net_minor: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+        };
         /**
          * TrackIn
          * @description Follow the price of what an entry is called (and every entry with that title).
@@ -1954,6 +2629,26 @@ export interface components {
             dimension: string;
             /** Factor */
             factor: number;
+        };
+        /** Unusual */
+        Unusual: {
+            /** Entry Id */
+            entry_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Category Id */
+            category_id: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Usual Minor */
+            usual_minor: number;
+            /** Times Usual */
+            times_usual: number;
         };
         /** UserOut */
         UserOut: {
@@ -2002,6 +2697,18 @@ export interface components {
             /** Ai Consent */
             ai_consent?: boolean | null;
         };
+        /** WeekdayAmount */
+        WeekdayAmount: {
+            /**
+             * Weekday
+             * @description 0 = Monday
+             */
+            weekday: number;
+            /** Total Minor */
+            total_minor: number;
+            /** Average Minor */
+            average_minor: number;
+        };
         /** WidgetView */
         WidgetView: {
             /** Key */
@@ -2015,6 +2722,58 @@ export interface components {
             kind: "kpi" | "series" | "list";
             /** Data */
             data: (components["schemas"]["Kpi"] | components["schemas"]["Series"] | components["schemas"]["Items"]) | null;
+        };
+        /** SummaryOut */
+        app__modules__expenses__features__analytics__schemas__SummaryOut: {
+            /**
+             * Spent Minor
+             * @default 0
+             */
+            spent_minor: number;
+            /**
+             * Received Minor
+             * @default 0
+             */
+            received_minor: number;
+            /**
+             * Net Minor
+             * @default 0
+             */
+            net_minor: number;
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Currency */
+            currency: string;
+            /** Days */
+            days: number;
+            /** Avg Daily Spent Minor */
+            avg_daily_spent_minor: number;
+            /** Savings Rate Pct */
+            savings_rate_pct: number | null;
+            previous: components["schemas"]["Span"];
+            previous_totals: components["schemas"]["Totals"];
+            /** Spent Change Pct */
+            spent_change_pct: number | null;
+            /** Received Change Pct */
+            received_change_pct: number | null;
+        };
+        /** SummaryOut */
+        app__modules__expenses__features__entries__schemas__SummaryOut: {
+            /** Totals */
+            totals: components["schemas"]["CurrencyTotal"][];
         };
     };
     responses: never;
@@ -4057,6 +4816,8 @@ export interface operations {
                 category_id?: string | null;
                 tag?: string | null;
                 for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
                 payment_mode?: components["schemas"]["PaymentMode"] | null;
                 /** @description In title, merchant or note */
                 q?: string | null;
@@ -4200,6 +4961,8 @@ export interface operations {
                 category_id?: string | null;
                 tag?: string | null;
                 for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
                 payment_mode?: components["schemas"]["PaymentMode"] | null;
                 /** @description In title, merchant or note */
                 q?: string | null;
@@ -4222,7 +4985,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SummaryOut"];
+                    "application/json": components["schemas"]["app__modules__expenses__features__entries__schemas__SummaryOut"];
                 };
             };
             /** @description Unauthorized */
@@ -5473,6 +6236,1021 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    summary_v1_expenses_analytics_summary_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__modules__expenses__features__analytics__schemas__SummaryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    by_category_v1_expenses_analytics_by_category_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ByCategoryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    by_person_v1_expenses_analytics_by_person_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ByPersonOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    daily_v1_expenses_analytics_daily_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    monthly_v1_expenses_analytics_monthly_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlyOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    net_v1_expenses_analytics_net_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    top_products_v1_expenses_analytics_top_products_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopProductsOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    top_merchants_v1_expenses_analytics_top_merchants_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopMerchantsOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    weekday_heatmap_v1_expenses_analytics_weekday_heatmap_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HeatmapOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cumulative_v1_expenses_analytics_cumulative_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CumulativeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    forecast_v1_expenses_analytics_forecast_get: {
+        parameters: {
+            query?: {
+                /** @description A day of the month */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForecastOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    anomalies_v1_expenses_analytics_anomalies_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnomaliesOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_insight_v1_expenses_insights_get: {
+        parameters: {
+            query?: {
+                period?: components["schemas"]["Period"];
+                /** @description Any day of it; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refresh_insight_v1_expenses_insights_refresh_post: {
+        parameters: {
+            query?: {
+                period?: components["schemas"]["Period"];
+                /** @description Any day of it; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

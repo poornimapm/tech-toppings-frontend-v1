@@ -1,4 +1,4 @@
-import { Plus, Tags, Wallet } from 'lucide-react';
+import { Plus, Tags, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
@@ -33,6 +33,8 @@ import { Totals } from '@/modules/expenses/totals';
 
 /** What the list shows. The first is the default. */
 const SHOWS = ['all', 'expense', 'income', 'deleted'] as const;
+/** The period chip for days a chart chose (from/to in the URL). */
+const CUSTOM = 'custom';
 type Show = (typeof SHOWS)[number];
 
 /** Entries arrive newest day first, so the days are already together. */
@@ -56,24 +58,52 @@ export function EntriesPage() {
   const period = toPeriod(params.get('period'));
   const search = params.get('q') ?? '';
   const category = params.get('category') ?? '';
+  // What a chart drills into: its own days, a person or a place (paths.list).
+  const from = params.get('from') ?? '';
+  const to = params.get('to') ?? '';
+  const person = params.get('person') ?? '';
+  const merchant = params.get('merchant') ?? '';
+  const custom = from !== '' || to !== '';
   const today = todayIn(user?.timezone);
   const filters: EntryFilters = {
-    ...daysOf(period, today),
+    ...(custom ? { ...(from ? { from } : {}), ...(to ? { to } : {}) } : daysOf(period, today)),
     ...(show === 'expense' || show === 'income' ? { kind: show } : {}),
     ...(show === 'deleted' ? { deleted: true } : {}),
     ...(search ? { q: search } : {}),
     ...(category ? { category_id: category } : {}),
+    ...(person ? { for_whom: person } : {}),
+    ...(merchant ? { merchant } : {}),
   };
   const entries = useEntries(filters);
-  const filtered = show !== 'all' || period !== PERIODS[0] || search !== '' || category !== '';
+  const filtered =
+    show !== 'all' ||
+    period !== PERIODS[0] ||
+    [search, category, from, to, person, merchant].some((value) => value !== '');
 
-  function update(name: string, value: string) {
+  function update(changes: Record<string, string>) {
     const next = new URLSearchParams(params);
-    if (value) next.set(name, value);
-    else next.delete(name);
+    for (const [name, value] of Object.entries(changes)) {
+      if (value) next.set(name, value);
+      else next.delete(name);
+    }
     // At once, not in a transition: the search box shows the URL's value while typing.
     setParams(next, { replace: true, flushSync: true });
   }
+
+  const shortDay = (day: string) =>
+    new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short' }).format(
+      displayDate(day),
+    );
+  // Only for days a chart chose: there is no label (or date) to format otherwise.
+  const rangeLabel = !custom
+    ? ''
+    : from === to
+      ? shortDay(from)
+      : `${shortDay(from || to)} – ${shortDay(to || from)}`;
+  const pills = [
+    person && { name: 'person', label: t('filters.forPerson', { name: person }) },
+    merchant && { name: 'merchant', label: t('filters.atPlace', { place: merchant }) },
+  ].filter((pill): pill is { name: string; label: string } => typeof pill === 'object');
 
   function dayLabel(day: string): string {
     if (day === today) return t('list.today');
@@ -133,25 +163,48 @@ export function EntriesPage() {
                 value === 'all' || value === 'deleted' ? t(`filters.${value}`) : t(`kind.${value}`),
             }))}
             onChange={(value) => {
-              update('show', value === SHOWS[0] ? '' : value);
+              update({ show: value === SHOWS[0] ? '' : value });
             }}
           />
           <FilterChips
             label={t('filters.period')}
-            value={period}
-            chips={PERIODS.map((value) => ({ value, label: t(`filters.${value}`) }))}
+            value={custom ? CUSTOM : period}
+            chips={[
+              ...PERIODS.map((value) => ({ value, label: t(`filters.${value}`) })),
+              ...(custom ? [{ value: CUSTOM, label: rangeLabel }] : []),
+            ]}
             onChange={(value) => {
-              update('period', value === PERIODS[0] ? '' : value);
+              if (value === CUSTOM) return;
+              update({ period: value === PERIODS[0] ? '' : value, from: '', to: '' });
             }}
           />
         </div>
+        {pills.length > 0 && (
+          <ul role="list" className="flex flex-wrap gap-2">
+            {pills.map((pill) => (
+              <li key={pill.name}>
+                <button
+                  type="button"
+                  aria-label={t('filters.clear', { filter: pill.label })}
+                  onClick={() => {
+                    update({ [pill.name]: '' });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 py-1 pr-2 pl-3 text-sm font-medium hover:bg-primary/15"
+                >
+                  {pill.label}
+                  <X aria-hidden="true" className="size-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="grid gap-3 sm:grid-cols-[1fr_14rem] sm:items-end">
           <SearchField
             label={t('filters.search')}
             placeholder={t('filters.searchPlaceholder')}
             value={search}
             onChange={(value) => {
-              update('q', value);
+              update({ q: value });
             }}
           />
           <SelectField
@@ -162,7 +215,7 @@ export function EntriesPage() {
               .filter((item) => !item.archived || item.id === category)
               .map((item) => ({ value: item.id, label: `${item.icon} ${book.nameOf(item)}` }))}
             onChange={(event) => {
-              update('category', event.target.value);
+              update({ category: event.target.value });
             }}
           />
         </div>

@@ -143,8 +143,8 @@ src/
                          UI modules use
   modules/               one folder per module (manifest.ts)
     expenses/            entries with history, add/edit form, categories, quick add and the
-                         confirm card, prices (products, price chart, matches),
-                         i18n/{en,ta,hi}.json
+                         confirm card, prices (products, price chart, matches), overview
+                         (analytics charts, insight card), i18n/{en,ta,hi}.json
     medicine/ ...        the other seven: manifest only, coming soon
   test/                  test setup, MSW server, render helpers, naming-convention test
 e2e/                     Playwright smoke tests

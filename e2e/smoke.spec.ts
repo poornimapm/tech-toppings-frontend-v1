@@ -649,6 +649,155 @@ test('one thing bought under two names becomes one price history, per kg', async
   expect(await fitsWidth(page)).toBe(true);
 });
 
+/** The analytics of a quiet month: groceries on two days, as the server would answer. */
+function stubAnalytics(page: Page) {
+  const days = Array.from({ length: 8 }, (_, index) => `2026-10-0${String(index + 1)}`);
+  const spent: Record<string, number> = { '2026-10-02': 30000, '2026-10-05': 20000 };
+  const shares = (items: unknown[]) => ({
+    start: '2026-10-01',
+    end: '2026-10-08',
+    currency: 'INR',
+    kind: 'expense',
+    total_minor: 50000,
+    items,
+  });
+  const answers: Record<string, unknown> = {
+    summary: {
+      start: '2026-10-01',
+      end: '2026-10-08',
+      currency: 'INR',
+      spent_minor: 50000,
+      received_minor: 0,
+      net_minor: -50000,
+      count: 2,
+      days: 8,
+      avg_daily_spent_minor: 6250,
+      savings_rate_pct: null,
+      previous: { start: '2026-09-23', end: '2026-09-30' },
+      previous_totals: { spent_minor: 40000, received_minor: 0, net_minor: -40000, count: 1 },
+      spent_change_pct: 25,
+      received_change_pct: null,
+    },
+    daily: {
+      start: '2026-10-01',
+      end: '2026-10-08',
+      currency: 'INR',
+      kind: 'expense',
+      points: days.map((date) => ({ date, amount_minor: spent[date] ?? 0, count: 0 })),
+    },
+    cumulative: {
+      start: '2026-10-01',
+      end: '2026-10-08',
+      currency: 'INR',
+      kind: 'expense',
+      points: days.map((date, index) => ({
+        date,
+        total_minor: index >= 4 ? 50000 : index >= 1 ? 30000 : 0,
+      })),
+      previous: { start: '2026-09-23', end: '2026-09-30' },
+      previous_points: days.map((date) => ({ date, total_minor: 10000 })),
+    },
+    forecast: {
+      start: '2026-10-01',
+      end: '2026-10-31',
+      currency: 'INR',
+      month: '2026-10',
+      today: '2026-10-08',
+      spent_minor: 50000,
+      days_left: 23,
+      pace_daily_minor: 5000,
+      projected_minor: 165000,
+      low_minor: 120000,
+      high_minor: 200000,
+      lookback_days: 30,
+      previous_month_minor: 40000,
+    },
+    'by-category': shares([
+      { category_id: 'groceries', amount_minor: 50000, count: 2, share_pct: 100 },
+    ]),
+    'by-person': shares([{ name: null, amount_minor: 50000, count: 2, share_pct: 100 }]),
+    'top-merchants': shares([]),
+    'top-products': { start: '2026-10-01', end: '2026-10-08', currency: 'INR', items: [] },
+    'weekday-heatmap': {
+      start: '2026-10-01',
+      end: '2026-10-08',
+      currency: 'INR',
+      kind: 'expense',
+      weeks: [],
+      weekdays: [],
+    },
+    net: {
+      start: '2025-11-01',
+      end: '2026-10-08',
+      currency: 'INR',
+      months: [],
+      total: { spent_minor: 0, received_minor: 0, net_minor: 0, count: 0 },
+      savings_rate_pct: null,
+    },
+    anomalies: { start: '2026-10-01', end: '2026-10-08', currency: 'INR', items: [] },
+  };
+  return Promise.all([
+    page.route('**/api/v1/expenses/analytics/**', (route) => {
+      const name = new URL(route.request().url()).pathname.split('/').at(-1) ?? '';
+      return route.fulfill({ json: answers[name] ?? {} });
+    }),
+    page.route('**/api/v1/expenses/insights**', (route) =>
+      route.fulfill({
+        json: {
+          period: 'month',
+          start: '2026-10-01',
+          end: '2026-10-31',
+          status: 'completed',
+          mode: 'static',
+          reason: null,
+          message: null,
+          message_code: 'explain-spending.month.more',
+          message_params: {
+            currency: 'INR',
+            spent_minor: 50000,
+            pct: 25,
+            category: 'groceries',
+            category_amount_minor: 50000,
+          },
+          facts: {},
+          cached: false,
+        },
+      }),
+    ),
+  ]);
+}
+
+test('the overview sums up the month and opens what is behind a figure', async ({ page }) => {
+  await stubApi(page);
+  await stubExpenses(page);
+  await stubAnalytics(page);
+  await page.goto('/m/expenses');
+  await page.getByRole('link', { name: 'Overview' }).click();
+
+  await expect(
+    page.getByText('₹500 spent in the month, 25% more than the same days of the month before.', {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText('Up 25%')).toBeVisible();
+  const daily = page.getByRole('slider', { name: 'Spending per day' });
+  await daily.focus();
+  await page.keyboard.press('Home');
+  await page.keyboard.press('ArrowRight');
+  await expect(daily).toHaveAttribute('aria-valuetext', /: ₹300$/);
+
+  await page
+    .getByRole('list', { name: 'By category' })
+    .getByRole('link', { name: /Groceries/ })
+    .click();
+
+  await expect(page).toHaveURL(
+    /\/m\/expenses\?show=expense&from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}&category=groceries$/,
+  );
+  await expect(page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
+  expect(await fitsWidth(page)).toBe(true);
+});
+
 test('an expense is added, opened, deleted and brought back', async ({ page }) => {
   await stubApi(page);
   const keys = await stubExpenses(page);

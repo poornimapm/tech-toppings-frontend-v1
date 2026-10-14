@@ -21,6 +21,12 @@ export default defineModule({
       }),
     },
     {
+      path: 'overview',
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/overview-page')).OverviewPage,
+      }),
+    },
+    {
       path: 'prices',
       lazy: async () => ({
         Component: (await import('@/modules/expenses/prices-page')).PricesPage,
@@ -66,6 +72,24 @@ export default defineModule({
         'tidy-products.ready.find':
           'Some of your products look like the same thing. Check them in Prices.',
         'tidy-products.none': 'None of your products look like the same thing.',
+        'explain-spending.month.empty': 'No spending in the month.',
+        'explain-spending.month.first':
+          '{{spent}} spent in the month. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.month.more':
+          '{{spent}} spent in the month, {{pct}}% more than the same days of the month before. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.month.less':
+          '{{spent}} spent in the month, {{pct}}% less than the same days of the month before. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.month.same':
+          '{{spent}} spent in the month, about the same as the same days of the month before. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.week.empty': 'No spending in the week.',
+        'explain-spending.week.first':
+          '{{spent}} spent in the week. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.week.more':
+          '{{spent}} spent in the week, {{pct}}% more than the same days of the week before. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.week.less':
+          '{{spent}} spent in the week, {{pct}}% less than the same days of the week before. Most of it went on {{category}} ({{category_amount}}).',
+        'explain-spending.week.same':
+          '{{spent}} spent in the week, about the same as the same days of the week before. Most of it went on {{category}} ({{category_amount}}).',
       },
     },
     ta: {
@@ -95,6 +119,24 @@ export default defineModule({
         'tidy-products.ready.find':
           'உங்கள் சில பொருட்கள் ஒன்றே போலத் தெரிகின்றன. விலைகளில் சரிபாருங்கள்.',
         'tidy-products.none': 'ஒன்றே போலத் தெரியும் பொருட்கள் எதுவும் இல்லை.',
+        'explain-spending.month.empty': 'மாதத்தில் செலவு எதுவும் இல்லை.',
+        'explain-spending.month.first':
+          'மாதத்தில் {{spent}} செலவு. அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.month.more':
+          'மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களை விட {{pct}}% அதிகம். அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.month.less':
+          'மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களை விட {{pct}}% குறைவு. அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.month.same':
+          'மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களைப் போலவே. அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.week.empty': 'வாரத்தில் செலவு எதுவும் இல்லை.',
+        'explain-spending.week.first':
+          'வாரத்தில் {{spent}} செலவு. அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.week.more':
+          'வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களை விட {{pct}}% அதிகம். அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.week.less':
+          'வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களை விட {{pct}}% குறைவு. அதிகம் {{category}} க்கு ({{category_amount}}).',
+        'explain-spending.week.same':
+          'வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களைப் போலவே. அதிகம் {{category}} க்கு ({{category_amount}}).',
       },
     },
     hi: {
@@ -122,6 +164,24 @@ export default defineModule({
         'track-expenses.ready.draft': 'मैंने यह समझा है। खर्च में जाँचकर सहेजें।',
         'tidy-products.ready.find': 'आपकी कुछ चीज़ें एक ही लगती हैं। कीमतों में जाँच लें।',
         'tidy-products.none': 'कोई भी चीज़ एक जैसी नहीं लगती।',
+        'explain-spending.month.empty': 'महीने में कोई खर्च नहीं।',
+        'explain-spending.month.first':
+          'महीने में {{spent}} खर्च हुए। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.month.more':
+          'महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों से {{pct}}% ज़्यादा। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.month.less':
+          'महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों से {{pct}}% कम। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.month.same':
+          'महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों जितने ही। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.week.empty': 'हफ़्ते में कोई खर्च नहीं।',
+        'explain-spending.week.first':
+          'हफ़्ते में {{spent}} खर्च हुए। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.week.more':
+          'हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों से {{pct}}% ज़्यादा। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.week.less':
+          'हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों से {{pct}}% कम। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
+        'explain-spending.week.same':
+          'हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों जितने ही। सबसे ज़्यादा {{category}} पर ({{category_amount}})।',
       },
     },
   },

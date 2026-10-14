@@ -4,6 +4,7 @@ import type { AgentRun, Proposal } from '@/core/agents/queries';
 import { textFor } from '@/core/modules/module-text';
 import { useModuleRegistry } from '@/core/modules/registry';
 import { fill } from '@/core/utils/fill';
+import { withMoney } from '@/core/utils/money-params';
 
 /** Message codes come from skills at runtime, so their keys can't be checked at compile time. */
 type LooseT = (key: string, options?: Record<string, unknown>) => string;
@@ -20,7 +21,7 @@ export function useAgentText() {
   function coded(key: string, params: Record<string, unknown>): string {
     for (const definition of registry.all()) {
       const own = textFor(definition, i18n.language).replies?.[key];
-      if (own) return fill(own, params);
+      if (own) return fill(own, withMoney(params, i18n.language));
     }
     return (t as unknown as LooseT)(`agentMessages.${key}`, { ...params, defaultValue: '' });
   }

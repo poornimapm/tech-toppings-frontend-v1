@@ -23,7 +23,10 @@
     "search": "प्रविष्टियाँ खोजें",
     "searchPlaceholder": "खोजें, जैसे “चावल”",
     "category": "श्रेणी",
-    "anyCategory": "कोई भी श्रेणी"
+    "anyCategory": "कोई भी श्रेणी",
+    "forPerson": "{{name}} के लिए",
+    "atPlace": "{{place}} पर",
+    "clear": "फ़िल्टर हटाएँ: {{filter}}"
   },
   "list": {
     "today": "आज",
@@ -194,7 +197,8 @@
   "tabs": {
     "label": "खर्च के हिस्से",
     "entries": "एंट्री",
-    "prices": "कीमतें"
+    "prices": "कीमतें",
+    "overview": "झलक"
   },
   "unit": {
     "kg": "किलो",
@@ -339,5 +343,59 @@
     "history": "{{name}} का कीमत इतिहास",
     "button": "कीमत पर नज़र रखें",
     "done": "अब {{title}} की कीमत पर नज़र है"
+  },
+  "overview": {
+    "title": "झलक",
+    "subtitle": "आपका पैसा कैसे आया-गया, और कहाँ गया",
+    "table": "तालिका के रूप में दिखाएँ",
+    "loadError": "ये आँकड़े लोड नहीं हो सके।",
+    "nothing": "इन दिनों के लिए यहाँ कुछ नहीं।",
+    "daily": "रोज़ का खर्च",
+    "running": "कुल जोड़",
+    "byCategory": "श्रेणी के हिसाब से",
+    "byPerson": "व्यक्ति के हिसाब से",
+    "notNamed": "नहीं बताया",
+    "places": "पैसा कहाँ गया",
+    "products": "आपने क्या खरीदा",
+    "heatmap": "दिन-ब-दिन",
+    "busiest": "सबसे ज़्यादा खर्च का दिन: {{day}}, औसतन {{amount}}।",
+    "less": "कम",
+    "more": "ज़्यादा",
+    "net": "हर महीने की बचत",
+    "unusual": "असामान्य खर्च",
+    "usual": "{{date}} को {{amount}}: {{category}} में आपके सामान्य {{usual}} का {{times}} गुना",
+    "entries_one": "{{count}} एंट्री",
+    "entries_other": "{{count}} एंट्री",
+    "figures": {
+      "spent": "खर्च",
+      "received": "आमदनी",
+      "net": "बचा",
+      "kept": "बचत"
+    },
+    "legend": {
+      "now": "यह अवधि",
+      "before": "पहले के यही दिन",
+      "heading": "अनुमान",
+      "kept": "बचत",
+      "over": "ज़्यादा खर्च"
+    },
+    "forecast": {
+      "title": "इस महीने",
+      "heading": "{{end}} तक {{amount}} हो सकता है",
+      "soFar": "अब तक {{amount}} खर्च",
+      "band": "{{low}} से {{high}} के बीच रहने की संभावना",
+      "previous": "पिछला महीना {{amount}}"
+    },
+    "insight": {
+      "month": "आपका महीना",
+      "week": "आपका हफ़्ता",
+      "period": "सार",
+      "monthChip": "महीना",
+      "weekChip": "हफ़्ता",
+      "error": "सार तैयार नहीं हो सका।",
+      "byAi": "AI ने लिखा",
+      "byRules": "झटपट सार",
+      "refresh": "फिर से लिखें"
+    }
   }
 }

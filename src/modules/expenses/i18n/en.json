@@ -23,7 +23,10 @@
     "search": "Search entries",
     "searchPlaceholder": "Search, e.g. “rice”",
     "category": "Category",
-    "anyCategory": "Any category"
+    "anyCategory": "Any category",
+    "forPerson": "For {{name}}",
+    "atPlace": "At {{place}}",
+    "clear": "Remove filter: {{filter}}"
   },
   "list": {
     "today": "Today",
@@ -194,7 +197,8 @@
   "tabs": {
     "label": "Expenses sections",
     "entries": "Entries",
-    "prices": "Prices"
+    "prices": "Prices",
+    "overview": "Overview"
   },
   "unit": {
     "kg": "kg",
@@ -339,5 +343,59 @@
     "history": "{{name}} price history",
     "button": "Follow its price",
     "done": "Following the price of {{title}}"
+  },
+  "overview": {
+    "title": "Overview",
+    "subtitle": "How your money moved, and where it went",
+    "table": "Show as a table",
+    "loadError": "We couldn't load these figures.",
+    "nothing": "Nothing here for these days.",
+    "daily": "Spending per day",
+    "running": "Running total",
+    "byCategory": "By category",
+    "byPerson": "By person",
+    "notNamed": "Not said",
+    "places": "Where it went",
+    "products": "What you bought",
+    "heatmap": "Day by day",
+    "busiest": "Busiest day: {{day}}, {{amount}} on average.",
+    "less": "Less",
+    "more": "More",
+    "net": "Kept each month",
+    "unusual": "Unusual spending",
+    "usual": "{{amount}} on {{date}}: {{times}}× your usual {{usual}} in {{category}}",
+    "entries_one": "{{count}} entry",
+    "entries_other": "{{count}} entries",
+    "figures": {
+      "spent": "Spent",
+      "received": "Received",
+      "net": "Left over",
+      "kept": "Kept"
+    },
+    "legend": {
+      "now": "This period",
+      "before": "Same days before",
+      "heading": "Heading for",
+      "kept": "Kept",
+      "over": "Overspent"
+    },
+    "forecast": {
+      "title": "This month",
+      "heading": "Heading for {{amount}} by {{end}}",
+      "soFar": "{{amount}} spent so far",
+      "band": "likely between {{low}} and {{high}}",
+      "previous": "last month {{amount}}"
+    },
+    "insight": {
+      "month": "Your month",
+      "week": "Your week",
+      "period": "Sum up the",
+      "monthChip": "Month",
+      "weekChip": "Week",
+      "error": "We couldn't put the summary together.",
+      "byAi": "Written by AI",
+      "byRules": "Quick summary",
+      "refresh": "Write again"
+    }
   }
 }

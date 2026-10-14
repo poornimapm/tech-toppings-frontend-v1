@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw/http';
 
 import type { components } from '@/core/api/schema';
+import { fakeAnalytics, insightOf } from '@/modules/expenses/testing/fake-analytics';
 
 type Schemas = components['schemas'];
 type Entry = Schemas['EntryOut'];
@@ -248,6 +249,8 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
     categories: structuredClone(CATEGORIES),
     revisions: new Map<string, Revision[]>(),
     products: structuredClone(products),
+    insight: insightOf(),
+    unusual: [] as Schemas['Unusual'][],
   };
   const product = (id: unknown) => state.products.find((item) => item.id === id);
   const requests: { method: string; path: string; body: unknown; key: string | null }[] = [];
@@ -272,6 +275,8 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
           entry.deleted === (query.get('deleted') === 'true') &&
           (!query.get('kind') || entry.kind === query.get('kind')) &&
           (!query.get('category_id') || entry.category_id === query.get('category_id')) &&
+          (!query.get('for_whom') || entry.for_whom === query.get('for_whom')) &&
+          (!query.get('merchant') || entry.merchant === query.get('merchant')) &&
           (!query.get('from') || entry.date >= (query.get('from') ?? '')) &&
           (!query.get('to') || entry.date <= (query.get('to') ?? '')) &&
           (!text || entry.title.toLowerCase().includes(text)),
@@ -291,6 +296,7 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
   }
 
   const handlers = [
+    ...fakeAnalytics(matching, state),
     http.all(`${API}/*`, async ({ request }) => {
       const url = new URL(request.url);
       requests.push({

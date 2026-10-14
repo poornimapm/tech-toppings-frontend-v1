@@ -232,6 +232,30 @@ flowchart LR
   `currency` is written as `{{<name>}}` (`core/modules/feed-text.ts`). A module can say
   where a notification leads (`links` in its manifest): the price alert opens its product.
 
+**Overview** (`overview-page.tsx`, `insight-card.tsx`, `column-chart.tsx`,
+`running-chart.tsx`, `heatmap.tsx`, `bar-list.tsx`, `analytics.ts`):
+
+- The module's dashboard: an insight card, the period's figures, spending per day, the
+  running total against the same days before (with where the month is heading), the
+  forecast, shares by category, person, place and product, a day-by-week heatmap, net savings
+  per month and unusual spending. One typed hook (`useAnalytics(name, query)`) serves every
+  `/analytics/*` endpoint.
+- **Drill-down:** every bar, row and day links to the entries list with the same filters
+  (`paths.list`): `show`, `from`/`to`, `category`, `person`, `merchant`. The list shows a
+  custom range as its own period chip and a person or place as a removable pill, and its
+  totals equal the value clicked (the server adds up the same records; ADR-0016).
+- **Charts** follow the same rules as the price chart: one hue for amounts (bars and the
+  heatmap's light-to-dark steps), the second series colour only for an overspent month (named
+  in the legend), a readout above the plot instead of a tooltip over it, pointer and arrow
+  keys (Enter opens a column), and a table with the same links. Axis figures are compact
+  money (`axisMoney`).
+- **Insight card:** the AI's summary, or the skill's template filled with money and the
+  category's name in the user's language; it says which ("Written by AI" / "Quick
+  summary"), explains when neither can run and offers to turn AI on, and can ask for a new
+  summary.
+- `core/utils/money-params.ts` (`withMoney`) writes `<name>_minor` parameters as money for
+  notifications, the assistant's static replies and the insight templates alike.
+
 ## Welcome page
 
 `platform/welcome/` is the home screen.

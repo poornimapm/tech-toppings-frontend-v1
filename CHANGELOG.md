@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 8: overview and insights (2026-10-14)
+
+- **Overview** tab in Expenses: a summary of the month or week in words (written by AI, or a
+  quick summary without it), the period's figures with the change against the same days
+  before, spending per day, the running total with where the month is heading, a forecast,
+  shares by category, person, place and product, a day-by-week heatmap, net savings per
+  month and unusual spending.
+- **Drill-down:** clicking any bar, row or day opens the entries behind it with the same
+  total; the list shows a chosen range, person or place as filters you can remove.
+- English, Tamil and Hindi for all of the above.
+
+### Changed
+
+- Money in notifications, assistant replies and summaries shares one helper (`withMoney`).
+- The entries list keeps a custom range, a person and a place in its URL.
+
 ### Added — Phase 7: products and prices (2026-10-14)
 
 - **How much was bought**: quantity and unit in the entry form (with the price per unit as

@@ -1,4 +1,4 @@
-import { ReceiptText, TrendingUp } from 'lucide-react';
+import { ChartPie, ReceiptText, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
 
@@ -8,10 +8,11 @@ import { paths } from '@/modules/expenses/paths';
 
 const TABS = [
   { to: paths.entries, label: 'tabs.entries', icon: ReceiptText, end: true },
+  { to: paths.overview, label: 'tabs.overview', icon: ChartPie, end: false },
   { to: paths.prices, label: 'tabs.prices', icon: TrendingUp, end: false },
 ] as const;
 
-/** The module's two sides: what was spent, and what things cost. */
+/** The module's sides: what was spent, how it went, and what things cost. */
 export function SectionTabs() {
   const { t } = useTranslation(NS);
   return (
