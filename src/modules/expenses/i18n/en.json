@@ -160,5 +160,27 @@
       "refunds": "Refunds",
       "other_income": "Other"
     }
+  },
+  "capture": {
+    "label": "Say or type what you spent",
+    "placeholder": "250 for vegetables, or paste a bank SMS",
+    "send": "Read it",
+    "listen": "Speak",
+    "stop": "Stop listening",
+    "listening": "Listening…",
+    "reading": "Reading…",
+    "readBy": "Read in {{mode}}.",
+    "speechError": "I couldn't hear that. Try again, or type it.",
+    "nothing": "I couldn't find an entry in that. Try “250 for vegetables”.",
+    "drafts": "Check before saving",
+    "draftsHint": "Nothing is saved until you save it.",
+    "check": "Check: {{fields}}",
+    "missingTitle": "What was it?",
+    "missingAmount": "How much?",
+    "saveAll": "Save all ({{count}})",
+    "saveLabel": "Save {{title}}",
+    "dismissLabel": "Dismiss {{title}}",
+    "readBack": "Read saved entries aloud",
+    "spoken": "Added {{title}}, {{amount}}"
   }
 }

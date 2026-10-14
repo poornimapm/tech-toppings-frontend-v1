@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import type { ClientAction } from '@/core/agents/queries';
+import { MODULE_ACTION, type ClientAction } from '@/core/agents/queries';
 import { useModuleTiles } from '@/core/modules/queries';
 import { slugOf } from '@/core/modules/registry';
 import { pages } from '@/platform/shell/pages';
@@ -36,15 +36,16 @@ export function useClientActions(): (action: ClientAction) => ClientActionView |
       run: () => void navigate(pages.notifications.path),
     }),
   };
-  function moduleAction(tool: string): ClientActionView | null {
-    const tile = tiles.find((item) => item.definition.actions?.[tool] !== undefined);
+  function moduleAction(action: ClientAction): ClientActionView | null {
+    const tile = tiles.find((item) => item.definition.actions?.[action.tool] !== undefined);
     if (!tile?.view.available) return null;
-    const page = tile.definition.actions?.[tool];
+    const page = tile.definition.actions?.[action.tool];
     const path = ['/m', slugOf(tile.view.key), page].filter(Boolean).join('/');
     return {
       label: t('welcome.tile.open', { name: tile.text.name }),
-      run: () => void navigate(path),
+      // The page gets the whole action (see MODULE_ACTION), e.g. drafts to show.
+      run: () => void navigate(path, { state: { [MODULE_ACTION]: action } }),
     };
   }
-  return (action) => handlers[action.tool]?.(action.arguments) ?? moduleAction(action.tool);
+  return (action) => handlers[action.tool]?.(action.arguments) ?? moduleAction(action);
 }

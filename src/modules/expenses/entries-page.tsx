@@ -21,6 +21,7 @@ import {
   type Entry,
   type EntryFilters,
 } from '@/modules/expenses/api';
+import { CapturePanel } from '@/modules/expenses/capture-panel';
 import { CategoriesDialog } from '@/modules/expenses/categories-dialog';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { EntryForm } from '@/modules/expenses/entry-form';
@@ -113,6 +114,8 @@ export function EntriesPage() {
           </Button>
         </div>
       </header>
+
+      <CapturePanel />
 
       {show !== 'deleted' && user && <Totals filters={filters} currency={user.base_currency} />}
 

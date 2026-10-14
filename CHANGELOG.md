@@ -6,6 +6,26 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 6: capture by voice, text and SMS (2026-10-14)
+
+- **Quick add** on the Expenses page: type, dictate (where the browser can listen) or paste a
+  bank SMS; the words stay editable before they are read.
+- **Confirm card:** what was understood, as drafts. Guessed fields are listed for checking;
+  complete drafts save in one click (or all at once), others open in the entry form already
+  filled in. Nothing is saved until the user saves it, and each draft saves only once.
+- **Read-back:** saved entries can be read aloud with a device voice for the user's language.
+- The page says whether AI or Quick mode read the text, explains when neither can, and
+  offers to turn AI on.
+- Drafts the command palette prepares open in Expenses, ready to check.
+- `core/speech`: dictation and read-back hooks; `VITE_SPEECH_REGION` sets the speech
+  languages' region (default `IN`).
+- English, Tamil and Hindi for all of the above.
+
+### Changed
+
+- The assistant's static-mode answers for capture are worded in the module's manifest; the
+  shell passes a client action's arguments to the page it opens (`MODULE_ACTION`).
+
 ### Added — Phase 5: expenses (2026-10-13)
 
 - **Expenses module** (`/m/expenses`, beta):

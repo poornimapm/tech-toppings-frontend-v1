@@ -120,6 +120,7 @@ src/
                          route guards, bootstrap, password policy
     config/env.ts        validated VITE_* configuration
     i18n/                i18next setup, locales/{en,ta,hi}/{common,errors}.json
+    speech/              dictation and read-back (Web Speech API), when the browser has them
     theme/               design tokens (tokens.css), theme store
     utils/
   platform/              shell features shared by all modules
@@ -140,7 +141,8 @@ src/
   design-system/         shared UI (Button, Dialog, Toaster, FilterChips, SearchField, Switch,
                          Skeleton, AnimatedNumber, MotionProvider ...): the only UI modules use
   modules/               one folder per module (manifest.ts)
-    expenses/            entries with history, add/edit form, categories, i18n/{en,ta,hi}.json
+    expenses/            entries with history, add/edit form, categories, quick add and the
+                         confirm card, i18n/{en,ta,hi}.json
     medicine/ ...        the other seven: manifest only, coming soon
   test/                  test setup, MSW server, render helpers, naming-convention test
 e2e/                     Playwright smoke tests

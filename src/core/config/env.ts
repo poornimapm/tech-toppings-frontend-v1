@@ -18,6 +18,7 @@ const schema = z.object({
   VITE_CSRF_HEADER: text('X-TT-CSRF'),
   VITE_ASSISTANT_AGENT: text('assistant'),
   VITE_NOTIFICATIONS_POLL_MS: milliseconds(60_000),
+  VITE_SPEECH_REGION: text('IN'),
 });
 
 export interface AppEnv {
@@ -32,6 +33,8 @@ export interface AppEnv {
   assistantAgent: string;
   /** How often the bell re-checks for unread notifications while the app is open. */
   notificationsPollMs: number;
+  /** Region of the speech languages (dictation, read-back): `IN` gives en-IN, ta-IN, hi-IN. */
+  speechRegion: string;
 }
 
 export function parseEnv(raw: Record<string, unknown>): AppEnv {
@@ -49,6 +52,7 @@ export function parseEnv(raw: Record<string, unknown>): AppEnv {
     csrfHeader: value.VITE_CSRF_HEADER,
     assistantAgent: value.VITE_ASSISTANT_AGENT,
     notificationsPollMs: value.VITE_NOTIFICATIONS_POLL_MS,
+    speechRegion: value.VITE_SPEECH_REGION,
   };
 }
 

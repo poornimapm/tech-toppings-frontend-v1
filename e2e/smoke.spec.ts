@@ -436,6 +436,57 @@ test('unread notifications show in the navigation and can be cleared', async ({ 
   await expect(page.getByRole('link', { name: 'Notifications', exact: true })).toBeVisible();
 });
 
+test('what is typed is read into a draft, checked and saved', async ({ page }) => {
+  await stubApi(page);
+  await stubExpenses(page);
+  const draft = {
+    kind: 'expense',
+    title: 'Vegetables',
+    amount: 250.5,
+    category_id: 'groceries',
+    date: today,
+    merchant: null,
+    for_whom: null,
+    uncertain: ['category_id'],
+  };
+  let asked: unknown = null;
+  await page.route('**/api/v1/agents/assistant/runs', (route) => {
+    asked = route.request().postDataJSON();
+    return route.fulfill({
+      status: 201,
+      json: {
+        id: 'run-2',
+        agent: 'assistant',
+        skill: 'track-expenses',
+        status: 'completed',
+        mode: 'static',
+        reason: 'consent',
+        message: null,
+        message_code: 'track-expenses.ready.draft',
+        message_params: {},
+        proposals: [],
+        client_actions: [{ tool: 'expenses_draft', arguments: { drafts: [draft] } }],
+        created_at: '2026-10-09T10:00:00Z',
+      },
+    });
+  });
+  await page.goto('/m/expenses');
+
+  await page.getByRole('textbox', { name: 'Say or type what you spent' }).fill('250.50 vegetables');
+  await page.getByRole('button', { name: 'Read it' }).click();
+
+  const tray = page.getByRole('region', { name: 'Check before saving' });
+  await expect(tray.getByText('Check: Category')).toBeVisible();
+  await expect(page.getByText('Read in Quick mode.')).toBeVisible();
+  expect(asked).toMatchObject({ skill: 'track-expenses', context: { input_type: 'text' } });
+  await expect(page.getByText('Nothing here yet')).toBeVisible(); // not saved by reading it
+
+  await tray.getByRole('button', { name: 'Save Vegetables' }).click();
+  await expect(page.getByText('Added Vegetables')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Today' }).getByText('−₹250.50')).toBeVisible();
+  await expect(tray).toBeHidden();
+});
+
 /** True when the page is no wider than the screen, so nothing scrolls sideways. */
 const fitsWidth = (page: Page) =>
   page.evaluate<boolean>('document.documentElement.scrollWidth <= window.innerWidth');

@@ -169,6 +169,36 @@ per module.
 - On phones the Add button floats above the navigation bar; on wider screens it is in the
   page header. It is one button, moved by CSS.
 
+**Capture** (`capture-panel.tsx`, `quick-add.tsx`, `drafts-tray.tsx`, `capture.ts`):
+
+```mermaid
+flowchart LR
+  Say["type, dictate or paste an SMS"] --> Ask["ask the assistant<br/>skill track-expenses"]
+  Ask -- "client action expenses_draft" --> Card["confirm card<br/>(drafts, guesses marked)"]
+  Palette["command palette"] -- "opens Expenses with the action" --> Card
+  Card -- "Save (Idempotency-Key per draft)" --> API["POST /v1/expenses/entries"]
+  Card -- "Edit" --> Form["entry form, started from the draft"]
+```
+
+- The quick-add bar sends the text with `skill: track-expenses` and `context.input_type`.
+  Whether AI or the rule parser reads it is the server's choice; the page shows which
+  ("Read in AI" / "Read in Quick mode"), the reason when neither can, and the button to turn
+  AI on when consent is the reason.
+- Drafts come from a model or a parser, so `draftsFrom` trusts nothing about their shape:
+  anything missing or odd becomes an empty field to fill in.
+- The confirm card saves complete drafts as they are and opens the others in the entry form.
+  Fields that were guessed are listed ("Check: Amount, Category"); nothing is saved until
+  the user saves it.
+- **Dictation** (`core/speech`) uses the browser's speech recognition in the user's language
+  (`<language>-VITE_SPEECH_REGION`, e.g. `ta-IN`), shows the words as they are heard, and
+  leaves them editable. The microphone shows only where the browser can listen.
+- **Read-back** says "Added Vegetables, ₹250.50" with a device voice for the language when
+  there is one; the toast always shows it. It is a switch on the bar, remembered on the
+  device.
+- Drafts prepared in the command palette arrive with the action in the router state
+  (`MODULE_ACTION`): the shell passes any client action to the page it opens, so this needs
+  nothing module-specific in the shell.
+
 ## Welcome page
 
 `platform/welcome/` is the home screen.

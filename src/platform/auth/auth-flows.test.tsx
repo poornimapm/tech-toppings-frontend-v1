@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import { useSession } from '@/core/auth/session-store';
@@ -13,6 +13,17 @@ const PASSWORD = 'Correct-Horse-42';
 afterEach(() => {
   delete window.google;
 });
+
+// Compile the lazy pages once up front, so the first test doesn't pay for it under load.
+beforeAll(async () => {
+  await Promise.all([
+    import('@/platform/auth/login-page'),
+    import('@/platform/auth/register-page'),
+    import('@/platform/auth/change-password-page'),
+    import('@/platform/auth/security-page'),
+    import('@/platform/welcome/welcome-page'),
+  ]);
+}, 120_000);
 
 describe('route guards', () => {
   it('sends signed-out visitors to sign in and back to where they were going', async () => {

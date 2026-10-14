@@ -17,6 +17,7 @@ import {
   type EntryInput,
   type EntryKind,
 } from '@/modules/expenses/api';
+import type { Draft } from '@/modules/expenses/capture';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { NS } from '@/modules/expenses/i18n';
 
@@ -47,17 +48,18 @@ interface FormValues {
 
 const DETAILS = ['time', 'merchant', 'payment_mode', 'for_whom', 'tags', 'note', 'link'] as const;
 
-function valuesOf(entry: Entry | null, today: string): FormValues {
+/** Start from the entry being edited, else from a draft, else empty and dated today. */
+function valuesOf(entry: Entry | null, draft: Draft | undefined, today: string): FormValues {
   return {
-    kind: entry?.kind ?? 'expense',
-    amount: entry ? toInput(entry.amount_minor, entry.currency) : '',
-    title: entry?.title ?? '',
-    category_id: entry?.category_id ?? '',
-    date: entry?.date ?? today,
+    kind: entry?.kind ?? draft?.kind ?? 'expense',
+    amount: entry ? toInput(entry.amount_minor, entry.currency) : (draft?.amount ?? ''),
+    title: entry?.title ?? draft?.title ?? '',
+    category_id: entry?.category_id ?? draft?.category_id ?? '',
+    date: entry?.date ?? draft?.date ?? today,
     time: entry?.time?.slice(0, 5) ?? '',
-    merchant: entry?.merchant ?? '',
+    merchant: entry?.merchant ?? draft?.merchant ?? '',
     payment_mode: entry?.payment_mode ?? '',
-    for_whom: entry?.for_whom ?? '',
+    for_whom: entry?.for_whom ?? draft?.for_whom ?? '',
     tags: entry?.tags.join(', ') ?? '',
     note: entry?.note ?? '',
     link: entry?.attachments[0]?.url ?? '',
@@ -94,13 +96,16 @@ function bodyOf(values: FormValues, currency: string, entry: Entry | null): Entr
 export interface EntryFormProps {
   /** The entry being edited, or `null` for a new one. */
   entry: Entry | null;
+  /** A new entry starts from what was understood (the confirm card's "Edit"). */
+  draft?: Draft;
   onClose: () => void;
+  onSaved?: (entry: Entry) => void;
   /** The entry had changed elsewhere and the user asked for the latest. */
   onReload?: () => void;
 }
 
 /** Add or edit an entry, in a dialog: the essentials first, the rest under "More details". */
-export function EntryForm({ entry, onClose, onReload }: EntryFormProps) {
+export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFormProps) {
   const { t } = useTranslation(NS);
   const { t: tError } = useTranslation('errors');
   const listId = useId();
@@ -108,9 +113,12 @@ export function EntryForm({ entry, onClose, onReload }: EntryFormProps) {
   const book = useCategoryBook();
   const facets = useFacets().data;
   const save = useSaveEntry();
-  // One key for this form's whole life: saving again after a lost reply can't add it twice.
-  const [key] = useState(() => crypto.randomUUID());
-  const form = useForm<FormValues>({ defaultValues: valuesOf(entry, todayIn(user?.timezone)) });
+  // One key for this form's whole life (a draft brings its own): saving again after a lost
+  // reply can't add the entry twice.
+  const [key] = useState(() => draft?.key ?? crypto.randomUUID());
+  const form = useForm<FormValues>({
+    defaultValues: valuesOf(entry, draft, todayIn(user?.timezone)),
+  });
   const kind = useWatch({ control: form.control, name: 'kind' });
   const { errors } = form.formState;
   const currency = entry?.currency ?? user?.base_currency;
@@ -130,6 +138,7 @@ export function EntryForm({ entry, onClose, onReload }: EntryFormProps) {
     );
     if (!saved) return;
     toast(t(entry ? 'toast.saved' : 'toast.added', { title: saved.title }), { tone: 'success' });
+    onSaved?.(saved);
     onClose();
   });
 

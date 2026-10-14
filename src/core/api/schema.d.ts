@@ -1478,6 +1478,11 @@ export interface components {
         RunContext: {
             /** Modules */
             modules?: components["schemas"]["ModuleName"][];
+            /**
+             * Input Type
+             * @description How the input was given, when a page asks on purpose
+             */
+            input_type?: ("text" | "speech" | "sms") | null;
         };
         /** RunIn */
         RunIn: {

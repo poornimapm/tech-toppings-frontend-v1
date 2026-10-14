@@ -12,6 +12,10 @@ export type Proposal = Schemas['Proposal'];
 export type ClientAction = Schemas['ClientAction'];
 export type RunInput = Schemas['RunIn'];
 
+/** Key of the router state that carries a client action to the module page it opens, so the
+ *  page can act on its arguments: `useLocation().state?.[MODULE_ACTION]`. */
+export const MODULE_ACTION = 'moduleAction';
+
 export const agentKeys = {
   list: ['user', 'agents'] as const,
 };

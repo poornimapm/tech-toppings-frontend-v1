@@ -13,6 +13,7 @@ describe('parseEnv', () => {
       csrfHeader: 'X-TT-CSRF',
       assistantAgent: 'assistant',
       notificationsPollMs: 60_000,
+      speechRegion: 'IN',
     });
   });
 
@@ -37,6 +38,7 @@ describe('parseEnv', () => {
       csrfHeader: 'X-Custom',
       assistantAgent: 'helper',
       notificationsPollMs: 15_000,
+      speechRegion: 'IN',
     });
   });
 

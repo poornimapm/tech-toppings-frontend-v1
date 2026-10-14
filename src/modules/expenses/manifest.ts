@@ -21,8 +21,9 @@ export default defineModule({
       }),
     },
   ],
-  // The assistant's "show my expenses" opens the module's first page.
-  actions: { expenses_open: '' },
+  // Both of the assistant's client tools open the module's first page; drafts arrive there
+  // with the action (capture-panel.tsx).
+  actions: { expenses_open: '', expenses_draft: '' },
   // Only what the shell shows outside the module (tile, dashboard, feeds, assistant) is here;
   // the module's own screens are worded in ./i18n and load with them.
   strings: {
@@ -44,7 +45,10 @@ export default defineModule({
         'expenses.entry_undeleted': 'Brought “{{title}}” back to {{module}}',
         'expenses.entry_restored': 'Restored an earlier version of “{{title}}”',
       },
-      replies: { 'track-expenses.ready.open': 'Here are your expenses.' },
+      replies: {
+        'track-expenses.ready.open': 'Here are your expenses.',
+        'track-expenses.ready.draft': "Here's what I understood. Check it in Expenses, then save.",
+      },
     },
     ta: {
       name: 'செலவுகள்',
@@ -64,7 +68,11 @@ export default defineModule({
         'expenses.entry_undeleted': '{{module}} இல் “{{title}}” மீட்டெடுக்கப்பட்டது',
         'expenses.entry_restored': '“{{title}}” இன் முந்தைய பதிப்பு மீட்டமைக்கப்பட்டது',
       },
-      replies: { 'track-expenses.ready.open': 'இதோ உங்கள் செலவுகள்.' },
+      replies: {
+        'track-expenses.ready.open': 'இதோ உங்கள் செலவுகள்.',
+        'track-expenses.ready.draft':
+          'நான் புரிந்துகொண்டது இதோ. செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.',
+      },
     },
     hi: {
       name: 'खर्च',
@@ -84,7 +92,10 @@ export default defineModule({
         'expenses.entry_undeleted': '{{module}} में “{{title}}” वापस लाया',
         'expenses.entry_restored': '“{{title}}” का पुराना संस्करण वापस लाया',
       },
-      replies: { 'track-expenses.ready.open': 'ये रहे आपके खर्च।' },
+      replies: {
+        'track-expenses.ready.open': 'ये रहे आपके खर्च।',
+        'track-expenses.ready.draft': 'मैंने यह समझा है। खर्च में जाँचकर सहेजें।',
+      },
     },
   },
 });
