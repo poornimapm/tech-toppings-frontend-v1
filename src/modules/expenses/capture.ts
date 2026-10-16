@@ -32,37 +32,43 @@ export interface Draft {
   uncertain: string[];
 }
 
+// What an assistant hands over comes from an AI model or a parser, so nothing about its shape
+// is taken for granted: what is missing or odd becomes an empty field for the user to fill in.
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const text = (value: unknown): string => (typeof value === 'string' ? value : '');
-const positive = (value: unknown): string =>
+export const textOf = (value: unknown): string => (typeof value === 'string' ? value : '');
+export const positiveOf = (value: unknown): string =>
   typeof value === 'number' && value > 0 ? String(value) : '';
+export const dayOf = (value: unknown, otherwise: string): string =>
+  DAY.test(textOf(value)) ? textOf(value) : otherwise;
+export const namesOf = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((name): name is string => typeof name === 'string') : [];
 
-/**
- * Drafts out of a client action's arguments. They come from an AI model or a parser, so
- * nothing about their shape is taken for granted: what is missing or odd becomes an empty
- * field for the user to fill in.
- */
+/** The drafts a client action of this tool carries (`arguments.drafts`), those that are objects. */
+export function itemsOf(action: ClientAction | undefined, tool: string) {
+  const raw: unknown = action?.tool === tool ? action.arguments.drafts : undefined;
+  return Array.isArray(raw)
+    ? raw.filter(
+        (item): item is Record<string, unknown> => typeof item === 'object' && item !== null,
+      )
+    : [];
+}
+
+/** Entry drafts out of a client action's arguments. */
 export function draftsFrom(action: ClientAction | undefined, today: string): Draft[] {
-  const raw: unknown = action?.tool === DRAFT_TOOL ? action.arguments.drafts : undefined;
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-    .map((item) => ({
-      key: crypto.randomUUID(),
-      kind: item.kind === 'income' ? 'income' : 'expense',
-      title: text(item.title),
-      amount: positive(item.amount),
-      ...(positive(item.quantity) && text(item.unit)
-        ? { quantity: positive(item.quantity), unit: text(item.unit) }
-        : { quantity: '', unit: '' }),
-      category_id: text(item.category_id),
-      date: DAY.test(text(item.date)) ? text(item.date) : today,
-      merchant: text(item.merchant),
-      for_whom: text(item.for_whom),
-      uncertain: Array.isArray(item.uncertain)
-        ? item.uncertain.filter((name): name is string => typeof name === 'string')
-        : [],
-    }));
+  return itemsOf(action, DRAFT_TOOL).map((item) => ({
+    key: crypto.randomUUID(),
+    kind: item.kind === 'income' ? 'income' : 'expense',
+    title: textOf(item.title),
+    amount: positiveOf(item.amount),
+    ...(positiveOf(item.quantity) && textOf(item.unit)
+      ? { quantity: positiveOf(item.quantity), unit: textOf(item.unit) }
+      : { quantity: '', unit: '' }),
+    category_id: textOf(item.category_id),
+    date: dayOf(item.date, today),
+    merchant: textOf(item.merchant),
+    for_whom: textOf(item.for_whom),
+    uncertain: namesOf(item.uncertain),
+  }));
 }
 
 /** Ask the assistant to read free text into drafts. Whether AI or the rule parser answers is

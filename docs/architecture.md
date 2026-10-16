@@ -206,8 +206,9 @@ flowchart LR
 - The entry form, drafts and list show how much was bought ("2 kg"); the form says what that
   comes to per unit while typing ("That's ₹50/kg"). Units come from `GET /units`; their names
   and plurals are module strings (`unit.*`, `quantity.*`), falling back to the code.
-- **Entries | Prices** tabs (`section-tabs.tsx`) switch between the module's two sides;
-  `paths.ts` builds the module's links from its manifest key.
+- **Entries | Overview | Prices | Plan** tabs (`section-tabs.tsx`, scrolling within their bar
+  on phones) switch between the module's sides; `paths.ts` builds the module's links from its
+  manifest key.
 - **Prices** lists what is bought: last price per unit, the change since the time before (an
   arrow and words, not only colour), a small trend line, where it was last bought and where
   it is cheapest. **Find matches** runs the `tidy-products` skill; its suggestions are cards
@@ -255,6 +256,38 @@ flowchart LR
   summary.
 - `core/utils/money-params.ts` (`withMoney`) writes `<name>_minor` parameters as money for
   notifications, the assistant's static replies and the insight templates alike.
+  `core/utils/date-params.ts` (`withDates`) does the same for calendar days in feed text:
+  `<name>_on` (`YYYY-MM-DD`) is written as `{{<name>}}`, e.g. "October 20".
+
+**Plan** (`plan-page.tsx` and a `*-section.tsx`, `*-card.tsx`, `*-form.tsx` and `*-api.ts`
+per feature):
+
+- One page, four sections: budgets, bills, goals and loans, chosen with chips and kept in
+  `?show`. A notification's link (`paths.plan(show, focus)`, manifest `links`) adds
+  `?focus=<id>`: that card is scrolled to and ringed (`focus-target.ts`), and for a loan
+  the person's sheet opens at it.
+- **Meters** (`design-system/primitives/meter.tsx`, `role="meter"`) show a budget's use or a
+  goal's progress in one hue, with the second series colour only when over, an optional
+  tick for an even pace, and the reading in words.
+- **Money that goes in once**: new goals and loans, goal contributions and loan payments each
+  send their own `Idempotency-Key`, kept by the form until it succeeds, so a retry after a
+  lost reply counts once. Marking a bill paid names its due date, which the server adds once. A goal or loan edited elsewhere offers the latest version
+  (409) instead of overwriting it.
+- **Budgets** link to the entries behind them (`paths.list`), with the same total. **Bills**
+  are grouped by when they are due (overdue, today, this week, later, then paused ones); **Paid** fills in the amount,
+  and _Looks like it repeats_ cards (`repeat-suggestions.tsx`) offer a rule or dismiss it.
+  **Loans** show what is owed each way and one row per person; a person's sheet
+  (`person-sheet.tsx`) lists the loans with their payments, records a payment with what is
+  left filled in, and undoes a payment once.
+- **Loans by voice**: the capture bar handles `expenses_iou_draft` as well as
+  `expenses_draft`. Loan drafts (`iou-capture.ts`, `iou-drafts.tsx`) sit on the same confirm
+  card under the entries, a payment matched to the person's oldest open loan, and open in
+  `loan-draft-form.tsx` to be checked. `keyed-list.ts` removes a saved draft by its key, as
+  entries do.
+- **Duplicate warning** (`duplicates.ts`, `duplicate-note.tsx`): the entry form and the
+  confirm card ask `POST /entries/duplicates/check` and show likely matches under the draft.
+  It fails open: a slow or failed check shows nothing and never holds up saving. **Save all**
+  leaves out the flagged drafts, which save only on their own (**Save anyway**).
 
 ## Welcome page
 
@@ -362,7 +395,13 @@ that module's name. `FeedPage` gives both pages the same loading, error, empty a
 
 - **Notifications** (`/notifications`): unread ones are marked in words, weight and a dot.
   Mark one or all as read, remove one, or follow a launch notice to its module (which
-  marks it read). The unread count is polled every `VITE_NOTIFICATIONS_POLL_MS`.
+  marks it read). The unread count is polled every `VITE_NOTIFICATIONS_POLL_MS`, and each
+  poll is also when the server tells reminders that have come due.
+- **Coming up** (`reminders-panel.tsx`, above the notifications): open reminders from
+  `GET /v1/reminders`, worded and linked like notifications (`useFeedText`, manifest
+  `links` via `useNoticeHref`), with when each is due ("Due tomorrow", "Was due 2 days
+  ago") and when it will be told. Each can be put off (tomorrow, in 3 days, next week) or
+  dismissed; the buttons' names include the reminder's text. Hidden when there is nothing.
 - **Activity** (`/activity`): what the user changed, newest first.
 
 **Navigation.** `ShellNav` lists the main destinations from `pages.ts` with the unread

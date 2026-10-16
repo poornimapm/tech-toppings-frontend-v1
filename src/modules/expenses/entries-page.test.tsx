@@ -4,7 +4,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { axe } from 'vitest-axe';
 
 import { ACCENTS } from '@/core/modules/types';
-import { fakeExpenses } from '@/modules/expenses/testing/fake-api';
+import { entryOf, fakeExpenses } from '@/modules/expenses/testing/fake-api';
 import { errorEnvelope, server } from '@/test/msw';
 import { renderApp } from '@/test/render';
 
@@ -16,6 +16,18 @@ async function open(path = '/m/expenses') {
   const view = renderApp(path);
   await screen.findByRole('heading', { level: 1, name: 'Expenses' });
   return view;
+}
+
+/** The new entries the page sent (not the checks for duplicates). */
+function saves() {
+  return fake.requests.filter(
+    (request) => request.method === 'POST' && request.path === '/entries',
+  );
+}
+
+/** The checks for duplicates the page asked for. */
+function checks() {
+  return fake.requests.filter((request) => request.path === '/entries/duplicates/check');
 }
 
 /** Paths of the list requests the page made, without the page number. */
@@ -106,7 +118,7 @@ describe('expenses list', () => {
     expect(await form.findByText('Enter an amount, like 250 or 250.50.')).toBeInTheDocument();
     expect(form.getByText('Say what it was.')).toBeInTheDocument();
     expect(form.getByText('Choose a category.')).toBeInTheDocument();
-    expect(fake.requests.some((request) => request.method === 'POST')).toBe(false);
+    expect(saves()).toHaveLength(0);
 
     // Categories follow the kind: income has its own.
     await user.click(form.getByRole('radio', { name: 'Received' }));
@@ -132,7 +144,7 @@ describe('expenses list', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
     });
-    const sent = fake.requests.filter((request) => request.method === 'POST');
+    const sent = saves();
     expect(sent).toHaveLength(1);
     expect(sent[0]?.key).toMatch(/^[0-9a-f-]{36}$/); // so a retry could never add it twice
     expect(sent[0]?.body).toEqual({
@@ -154,6 +166,39 @@ describe('expenses list', () => {
     const today = screen.getByRole('region', { name: 'Today' });
     expect(await within(today).findByRole('link', { name: 'Vegetables' })).toBeInTheDocument();
     expect(within(today).getByText('−₹250.50')).toBeInTheDocument();
+  });
+
+  it('warns when a new entry looks like one already saved, and still saves it', async () => {
+    fake.state.entries.push(entryOf({ id: 'e-rice-7', date: '2026-10-07', merchant: null }));
+    const { user } = await open();
+    await user.click(screen.getByRole('button', { name: 'Add entry' }));
+    const form = within(await screen.findByRole('dialog', { name: 'Add an entry' }));
+    // The note's region is there before the note, so a screen reader announces it.
+    const note = form.getByRole('status');
+    expect(note).toBeEmptyDOMElement();
+
+    await user.type(form.getByRole('textbox', { name: 'Amount (INR)' }), '125');
+    await user.type(form.getByRole('textbox', { name: 'What was it?' }), 'rice');
+
+    await waitFor(() => {
+      expect(note).toHaveTextContent(
+        'You may have saved this already: Rice · ₹125 · Oct 8, 2026 · Big Bazaar',
+      );
+    });
+    expect(form.getByText('1 more looks like it too.')).toBeInTheDocument();
+    const check = checks().at(-1);
+    expect(check?.body).toEqual({
+      candidates: [
+        { kind: 'expense', title: 'rice', amount_minor: 12500, date: '2026-10-08', merchant: null },
+      ],
+    });
+    const asked = checks().length;
+
+    await user.click(form.getByRole('radio', { name: 'Groceries' }));
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('Added rice')).toBeInTheDocument();
+    expect(saves()).toHaveLength(1);
+    expect(checks()).toHaveLength(asked); // not checked again while saving: it would find itself
   });
 
   it('shows deleted entries and brings one back', async () => {

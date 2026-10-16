@@ -1,3 +1,4 @@
+import { Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
@@ -7,6 +8,7 @@ import { Button } from '@/design-system';
 import type { Category, Entry } from '@/modules/expenses/api';
 import { CategoryIcon } from '@/modules/expenses/category-icon';
 import { NS } from '@/modules/expenses/i18n';
+import { paths } from '@/modules/expenses/paths';
 import { useUnitText } from '@/modules/expenses/units';
 
 export interface EntryRowProps {
@@ -43,6 +45,17 @@ export function EntryRow({ entry, category, categoryName, onUndelete }: EntryRow
         </Link>
         <p className="truncate text-sm text-muted">{details.join(' · ')}</p>
       </div>
+      {entry.recurring_id && (
+        // Above the row's own link, so it opens the rule rather than the entry.
+        <Link
+          to={paths.plan('bills', entry.recurring_id)}
+          aria-label={t('entry.repeatsLabel', { title: entry.title })}
+          title={t('entry.repeats')}
+          className="relative shrink-0 rounded-full p-1 text-muted hover:text-primary"
+        >
+          <Repeat aria-hidden="true" className="size-4" />
+        </Link>
+      )}
       <span className={cx('shrink-0 font-semibold tabular-nums', income && 'text-success')}>
         {income ? '+' : '−'}
         {formatMoney(entry.amount_minor, entry.currency, i18n.language)}

@@ -6,7 +6,18 @@ export default defineModule({
   key: 'expenses',
   icon: Wallet,
   accent: 'emerald',
-  keywords: ['money', 'spending', 'budget', 'பணம்', 'செலவு', 'पैसा', 'बजट'],
+  keywords: [
+    'money',
+    'spending',
+    'budget',
+    'savings',
+    'பணம்',
+    'செலவு',
+    'சேமிப்பு',
+    'पैसा',
+    'बजट',
+    'बचत',
+  ],
   routes: [
     {
       index: true,
@@ -38,11 +49,30 @@ export default defineModule({
         Component: (await import('@/modules/expenses/product-page')).ProductPage,
       }),
     },
+    {
+      path: 'plan',
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/plan-page')).PlanPage,
+      }),
+    },
   ],
-  // The pages the assistant's client tools open; drafts and product matches arrive there with
-  // the action (capture-panel.tsx, prices-page.tsx).
-  actions: { expenses_open: '', expenses_draft: '', expenses_product_matches: 'prices' },
-  links: { 'expenses.price_alert': 'prices/{{product_id}}' },
+  // The pages the assistant's client tools open; drafts, loans and product matches arrive there
+  // with the action (capture-panel.tsx, prices-page.tsx).
+  actions: {
+    expenses_open: '',
+    expenses_draft: '',
+    expenses_iou_draft: '',
+    expenses_product_matches: 'prices',
+  },
+  links: {
+    'expenses.price_alert': 'prices/{{product_id}}',
+    'expenses.budget_near': 'plan?show=budgets&focus={{budget_id}}',
+    'expenses.budget_over': 'plan?show=budgets&focus={{budget_id}}',
+    'expenses.goal_reached': 'plan?show=goals&focus={{goal_id}}',
+    'expenses.bill_due': 'plan?show=bills&focus={{rule_id}}',
+    'expenses.iou_due_lent': 'plan?show=loans&focus={{iou_id}}',
+    'expenses.iou_due_borrowed': 'plan?show=loans&focus={{iou_id}}',
+  },
   // Only what the shell shows outside the module (tile, dashboard, feeds, assistant) is here;
   // the module's own screens are worded in ./i18n and load with them.
   strings: {
@@ -65,10 +95,18 @@ export default defineModule({
         'expenses.entry_restored': 'Restored an earlier version of “{{title}}”',
         'expenses.price_alert':
           '{{product}} cost {{price}}/{{unit}}, more than the {{limit}} you set',
+        'expenses.budget_near': '“{{name}}” budget: {{pct}}% used, {{spent}} of {{limit}}',
+        'expenses.budget_over': '“{{name}}” budget is over: {{spent}} of {{limit}}',
+        'expenses.goal_reached': 'You reached your goal “{{name}}”: {{target}} saved',
+        'expenses.bill_due': '“{{title}}” is due {{due}}: {{amount}}',
+        'expenses.iou_due_lent': '{{person}} is due to pay you back {{outstanding}} by {{due}}',
+        'expenses.iou_due_borrowed': "You're due to pay {{person}} back {{outstanding}} by {{due}}",
       },
       replies: {
         'track-expenses.ready.open': 'Here are your expenses.',
         'track-expenses.ready.draft': "Here's what I understood. Check it in Expenses, then save.",
+        'track-expenses.ready.iou':
+          "Here's what I understood, as a loan. Check it in Expenses, then save.",
         'tidy-products.ready.find':
           'Some of your products look like the same thing. Check them in Prices.',
         'tidy-products.none': 'None of your products look like the same thing.',
@@ -111,11 +149,22 @@ export default defineModule({
         'expenses.entry_restored': '“{{title}}” இன் முந்தைய பதிப்பு மீட்டமைக்கப்பட்டது',
         'expenses.price_alert':
           '{{product}} விலை {{price}}/{{unit}}, நீங்கள் வைத்த {{limit}} ஐ விட அதிகம்',
+        'expenses.budget_near':
+          '“{{name}}” பட்ஜெட்: {{pct}}% செலவாகிவிட்டது, {{limit}} இல் {{spent}}',
+        'expenses.budget_over': '“{{name}}” பட்ஜெட்டைத் தாண்டிவிட்டது: {{limit}} இல் {{spent}}',
+        'expenses.goal_reached': 'உங்கள் “{{name}}” இலக்கை எட்டிவிட்டீர்கள்: {{target}} சேமிப்பு',
+        'expenses.bill_due': '“{{title}}” {{due}} அன்று செலுத்த வேண்டும்: {{amount}}',
+        'expenses.iou_due_lent':
+          '{{person}} உங்களுக்கு {{due}} க்குள் {{outstanding}} திருப்பித் தர வேண்டும்',
+        'expenses.iou_due_borrowed':
+          'நீங்கள் {{person}} க்கு {{due}} க்குள் {{outstanding}} திருப்பித் தர வேண்டும்',
       },
       replies: {
         'track-expenses.ready.open': 'இதோ உங்கள் செலவுகள்.',
         'track-expenses.ready.draft':
           'நான் புரிந்துகொண்டது இதோ. செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.',
+        'track-expenses.ready.iou':
+          'நான் புரிந்துகொண்டதைக் கடனாகக் காட்டுகிறேன். செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.',
         'tidy-products.ready.find':
           'உங்கள் சில பொருட்கள் ஒன்றே போலத் தெரிகின்றன. விலைகளில் சரிபாருங்கள்.',
         'tidy-products.none': 'ஒன்றே போலத் தெரியும் பொருட்கள் எதுவும் இல்லை.',
@@ -158,10 +207,17 @@ export default defineModule({
         'expenses.entry_restored': '“{{title}}” का पुराना संस्करण वापस लाया',
         'expenses.price_alert':
           '{{product}} की कीमत {{price}}/{{unit}} रही, आपकी तय {{limit}} से ज़्यादा',
+        'expenses.budget_near': '“{{name}}” बजट: {{pct}}% खर्च हो गया, {{limit}} में से {{spent}}',
+        'expenses.budget_over': '“{{name}}” बजट से ज़्यादा खर्च हो गया: {{limit}} में से {{spent}}',
+        'expenses.goal_reached': 'आपने अपना लक्ष्य “{{name}}” पूरा कर लिया: {{target}} जमा',
+        'expenses.bill_due': '“{{title}}” {{due}} को भरना है: {{amount}}',
+        'expenses.iou_due_lent': '{{person}} को {{due}} तक आपको {{outstanding}} लौटाने हैं',
+        'expenses.iou_due_borrowed': 'आपको {{due}} तक {{person}} को {{outstanding}} लौटाने हैं',
       },
       replies: {
         'track-expenses.ready.open': 'ये रहे आपके खर्च।',
         'track-expenses.ready.draft': 'मैंने यह समझा है। खर्च में जाँचकर सहेजें।',
+        'track-expenses.ready.iou': 'मैंने इसे उधार समझा है। खर्च में जाँचकर सहेजें।',
         'tidy-products.ready.find': 'आपकी कुछ चीज़ें एक ही लगती हैं। कीमतों में जाँच लें।',
         'tidy-products.none': 'कोई भी चीज़ एक जैसी नहीं लगती।',
         'explain-spending.month.empty': 'महीने में कोई खर्च नहीं।',

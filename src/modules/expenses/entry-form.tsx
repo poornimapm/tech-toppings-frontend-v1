@@ -7,6 +7,7 @@ import { useSession } from '@/core/auth/session-store';
 import { errorKey } from '@/core/i18n';
 import { todayIn } from '@/core/utils/dates';
 import { toInput, toMinor } from '@/core/utils/money';
+import { useSettled } from '@/core/utils/use-settled';
 import { Alert, Button, Dialog, SelectField, TextField, toast } from '@/design-system';
 import {
   failureCode,
@@ -20,17 +21,16 @@ import {
 } from '@/modules/expenses/api';
 import type { Draft } from '@/modules/expenses/capture';
 import { useCategoryBook } from '@/modules/expenses/category-book';
+import { CHOICE } from '@/modules/expenses/choice';
+import { DuplicateNote } from '@/modules/expenses/duplicate-note';
+import { useDuplicates } from '@/modules/expenses/duplicates';
 import { NS } from '@/modules/expenses/i18n';
 import { priceUnitFor, unitPrice, useUnitText } from '@/modules/expenses/units';
 
 const MAX_TAGS = 10;
 const KINDS = ['expense', 'income'] as const satisfies readonly EntryKind[];
-
-/** A choice drawn as a pill; the radio inside keeps the keyboard and screen-reader behaviour. */
-const CHOICE =
-  'group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 text-sm ' +
-  'has-checked:border-primary has-checked:bg-primary/10 has-checked:font-semibold ' +
-  'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[var(--tt-focus)]';
+/** How long typing pauses before a new entry is checked against saved ones. */
+const SETTLE_MS = 400;
 
 /** Everything in the form is text, as typed; `bodyOf` turns it into what the API takes. */
 interface FormValues {
@@ -136,14 +136,26 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
     defaultValues: valuesOf(entry, draft, todayIn(user?.timezone)),
   });
   const kind = useWatch({ control: form.control, name: 'kind' });
-  const [amount, quantity, unit] = useWatch({
+  const [amount, quantity, unit, title, date, merchant] = useWatch({
     control: form.control,
-    name: ['amount', 'quantity', 'unit'],
+    name: ['amount', 'quantity', 'unit', 'title', 'date', 'merchant'],
   });
   const units = useUnits().data ?? [];
   const unitText = useUnitText();
   const { errors } = form.formState;
   const currency = entry?.currency ?? user?.base_currency;
+  const minor = currency ? toMinor(amount, currency) : null;
+  // Only a new entry is compared with saved ones, once it has a name, an amount and a day.
+  const named = title.trim();
+  const asked =
+    !entry && named && minor && date
+      ? [{ kind, title: named, amount_minor: minor, date, merchant: merchant.trim() || null }]
+      : [];
+  const settled = useSettled(asked, SETTLE_MS);
+  // Not from the moment Save is pressed (isSubmitting comes on before anything is sent): asked
+  // again then, the entry being saved would find itself.
+  const saving = form.formState.isSubmitting || save.isSuccess;
+  const [matches = []] = useDuplicates(saving ? [] : settled);
   if (!currency) return null;
 
   // An archived category is offered only to the entry already filed under it.
@@ -152,7 +164,6 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
       category.kind === kind && (!category.archived || category.id === entry?.category_id),
   );
   const failure = failureCode(save.error);
-  const minor = toMinor(amount, currency);
   const counted = quantityOf(quantity);
   const per = priceUnitFor(units, unit);
   const each = minor && counted && unit ? unitPrice(units, minor, counted, unit, per) : null;
@@ -303,6 +314,7 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
           error={errors.date?.message}
           {...form.register('date', { required: t('form.dateError') })}
         />
+        <DuplicateNote matches={matches} />
 
         <details open={DETAILS.some((name) => form.getValues(name) !== '')}>
           <summary className="cursor-pointer text-sm font-medium text-primary">

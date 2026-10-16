@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { textFor } from '@/core/modules/module-text';
 import { useModuleRegistry } from '@/core/modules/registry';
+import { withDates } from '@/core/utils/date-params';
 import { fill } from '@/core/utils/fill';
 import { withMoney } from '@/core/utils/money-params';
 
@@ -15,7 +16,7 @@ type LooseT = (key: string, options?: Record<string, unknown>) => string;
  * A module words its own entries in its manifest (`strings.feed`), so a new module needs no
  * change here; the shell's own are in `feed.<code>`. An unknown code is shown as the code.
  *
- * Money is written in the user's language (`withMoney`).
+ * Money and calendar days are written in the user's language (`withMoney`, `withDates`).
  */
 export function useFeedText(): (code: string, params: Record<string, unknown>) => string {
   const { t, i18n } = useTranslation();
@@ -25,7 +26,10 @@ export function useFeedText(): (code: string, params: Record<string, unknown>) =
       typeof params.module === 'string'
         ? textFor(registry.definitionFor(params.module), i18n.language)
         : undefined;
-    const values = { ...withMoney(params, i18n.language), module: strings?.name };
+    const values = {
+      ...withDates(withMoney(params, i18n.language), i18n.language),
+      module: strings?.name,
+    };
     const own = strings?.feed?.[code];
     if (own) return fill(own, values);
     return (t as unknown as LooseT)(`feed.${code}`, { ...values, defaultValue: code });

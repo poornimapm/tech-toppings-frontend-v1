@@ -105,6 +105,7 @@ async function stubApi(
       json: { items, page: 1, page_size: 50, total: items.length, has_next: false },
     });
   });
+  await page.route('**/api/v1/reminders?*', (route) => route.fulfill({ json: listOf([]) }));
   await page.route('**/api/v1/dashboard?*', (route) => route.fulfill({ json: dashboard }));
 }
 
@@ -501,6 +502,77 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
 const fitsWidth = (page: Page) =>
   page.evaluate<boolean>('document.documentElement.scrollWidth <= window.innerWidth');
 
+test('a loan that is said is checked, saved, and what is owed is shown', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await stubApi(page);
+  await stubExpenses(page);
+  const loans: unknown[] = [];
+  await page.route('**/api/v1/expenses/ious', (route) => {
+    const body = route.request().postDataJSON() as { counterparty: string; amount_minor: number };
+    const saved = {
+      ...body,
+      id: 'iou-1',
+      currency: 'INR',
+      counterparty_key: body.counterparty.toLowerCase(),
+      due_on: null,
+      note: null,
+      settlements: [],
+      settled_minor: 0,
+      outstanding_minor: body.amount_minor,
+      settled_on: null,
+      revision_no: 1,
+    };
+    loans.push(saved);
+    return route.fulfill({ status: 201, json: saved });
+  });
+  const loan = {
+    action: 'new',
+    direction: 'lent',
+    counterparty: 'Ravi',
+    amount: 500,
+    date: today,
+    due_on: null,
+    note: null,
+    iou_id: null,
+    uncertain: ['counterparty'],
+  };
+  await page.route('**/api/v1/agents/assistant/runs', (route) =>
+    route.fulfill({
+      status: 201,
+      json: {
+        id: 'run-3',
+        agent: 'assistant',
+        skill: 'track-expenses',
+        status: 'completed',
+        mode: 'static',
+        reason: 'consent',
+        message: null,
+        message_code: 'track-expenses.ready.iou',
+        message_params: {},
+        proposals: [],
+        client_actions: [{ tool: 'expenses_iou_draft', arguments: { drafts: [loan] } }],
+        created_at: '2026-10-09T10:00:00Z',
+      },
+    }),
+  );
+  await page.goto('/m/expenses');
+
+  await page.getByRole('textbox', { name: 'Say or type what you spent' }).fill('lent Ravi 500');
+  await page.getByRole('button', { name: 'Read it' }).click();
+
+  const card = page.getByRole('region', { name: 'Check before saving' });
+  await expect(card.getByText('Lent to Ravi')).toBeVisible();
+  await expect(card.getByText('Check: Person')).toBeVisible();
+  expect(await fitsWidth(page)).toBe(true);
+  expect(loans).toEqual([]); // not saved by reading it
+
+  await card.getByRole('button', { name: 'Save Lent to Ravi' }).click();
+  await expect(page.getByText('Saved: Ravi owes you ₹500.')).toBeVisible();
+  await expect(card).toBeHidden();
+  expect(loans).toMatchObject([{ counterparty: 'Ravi', direction: 'lent', amount_minor: 50000 }]);
+  await expect(page.getByText('Nothing here yet')).toBeVisible(); // a loan is not an expense
+});
+
 /** Tomato (bought at A and at B) and Thakkali, as the server would describe them. */
 function stubProducts(page: Page) {
   const bought = (
@@ -798,6 +870,146 @@ test('the overview sums up the month and opens what is behind a figure', async (
   expect(await fitsWidth(page)).toBe(true);
 });
 
+/** One trip budget, ending today and nearly spent, and one goal a quarter saved, as the server
+ *  would describe them. */
+async function stubPlan(page: Page) {
+  const goal = {
+    id: 'g-bike',
+    name: 'A motorbike for college',
+    target_minor: 9000000,
+    target_date: '2099-12-31',
+    funding: 'manual',
+    since: today,
+    currency: 'INR',
+    revision_no: 2,
+    saved_minor: 2400000,
+    left_minor: 6600000,
+    pct: 26,
+    per_month_minor: 550000,
+    reached: false,
+  };
+  await page.route('**/api/v1/expenses/goals**', (route) =>
+    route.fulfill({ json: listOf([goal]) }),
+  );
+  const budget = {
+    id: 'b-goa',
+    name: 'Goa trip',
+    scope: 'tag',
+    category_id: null,
+    tag: 'goa',
+    period: 'custom',
+    start: today,
+    end: today,
+    limit_minor: 1000000,
+    currency: 'INR',
+    alert_threshold: 0.8,
+    status: {
+      start: today,
+      end: today,
+      spent_minor: 820000,
+      left_minor: 180000,
+      pct: 82,
+      state: 'near',
+      days_left: 1,
+      per_day_left_minor: 180000,
+      pace_minor: 1000000,
+    },
+  };
+  return page.route('**/api/v1/expenses/budgets**', (route) =>
+    route.fulfill({ json: listOf([budget]) }),
+  );
+}
+
+interface StubLoan {
+  id: string;
+  counterparty: string;
+  counterparty_key: string;
+  direction: 'lent' | 'borrowed';
+  amount_minor: number;
+  settled_minor: number;
+  outstanding_minor: number;
+  settlements: { key: string; amount_minor: number; date: string; note: string | null }[];
+  settled_on: string | null;
+  due_on: string | null;
+  [field: string]: unknown;
+}
+
+/** A small in-memory loans API. Returns what was sent to it (path, body and Idempotency-Key). */
+async function stubLoans(page: Page) {
+  const loans: StubLoan[] = [];
+  const sent: { path: string; body: unknown; key: string | undefined }[] = [];
+  const summary = () => {
+    const people = [...new Set(loans.map((loan) => loan.counterparty_key))].map((key) => {
+      const own = loans.filter((loan) => loan.counterparty_key === key);
+      const owed = (direction: string) =>
+        own
+          .filter((loan) => loan.direction === direction)
+          .reduce((sum, loan) => sum + loan.outstanding_minor, 0);
+      return {
+        name: own[0]?.counterparty,
+        key,
+        owed_to_me_minor: owed('lent'),
+        i_owe_minor: owed('borrowed'),
+        net_minor: owed('lent') - owed('borrowed'),
+        open: own.filter((loan) => loan.settled_on === null).length,
+        next_due_on: null,
+        overdue: false,
+      };
+    });
+    const total = (field: 'owed_to_me_minor' | 'i_owe_minor') =>
+      people.reduce((sum, person) => sum + person[field], 0);
+    return {
+      currency: 'INR',
+      owed_to_me_minor: total('owed_to_me_minor'),
+      i_owe_minor: total('i_owe_minor'),
+      people,
+    };
+  };
+
+  await page.route('**/api/v1/expenses/ious**', (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.pathname.endsWith('/summary')) return route.fulfill({ json: summary() });
+    if (request.method() === 'GET') {
+      const person = url.searchParams.get('person');
+      return route.fulfill({
+        json: listOf(loans.filter((loan) => !person || loan.counterparty_key === person)),
+      });
+    }
+    const body = request.postDataJSON() as Record<string, unknown>;
+    const path = url.pathname.replace(/^.*\/v1\/expenses/, '');
+    sent.push({ path, body, key: request.headers()['idempotency-key'] });
+    const loan = loans.find((item) => path === `/ious/${item.id}/settlements`);
+    if (loan) {
+      const amount = body.amount_minor as number;
+      loan.settlements.push({ key: 'k', amount_minor: amount, date: today, note: null });
+      loan.settled_minor += amount;
+      loan.outstanding_minor -= amount;
+      loan.settled_on = loan.outstanding_minor === 0 ? today : null;
+      return route.fulfill({ status: 201, json: loan });
+    }
+    const counterparty = body.counterparty as string;
+    const created: StubLoan = {
+      ...body,
+      id: `iou-${String(loans.length + 1)}`,
+      counterparty,
+      counterparty_key: counterparty.toLowerCase(),
+      direction: body.direction as StubLoan['direction'],
+      amount_minor: body.amount_minor as number,
+      currency: 'INR',
+      settlements: [],
+      settled_minor: 0,
+      outstanding_minor: body.amount_minor as number,
+      settled_on: null,
+      due_on: null,
+      revision_no: 1,
+    };
+    loans.push(created);
+    return route.fulfill({ status: 201, json: created });
+  });
+  return sent;
+}
+
 test('an expense is added, opened, deleted and brought back', async ({ page }) => {
   await stubApi(page);
   const keys = await stubExpenses(page);
@@ -847,6 +1059,128 @@ test.describe('on a phone', () => {
     await nav.getByRole('link', { name: 'Dashboard' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible();
     expect(await fitsWidth(page)).toBe(true);
+  });
+
+  test('a reminder can be put off from the notifications page', async ({ page }) => {
+    await stubApi(page);
+    const tomorrow = new Date(`${today}T12:00:00Z`);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const reminder = {
+      id: 'r-1',
+      type: 'expenses.price_alert',
+      params: {
+        module: 'expenses',
+        reminder_id: 'r-1',
+        due_on: today,
+        product: 'Onion',
+        product_id: 'p-onion',
+        price_minor: 6000,
+        limit_minor: 5000,
+        currency: 'INR',
+        unit: 'kg',
+      },
+      due_on: today,
+      remind_at: `${today}T03:30:00Z`,
+      sent: true,
+      snoozed_until: null,
+    };
+    let snoozed: unknown = null;
+    await page.route('**/api/v1/reminders?*', (route) =>
+      route.fulfill({ json: listOf([reminder]) }),
+    );
+    await page.route('**/api/v1/reminders/r-1/snooze', (route) => {
+      snoozed = route.request().postDataJSON();
+      const at = `${tomorrow.toISOString().slice(0, 10)}T03:30:00Z`;
+      return route.fulfill({
+        json: { ...reminder, remind_at: at, snoozed_until: at, sent: false },
+      });
+    });
+    await page.goto('/notifications');
+
+    const panel = page.getByRole('region', { name: 'Coming up' });
+    await expect(panel.getByText('Due today')).toBeVisible();
+    expect(await fitsWidth(page)).toBe(true);
+    await panel.getByRole('button', { name: /^Remind me tomorrow: Onion cost/ }).click();
+
+    await expect(page.getByText("We'll remind you tomorrow")).toBeVisible();
+    expect(snoozed).toEqual({ days: 1 });
+  });
+
+  test('the plan fits the screen, its tabs scrolling within their bar', async ({ page }) => {
+    await stubApi(page);
+    await stubExpenses(page);
+    await stubPlan(page);
+    await page.goto('/m/expenses/plan');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible();
+    await expect(page.getByRole('meter', { name: 'Goa trip' })).toHaveAttribute(
+      'aria-valuetext',
+      '82% used: ₹8,200 of ₹10,000',
+    );
+    await expect(page.getByText('Nearly spent')).toBeVisible();
+    const tab = page.getByRole('link', { name: 'Plan', exact: true });
+    await expect(tab).toHaveAttribute('aria-current', 'page');
+    await expect(tab).toBeInViewport({ ratio: 1 }); // the bar scrolled to the open tab
+    expect(await fitsWidth(page)).toBe(true);
+
+    await page.getByRole('button', { name: 'Goals', exact: true }).click();
+    await expect(page).toHaveURL(/\/m\/expenses\/plan\?show=goals$/);
+    await expect(page.getByRole('meter', { name: 'A motorbike for college' })).toHaveAttribute(
+      'aria-valuetext',
+      '26% saved: ₹24,000 of ₹90,000',
+    );
+    await expect(
+      page.getByRole('button', { name: 'Take out money from A motorbike for college' }),
+    ).toBeVisible();
+    expect(await fitsWidth(page)).toBe(true);
+  });
+
+  test('a loan is added, paid back in part, and what is still owed is shown', async ({ page }) => {
+    await stubApi(page);
+    await stubExpenses(page);
+    const sent = await stubLoans(page);
+    await page.goto('/m/expenses/plan?show=loans');
+    await expect(page.getByText('No loans yet')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Add loan' }).click();
+    const form = page.getByRole('dialog', { name: 'Add a loan' });
+    await form.getByLabel('Who').fill('Ravi');
+    await form.getByLabel('Amount (INR)').fill('1000');
+    await form.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Saved: Ravi owes you ₹1,000.')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Ravi' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Ravi' });
+    await sheet.getByRole('button', { name: 'Record payment' }).click();
+    const payment = page.getByRole('dialog', { name: 'Ravi paid you back' });
+    await expect(payment.getByLabel('Amount (INR)')).toHaveValue('1000.00'); // what is left
+    await payment.getByLabel('Amount (INR)').fill('400');
+    await payment.getByRole('button', { name: 'Record payment' }).click();
+
+    await expect(sheet.getByText('Saved: Ravi owes you ₹600.')).toBeVisible();
+    await expect(sheet.getByText('₹600 left', { exact: true })).toBeVisible();
+    expect(await fitsWidth(page)).toBe(true);
+    await page.keyboard.press('Escape');
+
+    const loans = page.getByRole('region', { name: 'Loans' });
+    await expect(loans.locator('dl')).toContainText('₹600');
+    await expect(loans.getByRole('button', { name: 'Ravi' })).toContainText('Owes you ₹600');
+    expect(await fitsWidth(page)).toBe(true);
+    expect(sent.map(({ path, body }) => [path, body])).toEqual([
+      [
+        '/ious',
+        {
+          counterparty: 'Ravi',
+          direction: 'lent',
+          amount_minor: 100000,
+          date: today,
+          due_on: null,
+          note: null,
+        },
+      ],
+      ['/ious/iou-1/settlements', { amount_minor: 40000, date: today, note: null }],
+    ]);
+    expect(sent.every(({ key }) => key && /^[0-9a-f-]{36}$/.test(key))).toBe(true);
   });
 
   test('adding an expense is within reach of the thumb', async ({ page }) => {

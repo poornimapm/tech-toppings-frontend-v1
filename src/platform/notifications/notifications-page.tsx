@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { useFeedText } from '@/core/modules/feed-text';
-import { fill } from '@/core/utils/fill';
-import { useModuleTiles } from '@/core/modules/queries';
 import {
   useChangeNotifications,
   useNotifications,
@@ -13,17 +11,19 @@ import {
 import { Button } from '@/design-system';
 import { FeedPage } from '@/platform/feed/feed-page';
 import { FeedRow } from '@/platform/feed/feed-row';
+import { useNoticeHref } from '@/platform/notifications/notice-href';
+import { RemindersPanel } from '@/platform/notifications/reminders-panel';
 import { pages } from '@/platform/shell/pages';
-import { moduleHref } from '@/platform/welcome/module-style';
 
-/** Everything the app has told the user: read it, follow it to its module, or clear it. */
+/** Everything the app has told the user: read it, follow it to its module, or clear it. What
+ *  it will remind them of comes first. */
 export function NotificationsPage() {
   const { t } = useTranslation();
   const notifications = useNotifications();
   const unread = useUnreadCount().data ?? 0;
   const change = useChangeNotifications();
   const feedText = useFeedText();
-  const { tiles } = useModuleTiles();
+  const hrefOf = useNoticeHref();
 
   return (
     <FeedPage
@@ -50,11 +50,11 @@ export function NotificationsPage() {
           </Button>
         )
       }
+      lead={<RemindersPanel />}
     >
       {(item) => {
         const text = feedText(item.type, item.params);
-        const tile = tiles.find((candidate) => candidate.view.key === item.params.module);
-        const page = tile?.definition.links?.[item.type];
+        const href = hrefOf(item.type, item.params);
         const markRead = () => {
           if (!item.read) change.mutate({ read: item.id });
         };
@@ -64,13 +64,9 @@ export function NotificationsPage() {
             at={item.at}
             unread={!item.read}
             text={
-              tile ? (
+              href ? (
                 // A notice about a module leads to it, and following it counts as reading it.
-                <Link
-                  to={moduleHref(tile, page && encodeURI(fill(page, item.params)))}
-                  onClick={markRead}
-                  className="underline-offset-4 hover:underline"
-                >
+                <Link to={href} onClick={markRead} className="underline-offset-4 hover:underline">
                   {text}
                 </Link>
               ) : (

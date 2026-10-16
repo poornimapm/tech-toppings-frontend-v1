@@ -2,36 +2,35 @@ import { Mic, Sparkles, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAiConsent } from '@/core/agents/queries';
-import { useSession } from '@/core/auth/session-store';
+import { useAiConsent, type ClientAction } from '@/core/agents/queries';
 import { errorKey, toLanguage } from '@/core/i18n';
 import { useDictation } from '@/core/speech/speech';
 import { cx } from '@/core/utils/cx';
-import { todayIn } from '@/core/utils/dates';
 import { Button } from '@/design-system';
 import { failureCode } from '@/modules/expenses/api';
-import {
-  DRAFT_TOOL,
-  draftsFrom,
-  useCapture,
-  useReadBack,
-  type Draft,
-} from '@/modules/expenses/capture';
+import { DRAFT_TOOL, useCapture, useReadBack } from '@/modules/expenses/capture';
 import { NS } from '@/modules/expenses/i18n';
+import { IOU_TOOL } from '@/modules/expenses/iou-capture';
 
 const TOGGLE =
   'grid size-10 shrink-0 place-items-center rounded-full border border-border text-muted transition-colors ' +
   'hover:text-text aria-pressed:border-primary aria-pressed:bg-primary/10 aria-pressed:text-primary';
+/** The client tools that hand over something to check: entries and loans. */
+const CHECKED = new Set([DRAFT_TOOL, IOU_TOOL]);
 
 /**
- * Say, type or paste what was spent; it comes back as drafts to check. The microphone shows
- * only where the browser can listen, and what it hears can be corrected before it is read.
+ * Say, type or paste what was spent or lent; it comes back as drafts to check. The microphone
+ * shows only where the browser can listen, and what it hears can be corrected before it is read.
  */
-export function QuickAdd({ onDrafts }: { onDrafts: (drafts: Draft[]) => void }) {
+export function QuickAdd({
+  onRead,
+}: {
+  /** Takes what the assistant handed over; false when there was nothing to check in it. */
+  onRead: (actions: ClientAction[]) => boolean;
+}) {
   const { t, i18n } = useTranslation(NS);
   const { t: tCommon } = useTranslation();
   const { t: tError } = useTranslation('errors');
-  const user = useSession((state) => state.user);
   const [text, setText] = useState('');
   const [spoken, setSpoken] = useState(false);
   const capture = useCapture();
@@ -49,10 +48,7 @@ export function QuickAdd({ onDrafts }: { onDrafts: (drafts: Draft[]) => void }) 
     if (!input) return;
     dictation.stop();
     const answer = await capture.read(input, spoken ? 'speech' : 'text').catch(() => null);
-    const action = answer?.client_actions.find((item) => item.tool === DRAFT_TOOL);
-    const drafts = draftsFrom(action, todayIn(user?.timezone));
-    if (drafts.length === 0) return; // the status line below says why
-    onDrafts(drafts);
+    if (!answer || !onRead(answer.client_actions)) return; // the status line below says why
     setText('');
     setSpoken(false);
   }
@@ -79,7 +75,7 @@ export function QuickAdd({ onDrafts }: { onDrafts: (drafts: Draft[]) => void }) 
         )}
       </span>
     );
-  } else if (run && !run.client_actions.some((item) => item.tool === DRAFT_TOOL)) {
+  } else if (run && !run.client_actions.some((item) => CHECKED.has(item.tool))) {
     status = run.message ?? t('capture.nothing');
   } else if (run?.mode) status = t('capture.readBy', { mode: tCommon(`agents.mode.${run.mode}`) });
 

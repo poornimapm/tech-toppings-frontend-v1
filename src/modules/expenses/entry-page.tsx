@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Repeat, RotateCcw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -21,6 +21,7 @@ import { EntryForm } from '@/modules/expenses/entry-form';
 import { EntryPrice } from '@/modules/expenses/entry-price';
 import { useFieldText } from '@/modules/expenses/field-text';
 import { NS } from '@/modules/expenses/i18n';
+import { paths } from '@/modules/expenses/paths';
 
 const DETAILS = ['date', 'time', 'merchant', 'payment_mode', 'for_whom', 'tags', 'note'] as const;
 const CARD = 'rounded-3xl border border-border bg-glass p-5 shadow-sm backdrop-blur-xl';
@@ -176,6 +177,18 @@ export function EntryPage() {
             {formatMoney(current.amount_minor, current.currency, i18n.language)}
           </p>
         </div>
+
+        {current.recurring_id && (
+          <Link
+            to={paths.plan('bills', current.recurring_id)}
+            aria-label={t('entry.repeatsLabel', { title: current.title })}
+            className="inline-flex rounded-full"
+          >
+            <Badge icon={<Repeat aria-hidden="true" className="size-3.5" />}>
+              {t('entry.repeats')}
+            </Badge>
+          </Link>
+        )}
 
         {current.deleted && (
           <p role="status" className="flex flex-wrap items-center gap-2 text-sm text-muted">

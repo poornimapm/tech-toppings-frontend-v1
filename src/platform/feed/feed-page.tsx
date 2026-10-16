@@ -10,6 +10,8 @@ export interface FeedPageProps<T> {
   subtitle: string;
   /** Page-level actions, beside the title. */
   action?: ReactNode;
+  /** Shown between the heading and the feed, whatever state the feed is in. */
+  lead?: ReactNode;
   query: UseInfiniteQueryResult<T[]>;
   /** Shown when there is nothing in the feed. */
   empty: { icon: LucideIcon; title: string; body: string };
@@ -24,6 +26,7 @@ export function FeedPage<T>({
   title,
   subtitle,
   action,
+  lead,
   query,
   empty,
   errorText,
@@ -39,6 +42,7 @@ export function FeedPage<T>({
         </div>
         {action}
       </header>
+      {lead}
       {query.isPending ? (
         <div className="space-y-2">
           {Array.from({ length: 4 }, (_, index) => (

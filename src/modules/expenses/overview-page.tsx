@@ -7,7 +7,7 @@ import { Link, useSearchParams } from 'react-router';
 import { useSession } from '@/core/auth/session-store';
 import { displayDate, todayIn } from '@/core/utils/dates';
 import { formatMoney, minorDigits } from '@/core/utils/money';
-import { FilterChips, LoadError, Skeleton } from '@/design-system';
+import { FilterChips, LoadError, Meter, Skeleton } from '@/design-system';
 import { useAnalytics, type AnalyticsOf } from '@/modules/expenses/analytics';
 import { BarList } from '@/modules/expenses/bar-list';
 import { useCategoryBook } from '@/modules/expenses/category-book';
@@ -96,27 +96,21 @@ function Forecast({ forecast }: { forecast: AnalyticsOf<'forecast'> }) {
   const end = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long' }).format(
     displayDate(forecast.end),
   );
-  const share = forecast.projected_minor
-    ? Math.min(100, (forecast.spent_minor / forecast.projected_minor) * 100)
-    : 0;
+  const soFar = t('overview.forecast.soFar', { amount: money(forecast.spent_minor) });
   return (
     <div className="space-y-3">
       <p className="text-2xl font-bold tracking-tight tabular-nums">
         {t('overview.forecast.heading', { amount: estimate(forecast.projected_minor), end })}
       </p>
-      <div
-        role="meter"
-        aria-label={t('overview.forecast.soFar', { amount: money(forecast.spent_minor) })}
-        aria-valuemin={0}
-        aria-valuemax={forecast.projected_minor}
-        aria-valuenow={forecast.spent_minor}
-        className="h-2.5 rounded-full bg-border/50"
-      >
-        <div className="h-2.5 rounded-full bg-chart" style={{ width: `${String(share)}%` }} />
-      </div>
+      <Meter
+        label={t('overview.forecast.title')}
+        valueText={soFar}
+        value={forecast.spent_minor}
+        max={forecast.projected_minor}
+      />
       <p className="text-sm text-muted">
         {[
-          t('overview.forecast.soFar', { amount: money(forecast.spent_minor) }),
+          soFar,
           // A band only when the weeks differ: "between ₹2,285 and ₹2,285" says nothing.
           estimate(forecast.low_minor) !== estimate(forecast.high_minor) &&
             t('overview.forecast.band', {

@@ -58,9 +58,10 @@ export function EntriesPage() {
   const period = toPeriod(params.get('period'));
   const search = params.get('q') ?? '';
   const category = params.get('category') ?? '';
-  // What a chart drills into: its own days, a person or a place (paths.list).
+  // What a chart or a budget drills into: its own days, a tag, a person or a place (paths.list).
   const from = params.get('from') ?? '';
   const to = params.get('to') ?? '';
+  const tag = params.get('tag') ?? '';
   const person = params.get('person') ?? '';
   const merchant = params.get('merchant') ?? '';
   const custom = from !== '' || to !== '';
@@ -71,6 +72,7 @@ export function EntriesPage() {
     ...(show === 'deleted' ? { deleted: true } : {}),
     ...(search ? { q: search } : {}),
     ...(category ? { category_id: category } : {}),
+    ...(tag ? { tag } : {}),
     ...(person ? { for_whom: person } : {}),
     ...(merchant ? { merchant } : {}),
   };
@@ -78,7 +80,7 @@ export function EntriesPage() {
   const filtered =
     show !== 'all' ||
     period !== PERIODS[0] ||
-    [search, category, from, to, person, merchant].some((value) => value !== '');
+    [search, category, from, to, tag, person, merchant].some((value) => value !== '');
 
   function update(changes: Record<string, string>) {
     const next = new URLSearchParams(params);
@@ -101,6 +103,7 @@ export function EntriesPage() {
       ? shortDay(from)
       : `${shortDay(from || to)} – ${shortDay(to || from)}`;
   const pills = [
+    tag && { name: 'tag', label: t('filters.tagged', { tag }) },
     person && { name: 'person', label: t('filters.forPerson', { name: person }) },
     merchant && { name: 'merchant', label: t('filters.atPlace', { place: merchant }) },
   ].filter((pill): pill is { name: string; label: string } => typeof pill === 'object');

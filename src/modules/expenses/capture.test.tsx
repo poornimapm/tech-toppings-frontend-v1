@@ -5,8 +5,9 @@ import { axe } from 'vitest-axe';
 
 import { MODULE_ACTION, type RunInput } from '@/core/agents/queries';
 import { draftsFrom, useReadBack } from '@/modules/expenses/capture';
-import { fakeExpenses } from '@/modules/expenses/testing/fake-api';
-import { server, testRun, testUser } from '@/test/msw';
+import type { DuplicateCandidate } from '@/modules/expenses/duplicates';
+import { entryOf, fakeExpenses } from '@/modules/expenses/testing/fake-api';
+import { errorEnvelope, server, testRun, testUser } from '@/test/msw';
 import { renderApp } from '@/test/render';
 
 const NOW = new Date('2026-10-08T06:00:00Z'); // 8 October in Kolkata
@@ -62,6 +63,21 @@ function tray() {
   return within(screen.getByRole('region', { name: 'Check before saving' }));
 }
 
+/** The new entries the page sent (not the checks for duplicates). */
+function saves() {
+  return fake.requests.filter(
+    (request) => request.method === 'POST' && request.path === '/entries',
+  );
+}
+
+/** The titles the page checked for duplicates, in the order asked. */
+function checked() {
+  return fake.requests
+    .filter((request) => request.path === '/entries/duplicates/check')
+    .flatMap((request) => (request.body as { candidates: DuplicateCandidate[] }).candidates)
+    .map((candidate) => candidate.title);
+}
+
 beforeAll(async () => {
   await import('@/modules/expenses/entries-page');
 }, 120_000);
@@ -96,7 +112,7 @@ describe('capturing an entry', () => {
         context: { input_type: 'text' },
       },
     ]);
-    expect(fake.requests.some((request) => request.method === 'POST')).toBe(false);
+    expect(saves()).toHaveLength(0);
     expect(screen.getByRole('textbox', { name: 'Say or type what you spent' })).toHaveValue('');
 
     await user.click(tray().getByRole('button', { name: 'Save Vegetables' }));
@@ -105,7 +121,7 @@ describe('capturing an entry', () => {
     await waitFor(() => {
       expect(draft).not.toBeInTheDocument();
     });
-    const saved = fake.requests.find((request) => request.method === 'POST');
+    const [saved] = saves();
     expect(saved?.key).toMatch(/^[0-9a-f-]{36}$/);
     expect(saved?.body).toMatchObject({
       kind: 'expense',
@@ -129,7 +145,7 @@ describe('capturing an entry', () => {
     ).toBeInTheDocument();
     await user.click(tray().getByRole('button', { name: 'Save Tomatoes' }));
     expect(await screen.findByText('Added Tomatoes')).toBeInTheDocument();
-    expect(fake.requests.find((request) => request.method === 'POST')?.body).toMatchObject({
+    expect(saves()[0]?.body).toMatchObject({
       title: 'Tomatoes',
       amount_minor: 8000,
       quantity: 2,
@@ -191,6 +207,87 @@ describe('capturing an entry', () => {
     });
     expect(spoken).toEqual(['Added Coffee, ₹25', 'Added Tea, ₹15']);
     vi.unstubAllGlobals();
+  });
+
+  it(
+    'flags a draft that looks saved already: Save all skips it, and it can be saved anyway',
+    { timeout: 40_000 },
+    async () => {
+      fake = fakeExpenses([entryOf()]); // Rice, ₹125 on 8 October
+      server.use(...fake.handlers);
+      answerWith([
+        { ...VEGETABLES, title: 'rice', amount: 125, date: '2026-10-08' },
+        { ...VEGETABLES, title: 'Coffee', amount: 25 },
+        { ...VEGETABLES, title: 'Tea', amount: 15 },
+      ]);
+      const { user } = await open();
+      await say(user, 'rice 125, coffee 25 and tea 15');
+
+      const note = await tray().findByText(
+        'You may have saved this already: Rice · ₹125 · Oct 8, 2026 · Big Bazaar',
+      );
+      expect(note.closest('[role="status"]')).not.toBeNull();
+      expect(tray().queryByRole('button', { name: 'Save rice' })).toBeNull();
+      expect(await axe(document.body)).toHaveNoViolations();
+      await waitFor(() => {
+        expect(checked().sort()).toEqual(['Coffee', 'Tea', 'rice']);
+      });
+
+      await user.click(tray().getByRole('button', { name: 'Save all (2)' }));
+      await waitFor(() => {
+        expect(fake.state.entries.map((entry) => entry.title)).toEqual(['Rice', 'Coffee', 'Tea']);
+      });
+      expect(tray().getByText('rice')).toBeInTheDocument(); // still waiting to be checked
+      // Only what is still on the card is checked again; a draft being saved would find itself.
+      await waitFor(() => {
+        expect(checked().sort()).toEqual(['Coffee', 'Tea', 'rice', 'rice']);
+      });
+
+      await user.click(tray().getByRole('button', { name: 'Save anyway: rice' }));
+      expect(await screen.findByText('Added rice')).toBeInTheDocument();
+      expect(saves().map((request) => (request.body as { title: string }).title)).toEqual([
+        'Coffee',
+        'Tea',
+        'rice',
+      ]);
+      expect(checked()).toHaveLength(4);
+    },
+  );
+
+  it('saves as usual when the check for duplicates fails', { timeout: 40_000 }, async () => {
+    fake = fakeExpenses([entryOf()]); // Rice, ₹125 on 8 October
+    let failed = 0;
+    server.use(
+      http.post('*/api/v1/expenses/entries/duplicates/check', () => {
+        failed += 1;
+        return HttpResponse.json(errorEnvelope('INTERNAL_ERROR', 'boom'), { status: 500 });
+      }),
+      ...fake.handlers,
+    );
+    const warn = vi.spyOn(console, 'warn');
+    const coffee = { ...VEGETABLES, title: 'Coffee', amount: 25 };
+    answerWith([{ ...VEGETABLES, title: 'rice', amount: 125, date: '2026-10-08' }, coffee, coffee]);
+    const { user } = await open();
+    await say(user, 'rice 125, coffee 25 and coffee 25');
+
+    await waitFor(() => {
+      expect(failed).toBe(2); // the two coffees alike are one question
+    });
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Duplicate Queries'));
+    // It is only advice: a check that fails says nothing, and holds nothing back.
+    expect(tray().queryByText(/You may have saved this already/)).toBeNull();
+    expect(screen.queryByText('The server ran into an error.')).toBeNull();
+    await user.click(tray().getByRole('button', { name: 'Save all (3)' }));
+
+    await waitFor(() => {
+      expect(fake.state.entries.map((entry) => entry.title)).toEqual([
+        'Rice',
+        'rice',
+        'Coffee',
+        'Coffee',
+      ]);
+    });
+    warn.mockRestore();
   });
 
   it('keeps reading while a draft is still saving, without bringing the saved one back', async () => {

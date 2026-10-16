@@ -2,7 +2,7 @@ import { act, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { AnimatedNumber, FilterChips, Switch, toast, useToasts } from '@/design-system';
+import { AnimatedNumber, FilterChips, Meter, Switch, toast, useToasts } from '@/design-system';
 import { renderWithProviders } from '@/test/render';
 
 describe('toasts', () => {
@@ -99,6 +99,26 @@ describe('switch', () => {
     expect(control).toHaveAccessibleDescription('When it launches');
     await user.click(control);
     expect(onChange).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('meter', () => {
+  it('reads out its value in words and stays within its range when over', () => {
+    renderWithProviders(
+      <>
+        <Meter label="Groceries" value={6200} max={8000} marker={4000} valueText="78% used" />
+        <Meter label="Trip" value={9000} max={8000} tone="over" valueText="₹1,000 over" />
+      </>,
+    );
+
+    const groceries = screen.getByRole('meter', { name: 'Groceries' });
+    expect(groceries).toHaveAttribute('aria-valuenow', '6200');
+    expect(groceries).toHaveAttribute('aria-valuemin', '0');
+    expect(groceries).toHaveAttribute('aria-valuemax', '8000');
+    expect(groceries).toHaveAttribute('aria-valuetext', '78% used');
+    const trip = screen.getByRole('meter', { name: 'Trip' });
+    expect(trip).toHaveAttribute('aria-valuenow', '8000');
+    expect(trip).toHaveAttribute('aria-valuetext', '₹1,000 over');
   });
 });
 

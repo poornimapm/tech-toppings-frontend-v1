@@ -53,3 +53,17 @@ export async function unwrap<T>(request: Promise<FetchResult<T>>): Promise<T> {
   }
   return result.data as T;
 }
+
+/** Set by the server when it answered a repeated Idempotency-Key with what the first request
+ *  made: that one got through, though its reply was lost. */
+const REPLAYED_HEADER = 'Idempotent-Replayed';
+
+/** `unwrap` for a once-per-key write, saying also whether this answer is such a replay (then
+ *  the data is what the first request did, not necessarily what this one sent). */
+export async function unwrapOnce<T>(
+  request: Promise<FetchResult<T>>,
+): Promise<{ data: T; replayed: boolean }> {
+  const data = await unwrap(request);
+  const { response } = await request;
+  return { data, replayed: response.headers.get(REPLAYED_HEADER) === 'true' };
+}

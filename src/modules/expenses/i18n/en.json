@@ -26,7 +26,8 @@
     "anyCategory": "Any category",
     "forPerson": "For {{name}}",
     "atPlace": "At {{place}}",
-    "clear": "Remove filter: {{filter}}"
+    "clear": "Remove filter: {{filter}}",
+    "tagged": "Tagged {{tag}}"
   },
   "list": {
     "today": "Today",
@@ -96,6 +97,8 @@
     "current": "Current",
     "restore": "Restore this version",
     "restoreLabel": "Restore version {{number}}",
+    "repeats": "Repeats",
+    "repeatsLabel": "See how “{{title}}” repeats",
     "action": {
       "create": "Added",
       "update": "Edited",
@@ -105,7 +108,8 @@
     },
     "source": {
       "manual": "by you",
-      "assistant": "by the assistant"
+      "assistant": "by the assistant",
+      "recurring": "automatically"
     },
     "field": {
       "kind": "Kind",
@@ -192,13 +196,66 @@
     "saveLabel": "Save {{title}}",
     "dismissLabel": "Dismiss {{title}}",
     "readBack": "Read saved entries aloud",
-    "spoken": "Added {{title}}, {{amount}}"
+    "spoken": "Added {{title}}, {{amount}}",
+    "loan": {
+      "list": "Loans to check",
+      "who": "Who was it?",
+      "title": {
+        "new_lent": "Lent to {{person}}",
+        "new_borrowed": "Borrowed from {{person}}",
+        "repay_lent": "{{person}} paid you back",
+        "repay_borrowed": "You paid {{person}} back"
+      },
+      "kind": {
+        "new_lent": "You lent",
+        "new_borrowed": "You borrowed",
+        "repay_lent": "Paid back to you",
+        "repay_borrowed": "You paid back"
+      },
+      "field": {
+        "action": "Loan or payment",
+        "direction": "Lent or borrowed",
+        "counterparty": "Person",
+        "amount": "Amount",
+        "date": "Date",
+        "due_on": "Due date"
+      },
+      "due": "due {{date}}",
+      "pick": "Towards the loan",
+      "option": "{{date}}: {{left}} left of {{amount}}",
+      "noOpen": "No open loan with {{person}} to pay back. Check the name, or dismiss this.",
+      "owesYou": "Saved: {{person}} owes you {{amount}}.",
+      "youOwe": "Saved: you owe {{person}} {{amount}}.",
+      "paidUp": "Saved: the loan with {{person}} is paid back in full.",
+      "tooMuch": "That's more than is left on this loan: {{amount}}.",
+      "form": {
+        "title": "Check the loan",
+        "kind": "What happened",
+        "person": "Who",
+        "personError": "Say who it was.",
+        "amount": "Amount ({{currency}})",
+        "amountError": "Enter an amount, like 500.",
+        "date": "Date",
+        "dateError": "Choose today or an earlier day.",
+        "due": "To be paid back by (optional)",
+        "dueError": "It can't be due before it was given.",
+        "done": "Done"
+      }
+    }
+  },
+  "duplicates": {
+    "note": "You may have saved this already: {{entry}}",
+    "more_one": "{{count}} more looks like it too.",
+    "more_other": "{{count}} more look like it too.",
+    "saveAnyway": "Save anyway",
+    "saveAnywayLabel": "Save anyway: {{title}}"
   },
   "tabs": {
     "label": "Expenses sections",
     "entries": "Entries",
     "prices": "Prices",
-    "overview": "Overview"
+    "overview": "Overview",
+    "plan": "Plan"
   },
   "unit": {
     "kg": "kg",
@@ -396,6 +453,351 @@
       "byAi": "Written by AI",
       "byRules": "Quick summary",
       "refresh": "Write again"
+    }
+  },
+  "plan": {
+    "title": "Plan",
+    "subtitle": "Limits for your spending, bills to pay, goals to save for, and money lent or borrowed",
+    "sections": "Show",
+    "show": {
+      "budgets": "Budgets",
+      "bills": "Bills",
+      "goals": "Goals",
+      "loans": "Loans"
+    }
+  },
+  "budgets": {
+    "title": "Budgets",
+    "add": "Add budget",
+    "emptyTitle": "No budgets yet",
+    "emptyBody": "Set a limit for a week, a month, a category or a trip, and see how it's going.",
+    "loadError": "We couldn't load your budgets.",
+    "overall": "All spending",
+    "tag": "Tagged {{tag}}",
+    "state": {
+      "ok": "Within the limit",
+      "near": "Nearly spent",
+      "over": "Over the limit",
+      "upcoming": "Starts {{date}}",
+      "ended": "Ended {{date}}"
+    },
+    "meter": "{{pct}}% used: {{spent}} of {{limit}}",
+    "meterAhead": "{{pct}}% used: {{spent}} of {{limit}}, faster than an even pace",
+    "spentOf": "{{spent}} of {{limit}}",
+    "overBy": "{{amount}} over",
+    "perDay_one": "{{amount}} a day left for {{count}} day",
+    "perDay_other": "{{amount}} a day left for {{count}} days",
+    "ahead": "Faster than an even pace, which would have spent {{amount}} by today",
+    "entries": "See entries",
+    "entriesLabel": "See entries for {{name}}",
+    "edit": "Edit",
+    "editLabel": "Edit {{name}}",
+    "delete": "Delete",
+    "deleteLabel": "Delete {{name}}",
+    "confirm": "Delete the budget “{{name}}”? Your entries stay as they are.",
+    "yes": "Delete",
+    "no": "Keep it",
+    "deleted": "Deleted the budget “{{name}}”",
+    "added": "Added the budget “{{name}}”",
+    "saved": "Saved the budget “{{name}}”",
+    "form": {
+      "addTitle": "Add a budget",
+      "editTitle": "Edit budget",
+      "scope": "What it counts",
+      "scopes": {
+        "overall": "All spending",
+        "category": "One category",
+        "tag": "A trip or event"
+      },
+      "category": "Category",
+      "chooseCategory": "Choose a category",
+      "tag": "Tag",
+      "tagHint": "Entries with this tag count, like “goa”.",
+      "period": "For",
+      "periods": {
+        "month": "Each month",
+        "week": "Each week",
+        "custom": "Chosen dates"
+      },
+      "from": "From",
+      "to": "To",
+      "limit": "Limit ({{currency}})",
+      "name": "Name",
+      "names": {
+        "month": "Monthly spending",
+        "week": "Weekly spending",
+        "custom": "Spending on chosen dates"
+      },
+      "warn": "Warn me",
+      "warnUsual": "When it's nearly spent",
+      "warnAt": "At {{pct}} of the limit",
+      "warnOff": "Only when it's over",
+      "save": "Save",
+      "limitError": "Enter a limit, like 5000.",
+      "nameError": "Give it a name.",
+      "categoryError": "Choose a category.",
+      "tagError": "Enter a tag.",
+      "datesError": "Choose the first and last day.",
+      "orderError": "The last day can't be before the first."
+    }
+  },
+  "bills": {
+    "title": "Bills and repeats",
+    "add": "Add bill",
+    "emptyTitle": "No bills or repeats set up yet",
+    "emptyBody": "Add your rent, bills and subscriptions. We'll remind you before each is due, or add it for you.",
+    "loadError": "We couldn't load your bills.",
+    "groups": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "week": "This week",
+      "later": "Later",
+      "paused": "Paused"
+    },
+    "every": {
+      "day_one": "Every day",
+      "day_other": "Every {{count}} days",
+      "week_one": "Every week",
+      "week_other": "Every {{count}} weeks",
+      "month_one": "Every month",
+      "month_other": "Every {{count}} months",
+      "year_one": "Every year",
+      "year_other": "Every {{count}} years"
+    },
+    "due": "due {{when}}",
+    "overdue": "was due {{when}}",
+    "adds": "adds itself {{when}}",
+    "pausedHint": "paused",
+    "mode": {
+      "remind": "Reminder",
+      "auto_create": "Added for you"
+    },
+    "paid": "Paid",
+    "paidLabel": "Mark {{title}} paid",
+    "active": "Active",
+    "activeLabel": "{{title}} active",
+    "paused": "Paused “{{title}}”",
+    "resumed": "“{{title}}” is on again",
+    "edit": "Edit",
+    "editLabel": "Edit {{title}}",
+    "delete": "Delete",
+    "deleteLabel": "Delete {{title}}",
+    "confirm": "Delete “{{title}}”? The entries it added stay.",
+    "confirmDetected": "Delete “{{title}}”? The entries it added stay, and it won't be suggested again.",
+    "yes": "Delete",
+    "no": "Keep it",
+    "deleted": "Deleted “{{title}}”",
+    "added": "Added “{{title}}”",
+    "saved": "Saved “{{title}}”",
+    "suggestions": {
+      "title": "Looks like it repeats",
+      "hint": "Found in your own entries. Set it up once, and it's taken care of.",
+      "seen_one": "seen {{count}} time, last on {{date}}",
+      "seen_other": "seen {{count}} times, last on {{date}}",
+      "remind": "Remind me",
+      "remindLabel": "Remind me of {{title}}",
+      "auto": "Add it for me",
+      "autoLabel": "Add it for me: {{title}}",
+      "dismiss": "Not regular",
+      "dismissLabel": "Not regular: {{title}}",
+      "dismissed": "We won't suggest “{{title}}” again"
+    },
+    "form": {
+      "addTitle": "Add a bill or repeat",
+      "editTitle": "Edit a bill or repeat",
+      "title": "What is it?",
+      "titleHint": "Like “Electricity” or “Rent”.",
+      "titleError": "Give it a name.",
+      "amount": "Amount ({{currency}})",
+      "amountHint": "The usual amount: you can change it when you pay.",
+      "amountError": "Enter an amount, like 1200.",
+      "category": "Category",
+      "chooseCategory": "Choose a category",
+      "categoryError": "Choose a category.",
+      "unit": "Repeats",
+      "units": {
+        "day": "Daily",
+        "week": "Weekly",
+        "month": "Monthly",
+        "year": "Yearly"
+      },
+      "every": "How often",
+      "anchor": "First due date",
+      "anchorError": "Choose a day.",
+      "nextHint": "Next due {{date}}. A new pace starts again from today.",
+      "mode": "On each due date",
+      "modes": {
+        "remind": "Remind me to pay",
+        "auto_create": "Add it for me"
+      },
+      "remind": "Remind me",
+      "usual": "Shortly before it's due",
+      "onTheDay": "On the day",
+      "before_one": "{{count}} day before",
+      "before_other": "{{count}} days before",
+      "save": "Save"
+    },
+    "pay": {
+      "title": "Mark “{{title}}” paid",
+      "due": "Due {{date}}",
+      "amount": "Amount paid ({{currency}})",
+      "amountError": "Enter an amount, like 1200.",
+      "date": "Paid on",
+      "dateError": "Choose today or an earlier day.",
+      "save": "Mark paid",
+      "done": "Marked “{{title}}” paid",
+      "already": "“{{title}}” was already marked paid."
+    }
+  },
+  "goals": {
+    "title": "Goals",
+    "add": "Add goal",
+    "emptyTitle": "No goals yet",
+    "emptyBody": "Save for something: add money as you go, or let it grow with what you keep.",
+    "loadError": "We couldn't load your goals.",
+    "byHand": "Money you put in",
+    "since": "What you've kept since {{date}}",
+    "netSavings": "Grows with what you keep",
+    "reached": "Reached",
+    "meter": "{{pct}}% saved: {{saved}} of {{target}}",
+    "savedOf": "{{saved}} of {{target}}",
+    "perMonth": "{{amount}} a month to reach it by {{date}}",
+    "left": "{{amount}} to go",
+    "late": "{{amount}} to go; {{date}} has passed",
+    "addMoney": "Add money",
+    "addLabel": "Add money to {{name}}",
+    "takeOut": "Take out",
+    "takeOutLabel": "Take out money from {{name}}",
+    "edit": "Edit",
+    "editLabel": "Edit {{name}}",
+    "delete": "Delete",
+    "deleteLabel": "Delete {{name}}",
+    "deleted": "Deleted the goal “{{name}}”",
+    "added": "Added the goal “{{name}}”",
+    "saved": "Saved the goal “{{name}}”",
+    "form": {
+      "addTitle": "Add a goal",
+      "editTitle": "Edit goal",
+      "name": "What are you saving for?",
+      "nameHint": "Like “Bike” or “Rainy day”.",
+      "nameError": "Give it a name.",
+      "target": "Target ({{currency}})",
+      "targetError": "Enter a target, like 50000.",
+      "date": "Reach it by",
+      "dateHint": "Optional.",
+      "funding": "How it grows",
+      "fundings": {
+        "manual": "I'll add money",
+        "net_savings": "From what I keep"
+      },
+      "since": "Count from",
+      "sinceHint": "Money in less money out from this day counts towards it.",
+      "sinceError": "Choose a day.",
+      "save": "Save",
+      "conflict": "This goal was changed somewhere else. Reload it, then make your change again.",
+      "reload": "Reload goal"
+    },
+    "money": {
+      "title": "Money for “{{name}}”",
+      "saved": "{{amount}} saved so far",
+      "mode": "Add or take out",
+      "modes": {
+        "add": "Add money",
+        "out": "Take out"
+      },
+      "amount": "Amount ({{currency}})",
+      "amountError": "Enter an amount, like 500.",
+      "tooMuch": "You can take out at most {{amount}}.",
+      "date": "Date",
+      "dateError": "Choose today or an earlier day.",
+      "note": "Note (optional)",
+      "saveAdd": "Add",
+      "saveOut": "Take out",
+      "added": "Added {{amount}} to “{{name}}”",
+      "tookOut": "Took {{amount}} out of “{{name}}”",
+      "already": "That was already saved. “{{name}}” now has {{amount}}."
+    }
+  },
+  "loans": {
+    "title": "Loans",
+    "add": "Add loan",
+    "emptyTitle": "No loans yet",
+    "emptyBody": "Note money you lend or borrow, and what is paid back. Give it a date to be paid back by, and we'll remind you before then.",
+    "loadError": "We couldn't load your loans.",
+    "owedToYou": "Owed to you",
+    "youOwe": "You owe",
+    "people": "People",
+    "net": {
+      "owesYou": "Owes you {{amount}}",
+      "youOwe": "You owe {{amount}}",
+      "even": "Even overall",
+      "settled": "All paid back"
+    },
+    "open_one": "{{count}} open loan",
+    "open_other": "{{count}} open loans",
+    "nextDue": "next due {{when}}",
+    "wasDue": "was due {{when}}",
+    "overdue": "Overdue",
+    "sheetError": "We couldn't load the loans with {{name}}.",
+    "sheetEmpty": "No loans with {{name}}.",
+    "item": {
+      "lent": "You lent {{amount}} on {{date}}",
+      "borrowed": "You borrowed {{amount}} on {{date}}",
+      "left": "{{amount}} left",
+      "due": "due {{when}}",
+      "settled": "Paid back in full on {{date}}",
+      "payments": "Payments"
+    },
+    "line": {
+      "paid": "Paid back {{amount}} on {{date}}",
+      "corrected": "Corrected by {{amount}} on {{date}}",
+      "undone": "Undone"
+    },
+    "pay": "Record payment",
+    "undo": "Undo payment",
+    "undone": "Undid the payment of {{amount}}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Delete this loan? What was paid back on it goes too.",
+    "yes": "Delete",
+    "no": "Keep it",
+    "deleted": "Deleted the loan with {{person}}",
+    "form": {
+      "addTitle": "Add a loan",
+      "editTitle": "Edit loan",
+      "direction": "What happened",
+      "directions": {
+        "lent": "I lent",
+        "borrowed": "I borrowed"
+      },
+      "person": "Who",
+      "personError": "Say who it was.",
+      "amount": "Amount ({{currency}})",
+      "amountError": "Enter an amount, like 500.",
+      "belowPaid": "{{amount}} has been paid back already: the amount can't be less.",
+      "date": "Date",
+      "dateError": "Choose today or an earlier day.",
+      "due": "To be paid back by (optional)",
+      "dueHint": "We'll remind you before then.",
+      "dueError": "It can't be due before it was given.",
+      "note": "Note (optional)",
+      "save": "Save",
+      "conflict": "This loan was changed somewhere else. Reload it, then make your change again.",
+      "reload": "Reload loan"
+    },
+    "payment": {
+      "title": {
+        "lent": "{{person}} paid you back",
+        "borrowed": "You paid {{person}} back"
+      },
+      "left": "{{left}} left of {{amount}}",
+      "amount": "Amount ({{currency}})",
+      "amountError": "Enter an amount, like 500.",
+      "tooMuch": "That's more than is left on this loan: {{amount}}.",
+      "date": "Date",
+      "dateError": "Choose a day from the day of the loan to today.",
+      "note": "Note (optional)",
+      "save": "Record payment"
     }
   }
 }

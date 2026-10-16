@@ -16,6 +16,7 @@ import {
   type ProductDetail,
   type ProductPatch,
 } from '@/modules/expenses/api';
+import { CONFIRM_TRIGGER, useConfirmFocus } from '@/modules/expenses/confirm-focus';
 import { NS } from '@/modules/expenses/i18n';
 import { paths } from '@/modules/expenses/paths';
 import { useUnitText } from '@/modules/expenses/units';
@@ -47,6 +48,7 @@ export function ProductSettings({ product }: { product: ProductDetail }) {
   const [alias, setAlias] = useState('');
   const [other, setOther] = useState('');
   const [stopping, setStopping] = useState(false);
+  const stopRef = useConfirmFocus<HTMLDivElement>(stopping);
   const failure = failureCode(update.error);
   const perUnit = units.name(product.price_unit);
 
@@ -248,7 +250,7 @@ export function ProductSettings({ product }: { product: ProductDetail }) {
         </form>
       )}
 
-      <div className={SECTION}>
+      <div ref={stopRef} className={SECTION}>
         {stopping ? (
           <div role="alert" className="flex flex-wrap items-center gap-2">
             <p className="flex-1 text-sm">{t('product.stop.confirm', { name: product.name })}</p>
@@ -277,6 +279,7 @@ export function ProductSettings({ product }: { product: ProductDetail }) {
         ) : (
           <Button
             variant="ghost"
+            {...CONFIRM_TRIGGER}
             onClick={() => {
               setStopping(true);
             }}

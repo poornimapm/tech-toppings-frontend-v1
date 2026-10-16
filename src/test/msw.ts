@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import type { components } from '@/core/api/schema';
+import { addDays, todayIn } from '@/core/utils/dates';
 
 type Schemas = components['schemas'];
 
@@ -205,6 +206,15 @@ export function resetNotificationState(
   notificationState = structuredClone([...items]);
 }
 
+type Reminder = Schemas['ReminderOut'];
+
+/** The fake API's reminders (none unless a test adds some); they reset after every test. */
+export let reminderState: Reminder[] = [];
+
+export function resetReminderState(items: readonly Reminder[] = []): void {
+  reminderState = structuredClone([...items]);
+}
+
 export const testActivity: Schemas['ActivityOut'][] = [
   { id: 'a-1', type: 'module.pinned', params: { module: 'journal' }, at: minutesAgo(5) },
   { id: 'a-2', type: 'module.notify_on', params: { module: 'receipts' }, at: minutesAgo(90) },
@@ -338,6 +348,20 @@ const handlers = [
   }),
   http.delete('*/api/v1/notifications/:id', ({ params }) => {
     notificationState = notificationState.filter((item) => item.id !== params.id);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.get('*/api/v1/reminders', () => HttpResponse.json(pageOf(reminderState))),
+  http.post('*/api/v1/reminders/:id/snooze', async ({ params, request }) => {
+    const { days } = (await request.json()) as { days: number };
+    const item = reminderState.find((candidate) => candidate.id === params.id);
+    if (!item) return HttpResponse.json(errorEnvelope('NOT_FOUND', 'gone'), { status: 404 });
+    // The send hour, 9:00 in the test user's Kolkata, `days` from today.
+    const at = `${addDays(todayIn(testUser.timezone), days)}T03:30:00Z`;
+    Object.assign(item, { remind_at: at, snoozed_until: at, sent: false });
+    return HttpResponse.json(item);
+  }),
+  http.post('*/api/v1/reminders/:id/dismiss', ({ params }) => {
+    reminderState = reminderState.filter((item) => item.id !== params.id);
     return new HttpResponse(null, { status: 204 });
   }),
 ];

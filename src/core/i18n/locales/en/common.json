@@ -270,6 +270,26 @@
     "loadError": "We couldn't load your notifications.",
     "open": "Open notifications"
   },
+  "reminders": {
+    "title": "Coming up",
+    "due": "Due {{when}}",
+    "overdue": "Was due {{when}}",
+    "next": "We'll remind you {{when}}",
+    "remindMe": "Remind me",
+    "snooze": {
+      "tomorrow": "Tomorrow",
+      "threeDays": "In 3 days",
+      "nextWeek": "Next week"
+    },
+    "snoozeLabel": {
+      "tomorrow": "Remind me tomorrow: {{text}}",
+      "threeDays": "Remind me in 3 days: {{text}}",
+      "nextWeek": "Remind me next week: {{text}}"
+    },
+    "dismiss": "Dismiss reminder: {{text}}",
+    "failed": "Couldn't change that reminder. Please try again.",
+    "loadError": "We couldn't load your reminders."
+  },
   "activity": {
     "subtitle": "A record of the changes you make",
     "empty": {

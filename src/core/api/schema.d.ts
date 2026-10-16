@@ -534,6 +534,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My open reminders, soonest due first */
+        get: operations["list_reminders_v1_reminders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reminders/{reminder_id}/snooze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remind me again in a few days */
+        post: operations["snooze_v1_reminders__reminder_id__snooze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reminders/{reminder_id}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop reminding me */
+        post: operations["dismiss_v1_reminders__reminder_id__dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/dashboard": {
         parameters: {
             query?: never;
@@ -597,6 +648,23 @@ export interface paths {
         get: operations["entry_facets_v1_expenses_entries_facets_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/duplicates/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Saved entries that look like ones about to be saved (advice only) */
+        post: operations["check_duplicates_v1_expenses_entries_duplicates_check_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1018,6 +1086,287 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/expenses/budgets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My budgets, each with how it stands today (newest first) */
+        get: operations["list_budgets_v1_expenses_budgets_get"];
+        put?: never;
+        /** Add a budget for all spending, a category or a tag (a trip, an event) */
+        post: operations["add_budget_v1_expenses_budgets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/budgets/{budget_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a budget (its entries stay) */
+        delete: operations["delete_budget_v1_expenses_budgets__budget_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a budget (only what is sent) */
+        patch: operations["change_budget_v1_expenses_budgets__budget_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My goals, each with how far it has come (newest first) */
+        get: operations["list_goals_v1_expenses_goals_get"];
+        put?: never;
+        /** Add a goal, funded by hand or by net savings (once per Idempotency-Key) */
+        post: operations["add_goal_v1_expenses_goals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/goals/{goal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a goal (it can be brought back) */
+        delete: operations["delete_goal_v1_expenses_goals__goal_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a goal (only what is sent), as of the revision edited */
+        patch: operations["change_goal_v1_expenses_goals__goal_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/goals/{goal_id}/undelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bring a deleted goal back */
+        post: operations["undelete_goal_v1_expenses_goals__goal_id__undelete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/goals/{goal_id}/contributions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add money to a goal funded by hand, or take some out (once per Idempotency-Key) */
+        post: operations["contribute_v1_expenses_goals__goal_id__contributions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/ious": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My loans, most recently lent first: open, settled or all, with one person or all */
+        get: operations["list_ious_v1_expenses_ious_get"];
+        put?: never;
+        /** Note money lent or borrowed (once per Idempotency-Key) */
+        post: operations["add_iou_v1_expenses_ious_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/ious/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What is owed to me and what I owe, in all and by person */
+        get: operations["summarise_ious_v1_expenses_ious_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/ious/{iou_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One loan, with what was paid back on it */
+        get: operations["get_iou_v1_expenses_ious__iou_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a loan (it can be brought back) */
+        delete: operations["delete_iou_v1_expenses_ious__iou_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a loan (only what is sent), as of the revision edited */
+        patch: operations["change_iou_v1_expenses_ious__iou_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/ious/{iou_id}/undelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bring a deleted loan back */
+        post: operations["undelete_iou_v1_expenses_ious__iou_id__undelete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/ious/{iou_id}/settlements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record money paid back on a loan, or correct a payment (once per Idempotency-Key) */
+        post: operations["settle_iou_v1_expenses_ious__iou_id__settlements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/recurring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What repeats and my bills, soonest due first */
+        get: operations["list_rules_v1_expenses_recurring_get"];
+        put?: never;
+        /** Add something that repeats, or confirm a suggestion (once per signature) */
+        post: operations["add_rule_v1_expenses_recurring_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/recurring/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What looks like it repeats in my entries, as rules to confirm */
+        get: operations["list_suggestions_v1_expenses_recurring_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/recurring/suggestions/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Say a suggestion isn't regular: it is not suggested again */
+        post: operations["dismiss_suggestion_v1_expenses_recurring_suggestions_dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/recurring/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a rule (the entries it added stay) */
+        delete: operations["delete_rule_v1_expenses_recurring__rule_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a rule (only what is sent); pausing stops its entries and reminders */
+        patch: operations["change_rule_v1_expenses_recurring__rule_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/recurring/{rule_id}/mark-paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a bill's due date paid: its entry is added once per due date */
+        post: operations["mark_paid_v1_expenses_recurring__rule_id__mark_paid_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/expenses/units": {
         parameters: {
             query?: never;
@@ -1117,6 +1466,153 @@ export interface components {
          * @enum {string}
          */
         Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        /** BudgetIn */
+        BudgetIn: {
+            /** Name */
+            name: string;
+            scope: components["schemas"]["BudgetScope"];
+            /** Category Id */
+            category_id?: string | null;
+            /** Tag */
+            tag?: string | null;
+            period: components["schemas"]["BudgetPeriod"];
+            /**
+             * Start
+             * @description First day (custom budgets only)
+             */
+            start?: string | null;
+            /**
+             * End
+             * @description Last day, inclusive (custom only)
+             */
+            end?: string | null;
+            /**
+             * Limit Minor
+             * @description In the base currency's minor unit
+             */
+            limit_minor: number;
+            /**
+             * Alert Threshold
+             * @description Warn once at this share of the limit; 0 = only when over
+             */
+            alert_threshold?: number;
+        };
+        /** BudgetOut */
+        BudgetOut: {
+            /** Name */
+            name: string;
+            scope: components["schemas"]["BudgetScope"];
+            /** Category Id */
+            category_id?: string | null;
+            /** Tag */
+            tag?: string | null;
+            period: components["schemas"]["BudgetPeriod"];
+            /**
+             * Start
+             * @description First day (custom budgets only)
+             */
+            start?: string | null;
+            /**
+             * End
+             * @description Last day, inclusive (custom only)
+             */
+            end?: string | null;
+            /**
+             * Limit Minor
+             * @description In the base currency's minor unit
+             */
+            limit_minor: number;
+            /** Alert Threshold */
+            alert_threshold: number;
+            /** Id */
+            id: string;
+            /** Currency */
+            currency: string;
+            status: components["schemas"]["BudgetStatus"];
+        };
+        /**
+         * BudgetPatch
+         * @description Only what is sent changes (``null`` clears a field). The budget it leaves must still fit
+         *     together: its scope and period with their fields.
+         */
+        BudgetPatch: {
+            /** Name */
+            name?: string | null;
+            scope?: components["schemas"]["BudgetScope"] | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Tag */
+            tag?: string | null;
+            period?: components["schemas"]["BudgetPeriod"] | null;
+            /** Start */
+            start?: string | null;
+            /** End */
+            end?: string | null;
+            /** Limit Minor */
+            limit_minor?: number | null;
+            /** Alert Threshold */
+            alert_threshold?: number | null;
+        };
+        /**
+         * BudgetPeriod
+         * @enum {string}
+         */
+        BudgetPeriod: "week" | "month" | "custom";
+        /**
+         * BudgetScope
+         * @description What a budget counts: all spending, one category, or one tag (a trip, an event).
+         * @enum {string}
+         */
+        BudgetScope: "overall" | "category" | "tag";
+        /**
+         * BudgetState
+         * @enum {string}
+         */
+        BudgetState: "ok" | "near" | "over" | "upcoming" | "ended";
+        /**
+         * BudgetStatus
+         * @description How a budget stands today, over its current window: this week or month, or its dates.
+         */
+        BudgetStatus: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Spent Minor */
+            spent_minor: number;
+            /**
+             * Left Minor
+             * @description Negative when over the limit
+             */
+            left_minor: number;
+            /**
+             * Pct
+             * @description Share of the limit spent, in whole percent rounded down
+             */
+            pct: number;
+            state: components["schemas"]["BudgetState"];
+            /**
+             * Days Left
+             * @description Days of the window still to come, today included
+             */
+            days_left: number;
+            /**
+             * Per Day Left Minor
+             * @description What is left, spread over the days left
+             */
+            per_day_left_minor: number;
+            /**
+             * Pace Minor
+             * @description What spending at an even pace would reach by today
+             */
+            pace_minor: number;
+        };
         /** ByCategoryOut */
         ByCategoryOut: {
             /**
@@ -1157,6 +1653,43 @@ export interface components {
             /** Items */
             items: components["schemas"]["PersonShare"][];
         };
+        /** CadenceFields */
+        CadenceFields: {
+            unit: components["schemas"]["CadenceUnit"];
+            /**
+             * Every
+             * @description Every this many days, weeks ...
+             * @default 1
+             */
+            every: number;
+            /**
+             * Anchor
+             * Format: date
+             * @description A due date (the first): the others follow from it, on the same day of the month, or the month's last day when it is shorter
+             */
+            anchor: string;
+        };
+        /** CadenceIn */
+        CadenceIn: {
+            unit: components["schemas"]["CadenceUnit"];
+            /**
+             * Every
+             * @description Every this many days, weeks ...
+             * @default 1
+             */
+            every: number;
+            /**
+             * Anchor
+             * Format: date
+             * @description A due date (the first): the others follow from it, on the same day of the month, or the month's last day when it is shorter
+             */
+            anchor: string;
+        };
+        /**
+         * CadenceUnit
+         * @enum {string}
+         */
+        CadenceUnit: "day" | "week" | "month" | "year";
         /** CategoryIn */
         CategoryIn: {
             /** @default expense */
@@ -1226,6 +1759,21 @@ export interface components {
             arguments: {
                 [key: string]: unknown;
             };
+        };
+        /** ContributionIn */
+        ContributionIn: {
+            /**
+             * Amount Minor
+             * @description Negative to take money out
+             */
+            amount_minor: number;
+            /**
+             * Date
+             * @description Default today; never after today
+             */
+            date?: string | null;
+            /** Note */
+            note?: string | null;
         };
         /** CumulativeOut */
         CumulativeOut: {
@@ -1318,6 +1866,61 @@ export interface components {
              * @default 0
              */
             count: number;
+        };
+        /** DismissIn */
+        DismissIn: {
+            /** Signature */
+            signature: string;
+        };
+        /**
+         * DuplicateCandidate
+         * @description An entry about to be saved, as far as telling it from saved ones needs.
+         */
+        DuplicateCandidate: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the base currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Merchant */
+            merchant?: string | null;
+            /**
+             * Exclude Id
+             * @description The entry being edited, never its own match
+             */
+            exclude_id?: string | null;
+        };
+        /** DuplicateResult */
+        DuplicateResult: {
+            /**
+             * Index
+             * @description The candidate's place in the request
+             */
+            index: number;
+            /** Matches */
+            matches: components["schemas"]["EntryOut"][];
+        };
+        /** DuplicatesIn */
+        DuplicatesIn: {
+            /** Candidates */
+            candidates: components["schemas"]["DuplicateCandidate"][];
+        };
+        /**
+         * DuplicatesOut
+         * @description One result per candidate, in the order asked. Advice only: saving is never refused.
+         */
+        DuplicatesOut: {
+            /** Results */
+            results: components["schemas"]["DuplicateResult"][];
         };
         /** EntryIn */
         EntryIn: {
@@ -1431,6 +2034,11 @@ export interface components {
             /** Id */
             id: string;
             source: components["schemas"]["EntrySource"];
+            /**
+             * Recurring Id
+             * @description The repeating rule that added it, or whose bill it paid
+             */
+            recurring_id?: string | null;
             /** Revision No */
             revision_no: number;
             /** Deleted */
@@ -1451,7 +2059,7 @@ export interface components {
          * @description How an entry, or a change to it, was made.
          * @enum {string}
          */
-        EntrySource: "manual" | "assistant";
+        EntrySource: "manual" | "assistant" | "recurring";
         /**
          * EntryUpdate
          * @description The whole entry as edited, plus the revision that was edited: if the entry has moved
@@ -1594,6 +2202,98 @@ export interface components {
             /** Previous Month Minor */
             previous_month_minor: number;
         };
+        /**
+         * GoalFunding
+         * @enum {string}
+         */
+        GoalFunding: "manual" | "net_savings";
+        /** GoalIn */
+        GoalIn: {
+            /** Name */
+            name: string;
+            /**
+             * Target Minor
+             * @description In the base currency's minor unit
+             */
+            target_minor: number;
+            /**
+             * Target Date
+             * @description When it should be reached
+             */
+            target_date?: string | null;
+            /** @default manual */
+            funding: components["schemas"]["GoalFunding"];
+            /**
+             * Since
+             * @description Net-savings goals count from this day (default: today)
+             */
+            since?: string | null;
+        };
+        /** GoalOut */
+        GoalOut: {
+            /** Name */
+            name: string;
+            /**
+             * Target Minor
+             * @description In the base currency's minor unit
+             */
+            target_minor: number;
+            /**
+             * Target Date
+             * @description When it should be reached
+             */
+            target_date?: string | null;
+            /** @default manual */
+            funding: components["schemas"]["GoalFunding"];
+            /**
+             * Since
+             * Format: date
+             */
+            since: string;
+            /** Saved Minor */
+            saved_minor: number;
+            /**
+             * Left Minor
+             * @description Still to save; 0 once reached
+             */
+            left_minor: number;
+            /**
+             * Pct
+             * @description Share of the target saved, in whole percent rounded down
+             */
+            pct: number;
+            /**
+             * Per Month Minor
+             * @description To save each month, this one included, to reach it by its date; null without a date, once reached, or when the date has passed
+             */
+            per_month_minor: number | null;
+            /** Reached */
+            reached: boolean;
+            /** Id */
+            id: string;
+            /** Currency */
+            currency: string;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * GoalPatch
+         * @description Only what is sent changes (``null`` clears the date), plus the revision that was edited:
+         *     if the goal has moved on since (money was added), the answer is 409.
+         */
+        GoalPatch: {
+            /** Name */
+            name?: string | null;
+            /** Target Minor */
+            target_minor?: number | null;
+            /** Target Date */
+            target_date?: string | null;
+            funding?: components["schemas"]["GoalFunding"] | null;
+            /** Since */
+            since?: string | null;
+            /** Revision No */
+            revision_no: number;
+        };
         /** GoogleSignInIn */
         GoogleSignInIn: {
             /** Id Token */
@@ -1690,6 +2390,127 @@ export interface components {
             cached: boolean;
         };
         /**
+         * IouDirection
+         * @enum {string}
+         */
+        IouDirection: "lent" | "borrowed";
+        /** IouIn */
+        IouIn: {
+            /**
+             * Counterparty
+             * @description Who the money was lent to or borrowed from
+             */
+            counterparty: string;
+            direction: components["schemas"]["IouDirection"];
+            /**
+             * Amount Minor
+             * @description In the base currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Date
+             * @description When it was lent (default today)
+             */
+            date?: string | null;
+            /**
+             * Due On
+             * @description When it should be paid back
+             */
+            due_on?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** IouOut */
+        IouOut: {
+            /**
+             * Counterparty
+             * @description Who the money was lent to or borrowed from
+             */
+            counterparty: string;
+            direction: components["schemas"]["IouDirection"];
+            /**
+             * Amount Minor
+             * @description In the base currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Due On
+             * @description When it should be paid back
+             */
+            due_on?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Id */
+            id: string;
+            /** Currency */
+            currency: string;
+            /** Counterparty Key */
+            counterparty_key: string;
+            /** Settlements */
+            settlements: components["schemas"]["SettlementOut"][];
+            /**
+             * Settled Minor
+             * @description Paid back so far
+             */
+            settled_minor: number;
+            /**
+             * Outstanding Minor
+             * @description Still to be paid back
+             */
+            outstanding_minor: number;
+            /**
+             * Settled On
+             * @description The day it was paid back in full
+             */
+            settled_on: string | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * IouPatch
+         * @description Only what is sent changes (``null`` clears the due date or note), plus the revision that
+         *     was edited: if the loan has moved on since (a payment came in), the answer is 409.
+         */
+        IouPatch: {
+            /** Counterparty */
+            counterparty?: string | null;
+            direction?: components["schemas"]["IouDirection"] | null;
+            /** Amount Minor */
+            amount_minor?: number | null;
+            /** Date */
+            date?: string | null;
+            /** Due On */
+            due_on?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * IouState
+         * @enum {string}
+         */
+        IouState: "open" | "settled" | "all";
+        /** IouSummary */
+        IouSummary: {
+            /** Currency */
+            currency: string;
+            /** Owed To Me Minor */
+            owed_to_me_minor: number;
+            /** I Owe Minor */
+            i_owe_minor: number;
+            /**
+             * People
+             * @description People with open loans first (soonest due first), then the settled ones
+             */
+            people: components["schemas"]["PersonBalance"][];
+        };
+        /**
          * Item
          * @description A row: either the user's own text (``title``) or a message ``code`` + ``params`` the
          *     client translates.
@@ -1766,6 +2587,25 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** MarkPaidIn */
+        MarkPaidIn: {
+            /**
+             * Due On
+             * Format: date
+             * @description The due date paid: the next one, or one before it
+             */
+            due_on: string;
+            /**
+             * Amount Minor
+             * @description Default: the usual amount
+             */
+            amount_minor?: number | null;
+            /**
+             * Date
+             * @description When it was paid (default today)
+             */
+            date?: string | null;
         };
         /** MerchantPrices */
         MerchantPrices: {
@@ -1971,6 +2811,19 @@ export interface components {
             /** Has Next */
             has_next: boolean;
         };
+        /** Page[BudgetOut] */
+        Page_BudgetOut_: {
+            /** Items */
+            items: components["schemas"]["BudgetOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
         /** Page[CategoryOut] */
         Page_CategoryOut_: {
             /** Items */
@@ -1988,6 +2841,32 @@ export interface components {
         Page_EntryOut_: {
             /** Items */
             items: components["schemas"]["EntryOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[GoalOut] */
+        Page_GoalOut_: {
+            /** Items */
+            items: components["schemas"]["GoalOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[IouOut] */
+        Page_IouOut_: {
+            /** Items */
+            items: components["schemas"]["IouOut"][];
             /** Page */
             page: number;
             /** Page Size */
@@ -2036,10 +2915,36 @@ export interface components {
             /** Has Next */
             has_next: boolean;
         };
+        /** Page[ReminderOut] */
+        Page_ReminderOut_: {
+            /** Items */
+            items: components["schemas"]["ReminderOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
         /** Page[RevisionOut] */
         Page_RevisionOut_: {
             /** Items */
             items: components["schemas"]["RevisionOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[RuleOut] */
+        Page_RuleOut_: {
+            /** Items */
+            items: components["schemas"]["RuleOut"][];
             /** Page */
             page: number;
             /** Page Size */
@@ -2088,6 +2993,46 @@ export interface components {
          * @enum {string}
          */
         Period: "week" | "month";
+        /**
+         * PersonBalance
+         * @description Where the user stands with one person, over their loans in the base currency.
+         */
+        PersonBalance: {
+            /**
+             * Name
+             * @description As last written
+             */
+            name: string;
+            /**
+             * Key
+             * @description The name as compared: the `person` filter of the list
+             */
+            key: string;
+            /** Owed To Me Minor */
+            owed_to_me_minor: number;
+            /** I Owe Minor */
+            i_owe_minor: number;
+            /**
+             * Net Minor
+             * @description Owed to me less what I owe; negative when I owe more
+             */
+            net_minor: number;
+            /**
+             * Open
+             * @description Loans with them not yet paid back in full
+             */
+            open: number;
+            /**
+             * Next Due On
+             * @description The soonest due date of those
+             */
+            next_due_on: string | null;
+            /**
+             * Overdue
+             * @description One of those was due before today
+             */
+            overdue: boolean;
+        };
         /** PersonShare */
         PersonShare: {
             /** Amount Minor */
@@ -2314,6 +3259,35 @@ export interface components {
          * @enum {string}
          */
         RegistrationMode: "open" | "allowlist" | "closed";
+        /** ReminderOut */
+        ReminderOut: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /**
+             * Params
+             * @description As its notification carries them
+             */
+            params: {
+                [key: string]: unknown;
+            };
+            /**
+             * Due On
+             * Format: date
+             */
+            due_on: string;
+            /**
+             * Remind At
+             * Format: date-time
+             * @description When it is (or was) told
+             */
+            remind_at: string;
+            /** Sent */
+            sent: boolean;
+            /** Snoozed Until */
+            snoozed_until: string | null;
+        };
         /** RestoreIn */
         RestoreIn: {
             /** Revision No */
@@ -2348,6 +3322,79 @@ export interface components {
          * @enum {string}
          */
         Role: "admin" | "user";
+        /** RuleIn */
+        RuleIn: {
+            template: components["schemas"]["TemplateIn"];
+            cadence: components["schemas"]["CadenceIn"];
+            mode: components["schemas"]["RuleMode"];
+            /**
+             * Remind Days Before
+             * @description Days before each due date to remind (bills)
+             */
+            remind_days_before?: number;
+            /**
+             * Active
+             * @default true
+             */
+            active: boolean;
+            /**
+             * Signature
+             * @description The suggestion this confirms (GET /recurring/suggestions)
+             */
+            signature?: string | null;
+        };
+        /**
+         * RuleMode
+         * @description What a repeating rule does on each due date.
+         * @enum {string}
+         */
+        RuleMode: "auto_create" | "remind";
+        /** RuleOut */
+        RuleOut: {
+            /** Id */
+            id: string;
+            template: components["schemas"]["TemplateFields"];
+            /** Currency */
+            currency: string;
+            cadence: components["schemas"]["CadenceFields"];
+            /**
+             * Next Run
+             * Format: date
+             * @description The next due date not added yet, or (a bill) not paid
+             */
+            next_run: string;
+            mode: components["schemas"]["RuleMode"];
+            /** Remind Days Before */
+            remind_days_before: number;
+            /** Active */
+            active: boolean;
+            source: components["schemas"]["RuleSource"];
+            /** Signature */
+            signature: string | null;
+            /**
+             * Overdue
+             * @description A bill whose due date has passed unpaid
+             */
+            overdue: boolean;
+        };
+        /**
+         * RulePatch
+         * @description Only what is sent changes; the template and cadence are sent whole.
+         */
+        RulePatch: {
+            template?: components["schemas"]["TemplateIn"] | null;
+            cadence?: components["schemas"]["CadenceIn"] | null;
+            mode?: components["schemas"]["RuleMode"] | null;
+            /** Remind Days Before */
+            remind_days_before?: number | null;
+            /** Active */
+            active?: boolean | null;
+        };
+        /**
+         * RuleSource
+         * @enum {string}
+         */
+        RuleSource: "manual" | "detected";
         /** RunContext */
         RunContext: {
             /** Modules */
@@ -2465,6 +3512,35 @@ export interface components {
             /** Current */
             current: boolean;
         };
+        /** SettlementIn */
+        SettlementIn: {
+            /**
+             * Amount Minor
+             * @description Paid back; negative to correct a payment
+             */
+            amount_minor: number;
+            /**
+             * Date
+             * @description Default today; from the day of the loan to today
+             */
+            date?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** SettlementOut */
+        SettlementOut: {
+            /** Key */
+            key: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Note */
+            note: string | null;
+        };
         /** SkillView */
         SkillView: {
             /** Name */
@@ -2474,6 +3550,14 @@ export interface components {
             mode: components["schemas"]["AgentMode"];
             /** Has Static */
             has_static: boolean;
+        };
+        /** SnoozeIn */
+        SnoozeIn: {
+            /**
+             * Days
+             * @description Days from today; at most REMINDERS_MAX_SNOOZE_DAYS
+             */
+            days: number;
         };
         /** Span */
         Span: {
@@ -2487,6 +3571,88 @@ export interface components {
              * Format: date
              */
             end: string;
+        };
+        /**
+         * SuggestionOut
+         * @description Something in the entries that looks like it repeats, as a rule for it would start.
+         */
+        SuggestionOut: {
+            /**
+             * Signature
+             * @description Sent back to confirm it (POST /recurring) or dismiss it
+             */
+            signature: string;
+            template: components["schemas"]["TemplateFields"];
+            /** Currency */
+            currency: string;
+            /** @description Anchored on its next due date, today or later */
+            cadence: components["schemas"]["CadenceFields"];
+            /**
+             * Count
+             * @description How many times it was seen at this pace
+             */
+            count: number;
+            /**
+             * Last On
+             * Format: date
+             * @description When it was last seen
+             */
+            last_on: string;
+        };
+        /**
+         * TemplateFields
+         * @description The entry each due date adds, or that marking a bill paid adds.
+         */
+        TemplateFields: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /** Category Id */
+            category_id: string;
+            /** Merchant */
+            merchant?: string | null;
+            payment_mode?: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Note */
+            note?: string | null;
+        };
+        /** TemplateIn */
+        TemplateIn: {
+            /** @default expense */
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /** Category Id */
+            category_id: string;
+            /** Merchant */
+            merchant?: string | null;
+            payment_mode?: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Note */
+            note?: string | null;
         };
         /**
          * ThemePreference
@@ -4744,6 +5910,176 @@ export interface operations {
             };
         };
     };
+    list_reminders_v1_reminders_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ReminderOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    snooze_v1_reminders__reminder_id__snooze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reminder_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SnoozeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    dismiss_v1_reminders__reminder_id__dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reminder_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     read_all_users_dashboard_v1_admin_dashboard_get: {
         parameters: {
             query?: {
@@ -5042,6 +6378,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FacetsOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    check_duplicates_v1_expenses_entries_duplicates_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DuplicatesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DuplicatesOut"];
                 };
             };
             /** @description Unauthorized */
@@ -7251,6 +8647,1678 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_budgets_v1_expenses_budgets_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_BudgetOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_budget_v1_expenses_budgets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_budget_v1_expenses_budgets__budget_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_budget_v1_expenses_budgets__budget_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_goals_v1_expenses_goals_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_GoalOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_goal_v1_expenses_goals_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_goal_v1_expenses_goals__goal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_goal_v1_expenses_goals__goal_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undelete_goal_v1_expenses_goals__goal_id__undelete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    contribute_v1_expenses_goals__goal_id__contributions_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                goal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContributionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_ious_v1_expenses_ious_get: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["IouState"];
+                /** @description A person's name (as compared: any case) */
+                person?: string | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_IouOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_iou_v1_expenses_ious_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IouIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    summarise_ious_v1_expenses_ious_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_iou_v1_expenses_ious__iou_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                iou_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_iou_v1_expenses_ious__iou_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                iou_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_iou_v1_expenses_ious__iou_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                iou_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IouPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undelete_iou_v1_expenses_ious__iou_id__undelete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                iou_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    settle_iou_v1_expenses_ious__iou_id__settlements_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                iou_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettlementIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IouOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_rules_v1_expenses_recurring_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_RuleOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_rule_v1_expenses_recurring_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_suggestions_v1_expenses_recurring_suggestions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    dismiss_suggestion_v1_expenses_recurring_suggestions_dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DismissIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_rule_v1_expenses_recurring__rule_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_rule_v1_expenses_recurring__rule_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RulePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_paid_v1_expenses_recurring__rule_id__mark_paid_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkPaidIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

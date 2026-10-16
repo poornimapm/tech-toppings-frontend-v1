@@ -17,6 +17,7 @@ export {
   type FilterChipsProps,
 } from '@/design-system/primitives/filter-chips';
 export { LoadError } from '@/design-system/primitives/load-error';
+export { Meter, type MeterProps, type MeterTone } from '@/design-system/primitives/meter';
 export { PasswordField, type PasswordFieldProps } from '@/design-system/primitives/password-field';
 export { SearchField, type SearchFieldProps } from '@/design-system/primitives/search-field';
 export {

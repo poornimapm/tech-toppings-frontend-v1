@@ -39,5 +39,11 @@
   "EXPENSE_PRODUCT_NAME_TAKEN": "Another product already goes by this name. Combine them instead.",
   "EXPENSE_PRODUCT_LIMIT": "You follow as many products as you can.",
   "EXPENSE_PRODUCT_INVALID": "That can't be done with these products.",
-  "EXPENSE_CURRENCY_UNSUPPORTED": "For now, entries are kept in your base currency."
+  "EXPENSE_BUDGET_LIMIT": "You have as many budgets as you can. Delete one you no longer need.",
+  "EXPENSE_CURRENCY_UNSUPPORTED": "For now, entries are kept in your base currency.",
+  "EXPENSE_CONTRIBUTION_INVALID": "That doesn't fit this goal: take out no more than is saved, use today or an earlier day, and add money only to goals you fund yourself.",
+  "EXPENSE_LEDGER_FULL": "This is full: it can't take more money in or out. Start a new one to carry on.",
+  "EXPENSE_RECURRING_NOT_DUE": "That isn't a due date of this bill yet. Mark the next one paid first.",
+  "EXPENSE_SETTLEMENT_INVALID": "That payment doesn't fit this loan: pay back no more than is left, on a day from the loan's date to today.",
+  "EXPENSE_IOU_BELOW_SETTLED": "The amount can't be less than what has been paid back already."
 }

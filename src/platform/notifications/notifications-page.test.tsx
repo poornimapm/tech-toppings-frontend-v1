@@ -7,6 +7,7 @@ import {
   errorEnvelope,
   notificationState,
   resetNotificationState,
+  resetReminderState,
   server,
   testActivity,
 } from '@/test/msw';
@@ -116,6 +117,27 @@ describe('notifications', () => {
       name: 'Onion cost ₹60/kg, more than the ₹50 you set',
     });
     expect(notice).toHaveAttribute('href', '/m/expenses/prices/p-onion');
+  });
+
+  it('shows what is coming up above the notifications', async () => {
+    resetReminderState([
+      {
+        id: 'r-1',
+        type: 'notes.due',
+        params: { module: 'notes', reminder_id: 'r-1', due_on: '2026-10-20' },
+        due_on: '2026-10-20',
+        remind_at: '2026-10-20T03:30:00Z',
+        sent: false,
+        snoozed_until: null,
+      },
+    ]);
+    await open('/notifications', 'Notifications');
+
+    const panel = await screen.findByRole('region', { name: 'Coming up' });
+    expect(within(panel).getByText('notes.due')).toBeInTheDocument(); // no module words it
+    expect(
+      panel.compareDocumentPosition(await row(MEDICINE)) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('shows an unknown kind of notice by its code rather than hiding it', async () => {

@@ -10,7 +10,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const base =
   'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ' +
-  'transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+  'transition-colors disabled:cursor-not-allowed disabled:opacity-60 ' +
+  // aria-disabled: unavailable for now, yet it keeps keyboard focus (a disabled button loses it).
+  'aria-disabled:cursor-not-allowed aria-disabled:opacity-60';
 
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-contrast hover:opacity-90',

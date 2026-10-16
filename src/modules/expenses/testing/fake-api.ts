@@ -2,6 +2,10 @@ import { http, HttpResponse } from 'msw/http';
 
 import type { components } from '@/core/api/schema';
 import { fakeAnalytics, insightOf } from '@/modules/expenses/testing/fake-analytics';
+import { fakeBills, type StoredRule } from '@/modules/expenses/testing/fake-bills';
+import { fakeBudgets, type StoredBudget } from '@/modules/expenses/testing/fake-budgets';
+import { fakeGoals, type StoredGoal } from '@/modules/expenses/testing/fake-goals';
+import { fakeIous } from '@/modules/expenses/testing/fake-ious';
 
 type Schemas = components['schemas'];
 type Entry = Schemas['EntryOut'];
@@ -251,6 +255,11 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
     products: structuredClone(products),
     insight: insightOf(),
     unusual: [] as Schemas['Unusual'][],
+    budgets: [] as StoredBudget[],
+    goals: [] as StoredGoal[],
+    rules: [] as StoredRule[],
+    suggestions: [] as Schemas['SuggestionOut'][],
+    ious: [] as Schemas['IouOut'][],
   };
   const product = (id: unknown) => state.products.find((item) => item.id === id);
   const requests: { method: string; path: string; body: unknown; key: string | null }[] = [];
@@ -275,6 +284,7 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
           entry.deleted === (query.get('deleted') === 'true') &&
           (!query.get('kind') || entry.kind === query.get('kind')) &&
           (!query.get('category_id') || entry.category_id === query.get('category_id')) &&
+          (!query.get('tag') || entry.tags.includes(query.get('tag') ?? '')) &&
           (!query.get('for_whom') || entry.for_whom === query.get('for_whom')) &&
           (!query.get('merchant') || entry.merchant === query.get('merchant')) &&
           (!query.get('from') || entry.date >= (query.get('from') ?? '')) &&
@@ -313,6 +323,10 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
       });
       // Not answered here: the handlers below do that.
     }),
+    ...fakeBudgets(matching, state),
+    ...fakeGoals(matching, state),
+    ...fakeBills(state, entryOf),
+    ...fakeIous(state),
     http.get(`${API}/categories`, () => HttpResponse.json(page(state.categories))),
     http.post(`${API}/categories`, async ({ request }) => {
       const body = (await request.json()) as Schemas['CategoryIn'];
@@ -365,6 +379,26 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
         merchants: ['Big Bazaar'],
       }),
     ),
+    http.post(`${API}/entries/duplicates/check`, async ({ request }) => {
+      const { candidates } = (await request.json()) as Schemas['DuplicatesIn'];
+      const same = (a?: string | null, b?: string | null) =>
+        !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+      const near = (a: string, b: string) => Math.abs(Date.parse(a) - Date.parse(b)) <= 86_400_000;
+      // As the server does, but by exact name only (no similar spellings).
+      const matches = (candidate: Schemas['DuplicateCandidate']) =>
+        state.entries.filter(
+          (entry) =>
+            !entry.deleted &&
+            entry.id !== candidate.exclude_id &&
+            entry.kind === candidate.kind &&
+            entry.amount_minor === candidate.amount_minor &&
+            near(entry.date, candidate.date) &&
+            (same(entry.title, candidate.title) || same(entry.merchant, candidate.merchant)),
+        );
+      return HttpResponse.json({
+        results: candidates.map((candidate, index) => ({ index, matches: matches(candidate) })),
+      } satisfies Schemas['DuplicatesOut']);
+    }),
     http.post(`${API}/entries`, async ({ request }) => {
       const body = (await request.json()) as Schemas['EntryIn'];
       const created = entryOf({

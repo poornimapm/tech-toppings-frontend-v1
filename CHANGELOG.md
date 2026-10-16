@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 9a: planning pack (2026-10-16)
+
+- **Plan** tab in Expenses, with four sections:
+  - **Budgets**: for all spending, a category, or a trip's tag over chosen dates; a meter with
+    the even-pace mark and what is left a day; **See entries** opens the same total.
+  - **Bills**: grouped by when they are due; **Paid** adds the entry; repeating entries that
+    add themselves; _Looks like it repeats_ suggestions.
+  - **Goals**: add or take out money, or grow with what you keep.
+  - **Loans**: what is owed each way, a row per person, and a sheet to record or undo payments.
+- **Loans by voice**: "lent Ravi 500" or "Ravi paid me back 200" becomes a loan draft on the
+  confirm card, beside the entries.
+- **Duplicate warning** on the entry form and the confirm card; **Save all** leaves out what
+  looks saved already.
+- **Coming up** on the Notifications page: reminders that are due soon, which can be put off
+  or dismissed.
+- Notifications for budgets, goals, bills and loans lead to their card, ringed.
+- English, Tamil and Hindi for all of the above.
+
+### Changed
+
+- The Expenses tabs scroll within their bar on phones.
+- Dates in notifications share one helper (`withDates`).
+
 ### Added — Phase 8: overview and insights (2026-10-14)
 
 - **Overview** tab in Expenses: a summary of the month or week in words (written by AI, or a

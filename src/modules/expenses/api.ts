@@ -35,6 +35,7 @@ export interface EntryFilters {
   from?: string;
   to?: string;
   category_id?: string;
+  tag?: string;
   for_whom?: string;
   merchant?: string;
   q?: string;
@@ -138,9 +139,10 @@ function sayWhyNot(error: unknown): void {
 /**
  * A change to the user's money shows up in many places (tile, dashboard, activity), so
  * everything of theirs is refreshed, not just this module's lists. A failure is said in a
- * toast, unless the caller is a form that shows it where the user is looking (`quiet`).
+ * toast, unless the caller is a form that shows it where the user is looking (`quiet`). Each
+ * feature's own hooks (budgets-api.ts) change things through this too.
  */
-function useChange<TInput, TResult>(
+export function useChange<TInput, TResult>(
   run: (input: TInput) => Promise<TResult>,
   { quiet = false } = {},
 ) {

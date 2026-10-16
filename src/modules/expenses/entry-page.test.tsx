@@ -69,9 +69,14 @@ describe('an entry', () => {
     await user.type(form.getByRole('textbox', { name: 'What was it?' }), 'Basmati rice');
     await user.clear(form.getByRole('textbox', { name: 'Amount (INR)' }));
     await user.type(form.getByRole('textbox', { name: 'Amount (INR)' }), '180');
+    expect(form.queryByText(/You may have saved this already/)).toBeNull();
     await user.click(form.getByRole('button', { name: 'Save' }));
 
     expect(await screen.findByText('Saved Basmati rice')).toBeInTheDocument();
+    // Only a new entry is checked for duplicates: an edited one would find itself.
+    expect(fake.requests.some((request) => request.path === '/entries/duplicates/check')).toBe(
+      false,
+    );
     expect(await screen.findByRole('heading', { level: 1, name: 'Basmati rice' })).toBeVisible();
     const saved = fake.requests.find((request) => request.method === 'PUT');
     expect(saved?.body).toMatchObject({
