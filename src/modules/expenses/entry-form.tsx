@@ -21,6 +21,7 @@ import {
 } from '@/modules/expenses/api';
 import type { Draft } from '@/modules/expenses/capture';
 import { useCategoryBook } from '@/modules/expenses/category-book';
+import { useCurrencies } from '@/modules/expenses/currencies';
 import { CHOICE } from '@/modules/expenses/choice';
 import { DuplicateNote } from '@/modules/expenses/duplicate-note';
 import { useDuplicates } from '@/modules/expenses/duplicates';
@@ -36,6 +37,7 @@ const SETTLE_MS = 400;
 interface FormValues {
   kind: EntryKind;
   amount: string;
+  currency: string;
   title: string;
   quantity: string;
   unit: string;
@@ -53,10 +55,16 @@ interface FormValues {
 const DETAILS = ['time', 'merchant', 'payment_mode', 'for_whom', 'tags', 'note', 'link'] as const;
 
 /** Start from the entry being edited, else from a draft, else empty and dated today. */
-function valuesOf(entry: Entry | null, draft: Draft | undefined, today: string): FormValues {
+function valuesOf(
+  entry: Entry | null,
+  draft: Draft | undefined,
+  today: string,
+  base: string,
+): FormValues {
   return {
     kind: entry?.kind ?? draft?.kind ?? 'expense',
     amount: entry ? toInput(entry.amount_minor, entry.currency) : (draft?.amount ?? ''),
+    currency: entry?.currency ?? base,
     title: entry?.title ?? draft?.title ?? '',
     quantity: entry ? String(entry.quantity ?? '') : (draft?.quantity ?? ''),
     unit: entry ? (entry.unit ?? '') : (draft?.unit ?? ''),
@@ -85,7 +93,8 @@ function tagsOf(text: string): string[] {
     .filter(Boolean);
 }
 
-function bodyOf(values: FormValues, currency: string, entry: Entry | null): EntryInput {
+function bodyOf(values: FormValues, entry: Entry | null): EntryInput {
+  const { currency } = values;
   // The form edits one link; any others the entry has (added elsewhere) are kept as they are.
   const [first, ...others] = entry?.attachments ?? [];
   const link = values.link ? [{ url: values.link, label: first?.label ?? null }] : [];
@@ -93,6 +102,8 @@ function bodyOf(values: FormValues, currency: string, entry: Entry | null): Entr
     kind: values.kind,
     title: values.title,
     amount_minor: toMinor(values.amount, currency) ?? 0,
+    // A new entry may be in another currency; an edit keeps the one it was made in.
+    ...(entry ? {} : { currency }),
     // How much was bought is about spending; and a quantity means nothing without its unit.
     ...(values.kind === 'expense' && values.unit && quantityOf(values.quantity)
       ? { quantity: quantityOf(values.quantity), unit: values.unit }
@@ -132,23 +143,25 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
   // One key for this form's whole life (a draft brings its own): saving again after a lost
   // reply can't add the entry twice.
   const [key] = useState(() => draft?.key ?? crypto.randomUUID());
+  const base = user?.base_currency ?? '';
+  const currencies = useCurrencies(entry ? undefined : base);
   const form = useForm<FormValues>({
-    defaultValues: valuesOf(entry, draft, todayIn(user?.timezone)),
+    defaultValues: valuesOf(entry, draft, todayIn(user?.timezone), base),
   });
   const kind = useWatch({ control: form.control, name: 'kind' });
-  const [amount, quantity, unit, title, date, merchant] = useWatch({
+  const [amount, quantity, unit, title, date, merchant, currency] = useWatch({
     control: form.control,
-    name: ['amount', 'quantity', 'unit', 'title', 'date', 'merchant'],
+    name: ['amount', 'quantity', 'unit', 'title', 'date', 'merchant', 'currency'],
   });
   const units = useUnits().data ?? [];
   const unitText = useUnitText();
   const { errors } = form.formState;
-  const currency = entry?.currency ?? user?.base_currency;
   const minor = currency ? toMinor(amount, currency) : null;
-  // Only a new entry is compared with saved ones, once it has a name, an amount and a day.
+  // Only a new entry is compared with saved ones, once it has a name, an amount and a day; and
+  // only in the base currency, which saved ones are compared in.
   const named = title.trim();
   const asked =
-    !entry && named && minor && date
+    !entry && currency === base && named && minor && date
       ? [{ kind, title: named, amount_minor: minor, date, merchant: merchant.trim() || null }]
       : [];
   const settled = useSettled(asked, SETTLE_MS);
@@ -169,7 +182,7 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
   const each = minor && counted && unit ? unitPrice(units, minor, counted, unit, per) : null;
 
   const submit = form.handleSubmit(async (values) => {
-    const body = bodyOf(values, currency, entry);
+    const body = bodyOf(values, entry);
     const saved = await save.mutateAsync(entry ? { body, editing: entry } : { body, key }).catch(
       () => null, // shown from save.error
     );
@@ -223,18 +236,28 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
           </div>
         </fieldset>
 
-        <TextField
-          label={t('form.amount', { currency })}
-          inputMode="decimal"
-          autoComplete="off"
-          // The one thing every entry needs, so typing can start at once.
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          error={errors.amount?.message}
-          {...form.register('amount', {
-            validate: (value) => (toMinor(value, currency) ?? 0) > 0 || t('form.amountError'),
-          })}
-        />
+        <div className="grid grid-cols-[1fr_auto] items-start gap-3">
+          <TextField
+            label={t('form.amount', { currency })}
+            inputMode="decimal"
+            autoComplete="off"
+            // The one thing every entry needs, so typing can start at once.
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            error={errors.amount?.message}
+            {...form.register('amount', {
+              validate: (value) =>
+                (toMinor(value, form.getValues('currency')) ?? 0) > 0 || t('form.amountError'),
+            })}
+          />
+          {currencies.length > 1 && (
+            <SelectField
+              label={t('form.currency')}
+              options={currencies.map((code) => ({ value: code, label: code }))}
+              {...form.register('currency')}
+            />
+          )}
+        </div>
         <TextField
           label={t('form.title')}
           placeholder={t('form.titlePlaceholder')}

@@ -32,6 +32,8 @@ export const paths = {
   overview: `${base}/overview`,
   entry: (id: string) => `${base}/entries/${id}`,
   prices: `${base}/prices`,
+  import: `${base}/import`,
+  report: `${base}/report`,
   product: (id: string) => `${base}/prices/${id}`,
   /** The Plan page, on a section, with one of its cards picked out (`focus`). */
   plan: (show?: PlanSection, focus?: string) => `${base}/plan${query({ show, focus })}`,

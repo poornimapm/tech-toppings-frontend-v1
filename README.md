@@ -189,6 +189,90 @@ Works with AI off (quick mode) or on.
 
 "gave Ravi 500" stays an expense, and a refund or change from a shop is never a loan.
 
+## Data pack: try it
+
+With the backend running and signed in.
+
+### Saved views
+
+1. Open **Expenses**, choose **Spent**, **Last month** and a category. **Save view** appears
+   above the filters; choose it, name the view "Pets last month" and **Save view**. A _Saved
+   views_ chip appears, picked out while the list shows it.
+2. Choose **This month**: the chip is no longer picked out, and **Save view** is back for the
+   new filters. Choose the chip and the list shows last month's pet spending again, whichever
+   month it is.
+3. With the view shown, the pencil beside it renames it or deletes it (after asking; your
+   entries stay). Saving other filters under a name you already use offers to give that view
+   the filters shown instead.
+
+### Bulk edit
+
+1. On **Expenses**, choose **Select**. Each entry gets a box to tick, and a bar sticks to the
+   bottom of the screen with what you can do.
+2. Tick Rice, Bus pass and Salary, choose **Category**, pick **Food** and **Move 3 entries**.
+   The message says _Moved 2 entries to Food._ and a second one that Salary kept its category,
+   as Food is for money spent. Open Rice: its history says the change was made with others
+   at once.
+3. **Select all**, then **Tags**: type "goa" and **Add tag**, or **Take tag off**.
+4. Tick two entries and **Delete**. **Undo** in the message brings both back. On **Deleted**,
+   the bar only offers **Bring back**.
+
+### Search
+
+1. Press **Ctrl+K** and type "goa". Once you pause, an **Expenses** group lists the saved
+   views, loans, products and entries with "goa" in them, each with what it is and any amount
+   and day.
+2. Choose an entry to open it, a loan to open Plan at that loan, a product to open its prices,
+   or a saved view to open the list with its filters.
+3. One letter finds nothing, and asking the assistant is still the first choice.
+
+### CSV export
+
+1. On **Expenses**, choose filters (say **Spent** and **Last month**), then **Export CSV**. The
+   browser downloads `expenses-<first day>-to-<last day>.csv` with exactly what the list shows,
+   and a message names the file.
+2. Open it in a spreadsheet: Tamil and Hindi read right, amounts have their decimals, and a
+   title like `=1+1` stays text.
+3. A very long period may be too much for one file: the message then asks for a shorter one.
+
+### CSV import: preview
+
+1. On **Expenses**, choose **Import CSV**, then choose a file: your bank's statement (CSV), a
+   spreadsheet saved as CSV, or an **Export CSV** from here.
+2. **Columns** shows which column was guessed for each field. Change any that are wrong, or
+   the date format, and the preview reads the file again. Without a date, what it was and an
+   amount, it says what is missing.
+3. **What it would add** counts the rows, those to add, those saved already and those with a
+   problem, shows the first rows as entries (a guessed category is marked), and lists each row a
+   problem stops ("Row 4: no amount"). Nothing is saved yet.
+4. **Import N entries** adds them batch by batch, with how far it has got. Rows that look
+   saved already are left out unless you switch them on. If the connection drops, **Carry on
+   importing** adds the rest; nothing is added twice, and importing the same file again adds
+   nothing new. The message then says how many were added, with a link to your entries.
+
+### Monthly report
+
+1. On **Expenses**, open **Overview**, then **Monthly report**: this month so far, against the
+   same days of the month before, where the money went and came from, places, people and the
+   biggest expenses. The arrows go a month back or forward.
+2. **Print or save as PDF** opens the browser's print window; choose "Save as PDF". The app's
+   own header and navigation are left out of the page.
+3. **Download CSV** saves the same figures as a CSV file.
+
+### Chat with expenses
+
+1. Press **Ctrl+K**, type "How much did I spend on groceries last month?" and choose **Ask the
+   assistant**. The answer gives the amount and the days it covers, in your language.
+2. Try "Where did I spend the most this week?", "How many times did I spend money this month?"
+   or "போன மாதம் எவ்வளவு செலவு செய்தேன்?". It works with AI off too.
+
+### Other currencies
+
+1. **Add entry**: next to the amount, choose a currency (yours comes first), say **USD**, and
+   type 120.
+2. The list shows "−$120" and beneath it what that counted as in your currency that day (for
+   example "≈ ₹10,020"); every total counts the rupees, and they don't change when rates do.
+
 ## Scripts
 
 | Command                                     | What it does                                                                                            |

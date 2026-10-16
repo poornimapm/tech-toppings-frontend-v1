@@ -585,6 +585,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Find my own things in every module I use */
+        get: operations["search_everything_v1_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/fx/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What one unit of a currency buys of the others (default: my base currency) */
+        get: operations["read_rates_v1_fx_rates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/dashboard": {
         parameters: {
             query?: never;
@@ -665,6 +699,23 @@ export interface paths {
         put?: never;
         /** Saved entries that look like ones about to be saved (advice only) */
         post: operations["check_duplicates_v1_expenses_entries_duplicates_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/entries/bulk-update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** One change to many entries: category, a tag, delete or bring back */
+        post: operations["bulk_update_v1_expenses_entries_bulk_update_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1367,6 +1418,144 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/expenses/saved-filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My saved views of the entries list, by name */
+        get: operations["list_saved_filters_v1_expenses_saved_filters_get"];
+        put?: never;
+        /** Save the entries list's filters under a name */
+        post: operations["add_saved_filter_v1_expenses_saved_filters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/saved-filters/{saved_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a view (the entries stay) */
+        delete: operations["delete_saved_filter_v1_expenses_saved_filters__saved_id__delete"];
+        options?: never;
+        head?: never;
+        /** Rename a view, or keep the list's filters as they are now */
+        patch: operations["change_saved_filter_v1_expenses_saved_filters__saved_id__patch"];
+        trace?: never;
+    };
+    "/v1/expenses/export.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My entries as a CSV file, with the entries list's filters */
+        get: operations["export_entries_v1_expenses_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/import/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Read a CSV file into entries, without saving: the columns, a guessed mapping, the first rows and the rows with problems */
+        post: operations["preview_import_v1_expenses_import_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/import/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a batch of the file's importable rows (each once per file and row); send next_offset back for the rest */
+        post: operations["commit_import_v1_expenses_import_commit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/reports/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A month on one page: totals against the month before, where it went, the biggest */
+        get: operations["monthly_report_v1_expenses_reports_monthly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/reports/monthly.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The monthly report's figures as a CSV file */
+        get: operations["monthly_report_csv_v1_expenses_reports_monthly_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/expenses/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer a question about my entries: a metric, grouped and narrowed (read only) */
+        post: operations["query_entries_v1_expenses_query_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/expenses/units": {
         parameters: {
             query?: never;
@@ -1613,6 +1802,47 @@ export interface components {
              */
             pace_minor: number;
         };
+        /**
+         * BulkAction
+         * @enum {string}
+         */
+        BulkAction: "category" | "add_tag" | "remove_tag" | "delete" | "undelete";
+        /**
+         * BulkIn
+         * @description One change to many entries: the category, a tag added or taken off, or delete (and
+         *     bring back).
+         */
+        BulkIn: {
+            /** Ids */
+            ids: string[];
+            action: components["schemas"]["BulkAction"];
+            /**
+             * Category Id
+             * @description For category
+             */
+            category_id?: string | null;
+            /**
+             * Tag
+             * @description For add_tag and remove_tag
+             */
+            tag?: string | null;
+        };
+        /** BulkOut */
+        BulkOut: {
+            /**
+             * Changed
+             * @description The entries changed, in the order asked
+             */
+            changed: string[];
+            /** Skipped */
+            skipped: components["schemas"]["BulkSkip"][];
+        };
+        /** BulkSkip */
+        BulkSkip: {
+            /** Id */
+            id: string;
+            reason: components["schemas"]["SkipReason"];
+        };
         /** ByCategoryOut */
         ByCategoryOut: {
             /**
@@ -1760,6 +1990,86 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /**
+         * ColumnMapping
+         * @description Which column holds what, and how its days and amounts are written. A guess may lack a
+         *     column it couldn't name; the user says which.
+         */
+        ColumnMapping: {
+            /**
+             * Header Row
+             * @description The row, from 0, that names the columns
+             */
+            header_row: number;
+            /**
+             * Columns
+             * @description Field -> its column, from 0
+             */
+            columns: {
+                [key: string]: number;
+            };
+            /**
+             * Date Format
+             * @description One of date_formats, as the preview offers them
+             */
+            date_format: string;
+            /** @default expense */
+            signs: components["schemas"]["Signs"];
+        };
+        /**
+         * CommitIn
+         * @description The file and the mapping the preview showed, and which of its importable rows to add
+         *     now: from ``offset``, at most ``limits.commit_batch`` of them.
+         */
+        CommitIn: {
+            /**
+             * File
+             * Format: base64
+             * @description The CSV file, base64-encoded
+             */
+            file: string;
+            mapping: components["schemas"]["ImportMapping"];
+            /**
+             * Include Duplicates
+             * @description Also add rows that look saved already
+             * @default false
+             */
+            include_duplicates: boolean;
+            /**
+             * Offset
+             * @description Importable rows done so far
+             * @default 0
+             */
+            offset: number;
+        };
+        /** CommitOut */
+        CommitOut: {
+            /**
+             * Added
+             * @description Entries this request added
+             */
+            added: number;
+            /**
+             * Already
+             * @description Rows of this file an earlier import added already
+             */
+            already: number;
+            /**
+             * Done
+             * @description Importable rows done, with this request
+             */
+            done: number;
+            /**
+             * Total
+             * @description Importable rows in the file
+             */
+            total: number;
+            /**
+             * Next Offset
+             * @description Send this as offset for the rest; None: done
+             */
+            next_offset: number | null;
+        };
         /** ContributionIn */
         ContributionIn: {
             /**
@@ -1851,6 +2161,16 @@ export interface components {
             end: string;
             /** Widgets */
             widgets: components["schemas"]["WidgetView"][];
+        };
+        /** DateChoice */
+        DateChoice: {
+            /** Format */
+            format: string;
+            /**
+             * Example
+             * @description 31 October 2026 written this way
+             */
+            example: string;
         };
         /** DayAmount */
         DayAmount: {
@@ -2033,6 +2353,21 @@ export interface components {
             attachments: components["schemas"]["AttachmentIn"][];
             /** Id */
             id: string;
+            /**
+             * Base Currency
+             * @description The currency it counts in
+             */
+            base_currency?: string | null;
+            /**
+             * Fx Rate
+             * @description base_currency one currency bought
+             */
+            fx_rate?: string | null;
+            /**
+             * Amount Base Minor
+             * @description What it was in base_currency
+             */
+            amount_base_minor?: number | null;
             source: components["schemas"]["EntrySource"];
             /**
              * Recurring Id
@@ -2059,7 +2394,7 @@ export interface components {
          * @description How an entry, or a change to it, was made.
          * @enum {string}
          */
-        EntrySource: "manual" | "assistant" | "recurring";
+        EntrySource: "manual" | "assistant" | "recurring" | "bulk" | "import";
         /**
          * EntryUpdate
          * @description The whole entry as edited, plus the revision that was edited: if the entry has moved
@@ -2142,6 +2477,66 @@ export interface components {
              * @example 5f0c3e7a9b2d4c1e8f6a0b3c2d1e4f5a
              */
             request_id?: string | null;
+        };
+        /**
+         * ExpenseQuery
+         * @description A question about the user's entries, as data: what to work out, of which entries, by
+         *     what. It is compiled from a whitelist (compiler.py), so it can only ever read the user's own
+         *     entries, in fixed shapes.
+         */
+        ExpenseQuery: {
+            /** @default total */
+            metric: components["schemas"]["Metric"];
+            /**
+             * @description None for both (then group by kind)
+             * @default expense
+             */
+            kind: components["schemas"]["EntryKind"] | null;
+            /** @default none */
+            group_by: components["schemas"]["GroupBy"];
+            /**
+             * Start
+             * @description First day
+             */
+            start?: string | null;
+            /**
+             * End
+             * @description Last day, inclusive
+             */
+            end?: string | null;
+            /**
+             * Category Ids
+             * @default []
+             */
+            category_ids: string[];
+            /**
+             * Merchant
+             * @description This place exactly (any case)
+             */
+            merchant?: string | null;
+            /**
+             * Person
+             * @description For this person exactly (any case)
+             */
+            person?: string | null;
+            /** Tag */
+            tag?: string | null;
+            /**
+             * Text
+             * @description Words in the title, place or note
+             */
+            text?: string | null;
+            /** Min Amount Minor */
+            min_amount_minor?: number | null;
+            /** Max Amount Minor */
+            max_amount_minor?: number | null;
+            /** @default value_desc */
+            sort: components["schemas"]["SortOrder"];
+            /**
+             * Limit
+             * @default 10
+             */
+            limit: number;
         };
         /**
          * FacetsOut
@@ -2299,6 +2694,11 @@ export interface components {
             /** Id Token */
             id_token: string;
         };
+        /**
+         * GroupBy
+         * @enum {string}
+         */
+        GroupBy: "none" | "category" | "merchant" | "person" | "tag" | "day" | "month" | "kind" | "payment_mode";
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -2350,6 +2750,106 @@ export interface components {
             weeks: components["schemas"]["HeatWeek"][];
             /** Weekdays */
             weekdays: components["schemas"]["WeekdayAmount"][];
+        };
+        /**
+         * ImportEntry
+         * @description A row as it would be saved.
+         */
+        ImportEntry: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Time */
+            time: string | null;
+            kind: components["schemas"]["EntryKind"];
+            /** Title */
+            title: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /** Category Id */
+            category_id: string;
+            /**
+             * Category Guessed
+             * @description The row named no category of the user's
+             */
+            category_guessed: boolean;
+            /** Quantity */
+            quantity: number | null;
+            /** Unit */
+            unit: string | null;
+            /** Merchant */
+            merchant: string | null;
+            payment_mode: components["schemas"]["PaymentMode"] | null;
+            /** For Whom */
+            for_whom: string | null;
+            /** Tags */
+            tags: string[];
+            /** Note */
+            note: string | null;
+        };
+        /**
+         * ImportField
+         * @description What a column can hold. An amount comes from ``amount`` (with ``kind`` or its sign) or
+         *     from ``debit`` and ``credit`` columns, as bank statements have them.
+         * @enum {string}
+         */
+        ImportField: "date" | "time" | "title" | "amount" | "debit" | "credit" | "kind" | "currency" | "category" | "quantity" | "unit" | "merchant" | "payment_mode" | "for_whom" | "tags" | "note";
+        /** ImportIn */
+        ImportIn: {
+            /**
+             * File
+             * Format: base64
+             * @description The CSV file, base64-encoded
+             */
+            file: string;
+            /** @description Leave out to have it guessed from the file */
+            mapping?: components["schemas"]["ImportMapping"] | null;
+        };
+        /**
+         * ImportMapping
+         * @description A mapping the user gives: enough to make entries.
+         */
+        ImportMapping: {
+            /**
+             * Header Row
+             * @description The row, from 0, that names the columns
+             */
+            header_row: number;
+            /**
+             * Columns
+             * @description Field -> its column, from 0
+             */
+            columns: {
+                [key: string]: number;
+            };
+            /**
+             * Date Format
+             * @description One of date_formats, as the preview offers them
+             */
+            date_format: string;
+            /** @default expense */
+            signs: components["schemas"]["Signs"];
+        };
+        /** ImportRow */
+        ImportRow: {
+            /**
+             * Line
+             * @description The row's number, as a spreadsheet shows it
+             */
+            line: number;
+            /** @description None when a problem stops it */
+            entry: components["schemas"]["ImportEntry"] | null;
+            /** Problems */
+            problems: components["schemas"]["ProblemCode"][];
+            /**
+             * Duplicate
+             * @description An entry like it (day, kind, amount, title) is saved
+             */
+            duplicate: boolean;
         };
         /**
          * InsightOut
@@ -2632,6 +3132,11 @@ export interface components {
             merchant: string;
         };
         /**
+         * Metric
+         * @enum {string}
+         */
+        Metric: "total" | "count" | "average" | "largest";
+        /**
          * ModuleName
          * @description A module as the user sees it on screen, so agents and static scripts match their words.
          */
@@ -2733,6 +3238,40 @@ export interface components {
             currency: string;
             /** Months */
             months: components["schemas"]["Month"][];
+        };
+        /**
+         * MonthlyReportOut
+         * @description A month on one page: what came in and went out against the month before, where it went,
+         *     and the biggest expenses. A month under way counts up to today, against the same days.
+         */
+        MonthlyReportOut: {
+            /** Month */
+            month: string;
+            summary: components["schemas"]["app__modules__expenses__features__analytics__schemas__SummaryOut"];
+            /**
+             * Categories
+             * @description Money spent, by category
+             */
+            categories: components["schemas"]["ReportCategory"][];
+            /**
+             * Income
+             * @description Money received, by category
+             */
+            income: components["schemas"]["CategoryShare"][];
+            /** Merchants */
+            merchants: components["schemas"]["MerchantShare"][];
+            /** People */
+            people: components["schemas"]["PersonShare"][];
+            /**
+             * Days
+             * @description Money spent each day
+             */
+            days: components["schemas"]["DayAmount"][];
+            /**
+             * Largest
+             * @description The biggest expenses, biggest first
+             */
+            largest: components["schemas"]["EntryOut"][];
         };
         /** NetOut */
         NetOut: {
@@ -3061,6 +3600,49 @@ export interface components {
             /** Pinned */
             pinned?: boolean | null;
         };
+        /** PreviewOut */
+        PreviewOut: {
+            /**
+             * Fingerprint
+             * @description The file's SHA-256: an import of it adds each row once
+             */
+            fingerprint: string;
+            /**
+             * Columns
+             * @description The header row's cells
+             */
+            columns: string[];
+            /** @description As given, or as guessed */
+            mapping: components["schemas"]["ColumnMapping"];
+            /** Date Formats */
+            date_formats: components["schemas"]["DateChoice"][];
+            /**
+             * Rows
+             * @description The first rows, as they would be saved
+             */
+            rows: components["schemas"]["ImportRow"][];
+            /**
+             * Problems
+             * @description The first rows a problem stops
+             */
+            problems: components["schemas"]["ImportRow"][];
+            /**
+             * Unknown Categories
+             * @description Categories named in the file that aren't the user's (filed under other)
+             */
+            unknown_categories: string[];
+            /** Total */
+            total: number;
+            /**
+             * Ready
+             * @description Rows the import would add
+             */
+            ready: number;
+            /** Duplicates */
+            duplicates: number;
+            /** With Problems */
+            with_problems: number;
+        };
         /** PriceStats */
         PriceStats: {
             /** Count */
@@ -3078,6 +3660,11 @@ export interface components {
             /** Change Pct */
             change_pct: number | null;
         };
+        /**
+         * ProblemCode
+         * @enum {string}
+         */
+        ProblemCode: "missing_date" | "bad_date" | "missing_title" | "missing_amount" | "bad_amount" | "currency" | "invalid";
         /** ProductDetail */
         ProductDetail: {
             /** Id */
@@ -3230,6 +3817,52 @@ export interface components {
             /** Unit Price Minor */
             unit_price_minor: number | null;
         };
+        /** QueryResult */
+        QueryResult: {
+            metric: components["schemas"]["Metric"];
+            group_by: components["schemas"]["GroupBy"];
+            /** Currency */
+            currency: string;
+            /**
+             * Money
+             * @description value is an amount in minor units (else a count)
+             */
+            money: boolean;
+            /** Rows */
+            rows: components["schemas"]["QueryRow"][];
+        };
+        /** QueryRow */
+        QueryRow: {
+            /**
+             * Key
+             * @description The group (None: not said, or no grouping)
+             */
+            key: string | null;
+            /**
+             * Value
+             * @description The metric: minor units for money, else a count
+             */
+            value: number;
+            /**
+             * Count
+             * @description Entries in the group
+             */
+            count: number;
+        };
+        /** RatesOut */
+        RatesOut: {
+            /** Base */
+            base: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Rates */
+            rates: {
+                [key: string]: string;
+            };
+        };
         /** ReadinessStatus */
         ReadinessStatus: {
             /**
@@ -3287,6 +3920,27 @@ export interface components {
             sent: boolean;
             /** Snoozed Until */
             snoozed_until: string | null;
+        };
+        /** ReportCategory */
+        ReportCategory: {
+            /** Amount Minor */
+            amount_minor: number;
+            /** Count */
+            count: number;
+            /** Share Pct */
+            share_pct: number;
+            /** Category Id */
+            category_id: string;
+            /**
+             * Previous Minor
+             * @description Spent under it in the month before, same days
+             */
+            previous_minor: number;
+            /**
+             * Change Pct
+             * @description None when nothing was spent then
+             */
+            change_pct: number | null;
         };
         /** RestoreIn */
         RestoreIn: {
@@ -3465,6 +4119,108 @@ export interface components {
             /** Total Minor */
             total_minor: number;
         };
+        /** SavedFilterIn */
+        SavedFilterIn: {
+            /** Name */
+            name: string;
+            view: components["schemas"]["SavedView"];
+        };
+        /** SavedFilterOut */
+        SavedFilterOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            view: components["schemas"]["SavedView"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SavedFilterPatch
+         * @description Only what is sent changes: a new name, or the list's filters as they are now.
+         */
+        SavedFilterPatch: {
+            /** Name */
+            name?: string | null;
+            view?: components["schemas"]["SavedView"] | null;
+        };
+        /**
+         * SavedView
+         * @description The entries list's filters as the user set them: a period by name, or the days a chart
+         *     or budget chose (``from``/``to``), and what else narrows the list.
+         */
+        SavedView: {
+            /** @default all */
+            show: components["schemas"]["ViewShow"];
+            /** @description Default this_month; leave out when giving from/to */
+            period?: components["schemas"]["ViewPeriod"] | null;
+            /**
+             * From
+             * @description First day
+             */
+            from?: string | null;
+            /**
+             * To
+             * @description Last day, inclusive
+             */
+            to?: string | null;
+            /**
+             * Q
+             * @description In title, merchant or note
+             */
+            q?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Tag */
+            tag?: string | null;
+            /** For Whom */
+            for_whom?: string | null;
+            /** Merchant */
+            merchant?: string | null;
+        };
+        /** SearchGroup */
+        SearchGroup: {
+            /** Owner */
+            owner: string;
+            /** Hits */
+            hits: components["schemas"]["SearchHit"][];
+        };
+        /**
+         * SearchHit
+         * @description One thing found: the user's own words for it, and what helps tell it apart.
+         */
+        SearchHit: {
+            /**
+             * Kind
+             * @description What it is; the client names it
+             */
+            kind: string;
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Path
+             * @description Where it opens within its module, e.g. entries/<id> or ?view=<id>
+             */
+            path: string;
+            /** Amount Minor */
+            amount_minor?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Date */
+            date?: string | null;
+        };
+        /** SearchOut */
+        SearchOut: {
+            /** Query */
+            query: string;
+            /** Groups */
+            groups: components["schemas"]["SearchGroup"][];
+        };
         /**
          * Series
          * @description One value per day of the period.
@@ -3541,6 +4297,12 @@ export interface components {
             /** Note */
             note: string | null;
         };
+        /**
+         * Signs
+         * @description How an amount column without a kind tells money spent from money received.
+         * @enum {string}
+         */
+        Signs: "expense" | "signed";
         /** SkillView */
         SkillView: {
             /** Name */
@@ -3551,6 +4313,11 @@ export interface components {
             /** Has Static */
             has_static: boolean;
         };
+        /**
+         * SkipReason
+         * @enum {string}
+         */
+        SkipReason: "not_found" | "unchanged" | "kind" | "conflict" | "tags_full";
         /** SnoozeIn */
         SnoozeIn: {
             /**
@@ -3559,6 +4326,11 @@ export interface components {
              */
             days: number;
         };
+        /**
+         * SortOrder
+         * @enum {string}
+         */
+        SortOrder: "value_desc" | "value_asc" | "key";
         /** Span */
         Span: {
             /**
@@ -3863,6 +4635,17 @@ export interface components {
             /** Ai Consent */
             ai_consent?: boolean | null;
         };
+        /**
+         * ViewPeriod
+         * @description Kept by name, so a view of this month shows this month whenever it is opened.
+         * @enum {string}
+         */
+        ViewPeriod: "this_month" | "last_month" | "last_90_days" | "all_time";
+        /**
+         * ViewShow
+         * @enum {string}
+         */
+        ViewShow: "all" | "expense" | "income" | "deleted";
         /** WeekdayAmount */
         WeekdayAmount: {
             /**
@@ -6080,6 +6863,124 @@ export interface operations {
             };
         };
     };
+    search_everything_v1_search_get: {
+        parameters: {
+            query: {
+                /** @description What to look for: any case, part of a word */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_rates_v1_fx_rates_get: {
+        parameters: {
+            query?: {
+                base?: string | null;
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RatesOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     read_all_users_dashboard_v1_admin_dashboard_get: {
         parameters: {
             query?: {
@@ -6459,6 +7360,66 @@ export interface operations {
                 };
             };
             /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bulk_update_v1_expenses_entries_bulk_update_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10327,6 +11288,686 @@ export interface operations {
                 };
             };
             /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_saved_filters_v1_expenses_saved_filters_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedFilterOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_saved_filter_v1_expenses_saved_filters_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedFilterIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedFilterOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_saved_filter_v1_expenses_saved_filters__saved_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_saved_filter_v1_expenses_saved_filters__saved_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedFilterPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedFilterOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    export_entries_v1_expenses_export_csv_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["EntryKind"] | null;
+                /** @description First day */
+                from?: string | null;
+                /** @description Last day, inclusive */
+                to?: string | null;
+                category_id?: string | null;
+                tag?: string | null;
+                for_whom?: string | null;
+                /** @description Exactly this place */
+                merchant?: string | null;
+                payment_mode?: components["schemas"]["PaymentMode"] | null;
+                /** @description In title, merchant or note */
+                q?: string | null;
+                /** @description Minor units */
+                min_amount?: number | null;
+                /** @description Minor units */
+                max_amount?: number | null;
+                /** @description true = only deleted entries */
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UTF-8 CSV, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_import_v1_expenses_import_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreviewOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    commit_import_v1_expenses_import_commit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommitIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    monthly_report_v1_expenses_reports_monthly_get: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; default this month */
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlyReportOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    monthly_report_csv_v1_expenses_reports_monthly_csv_get: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; default this month */
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UTF-8 CSV: a row per figure */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    query_entries_v1_expenses_query_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseQuery"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueryResult"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
             422: {
                 headers: {
                     [name: string]: unknown;

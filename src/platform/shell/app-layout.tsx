@@ -29,7 +29,7 @@ export function AppLayout() {
       >
         {t('skipToContent')}
       </a>
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-glass backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-glass backdrop-blur-xl print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
           <Link
             to="/"
@@ -58,11 +58,15 @@ export function AppLayout() {
         id="main"
         tabIndex={-1}
         // Room at the bottom on phones, so the navigation bar never covers the last row.
-        className="relative mx-auto max-w-6xl px-4 pt-8 pb-24 focus:outline-none sm:pb-8"
+        className="relative mx-auto max-w-6xl px-4 pt-8 pb-24 focus:outline-none sm:pb-8 print:max-w-none print:p-0"
       >
         <Outlet />
       </main>
-      {ready && !wide && <ShellNav bar />}
+      {ready && !wide && (
+        <div className="print:hidden">
+          <ShellNav bar />
+        </div>
+      )}
       {ready && <PaletteHost />}
     </div>
   );

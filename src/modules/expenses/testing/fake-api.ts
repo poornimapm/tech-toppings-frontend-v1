@@ -6,6 +6,7 @@ import { fakeBills, type StoredRule } from '@/modules/expenses/testing/fake-bill
 import { fakeBudgets, type StoredBudget } from '@/modules/expenses/testing/fake-budgets';
 import { fakeGoals, type StoredGoal } from '@/modules/expenses/testing/fake-goals';
 import { fakeIous } from '@/modules/expenses/testing/fake-ious';
+import { fakeSavedFilters } from '@/modules/expenses/testing/fake-saved-filters';
 
 type Schemas = components['schemas'];
 type Entry = Schemas['EntryOut'];
@@ -237,6 +238,9 @@ function revisionOf(entry: Entry, action: Revision['action'], changes: Revision[
   } satisfies Revision;
 }
 
+/** What one of each currency buys in rupees, here. */
+const TO_RUPEES: Record<string, number> = { USD: 83.5, EUR: 90 };
+
 const notFound = () =>
   HttpResponse.json(
     { code: 'NOT_FOUND', message: 'Resource not found.', details: null, request_id: 'req-test' },
@@ -260,6 +264,7 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
     rules: [] as StoredRule[],
     suggestions: [] as Schemas['SuggestionOut'][],
     ious: [] as Schemas['IouOut'][],
+    views: [] as Schemas['SavedFilterOut'][],
   };
   const product = (id: unknown) => state.products.find((item) => item.id === id);
   const requests: { method: string; path: string; body: unknown; key: string | null }[] = [];
@@ -327,6 +332,7 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
     ...fakeGoals(matching, state),
     ...fakeBills(state, entryOf),
     ...fakeIous(state),
+    ...fakeSavedFilters(state),
     http.get(`${API}/categories`, () => HttpResponse.json(page(state.categories))),
     http.post(`${API}/categories`, async ({ request }) => {
       const body = (await request.json()) as Schemas['CategoryIn'];
@@ -399,8 +405,18 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
         results: candidates.map((candidate, index) => ({ index, matches: matches(candidate) })),
       } satisfies Schemas['DuplicatesOut']);
     }),
+    http.get('*/api/v1/fx/rates', () =>
+      HttpResponse.json({
+        base: 'INR',
+        date: '2026-10-08',
+        rates: { USD: '0.012', EUR: '0.0111' },
+      }),
+    ),
     http.post(`${API}/entries`, async ({ request }) => {
       const body = (await request.json()) as Schemas['EntryIn'];
+      // Counted in rupees at a fixed rate, as the server would at the day's (both have cents).
+      const currency = body.currency ?? 'INR';
+      const rate = TO_RUPEES[currency] ?? 1;
       const created = entryOf({
         time: null,
         merchant: null,
@@ -409,7 +425,10 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
         note: null,
         ...body,
         id: `e-new-${state.entries.length}`,
-        currency: 'INR',
+        currency,
+        base_currency: 'INR',
+        fx_rate: String(rate),
+        amount_base_minor: Math.round(body.amount_minor * rate),
       });
       state.entries.push(created);
       state.revisions.set(created.id, [revisionOf(created, 'create', [])]);
@@ -435,6 +454,39 @@ export function fakeExpenses(entries: Entry[] = seed(), products: Product[] = []
         );
       }
       return HttpResponse.json(revise(entry, 'update', body as Partial<Entry>));
+    }),
+    http.post(`${API}/entries/bulk-update`, async ({ request }) => {
+      const body = (await request.json()) as Schemas['BulkIn'];
+      const result: Schemas['BulkOut'] = { changed: [], skipped: [] };
+      const kindOf = (id: string | null | undefined) =>
+        state.categories.find((item) => item.id === id)?.kind;
+      for (const id of body.ids) {
+        const entry = find(id);
+        const back = body.action === 'undelete';
+        let reason: Schemas['SkipReason'] | null = null;
+        let changes: Partial<Entry> = {};
+        if (entry?.deleted !== back) reason = !entry || !back ? 'not_found' : 'unchanged';
+        else if (body.action === 'delete') changes = { deleted: true };
+        else if (back) changes = { deleted: false };
+        else if (body.action === 'category') {
+          if (kindOf(body.category_id) !== entry.kind) reason = 'kind';
+          else if (entry.category_id === body.category_id) reason = 'unchanged';
+          else changes = { category_id: body.category_id ?? '' };
+        } else {
+          const tag = body.tag ?? '';
+          const has = entry.tags.includes(tag);
+          if (has === (body.action === 'add_tag')) reason = 'unchanged';
+          else
+            changes = {
+              tags: has ? entry.tags.filter((item) => item !== tag) : [...entry.tags, tag],
+            };
+        }
+        if (entry && !reason) {
+          revise(entry, 'update', changes);
+          result.changed.push(id);
+        } else result.skipped.push({ id, reason: reason ?? 'not_found' });
+      }
+      return HttpResponse.json(result);
     }),
     http.delete(`${API}/entries/:id`, ({ params }) => {
       const entry = find(params.id);

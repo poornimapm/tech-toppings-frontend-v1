@@ -1,5 +1,5 @@
 import type { UseQueryResult } from '@tanstack/react-query';
-import { TrendingUp } from 'lucide-react';
+import { FileBarChart, TrendingUp } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
@@ -161,6 +161,13 @@ export function OverviewPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('overview.title')}</h1>
           <p className="mt-1 text-muted">{t('overview.subtitle')}</p>
+          <Link
+            to={paths.report}
+            className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+          >
+            <FileBarChart aria-hidden="true" className="size-4" />
+            {t('report.open')}
+          </Link>
         </div>
         <SectionTabs />
         <FilterChips

@@ -1,9 +1,10 @@
-import { Plus, Tags, Wallet, X } from 'lucide-react';
+import { Download, FileUp, ListChecks, Plus, Tags, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { useSession } from '@/core/auth/session-store';
+import { errorKey } from '@/core/i18n';
 import { displayDate, todayIn, addDays } from '@/core/utils/dates';
 import {
   Button,
@@ -17,17 +18,22 @@ import {
 } from '@/design-system';
 import {
   useEntries,
+  failureCode,
   useUndeleteEntry,
   type Entry,
   type EntryFilters,
 } from '@/modules/expenses/api';
+import { BulkBar } from '@/modules/expenses/bulk-bar';
 import { CapturePanel } from '@/modules/expenses/capture-panel';
 import { CategoriesDialog } from '@/modules/expenses/categories-dialog';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { EntryForm } from '@/modules/expenses/entry-form';
 import { EntryRow } from '@/modules/expenses/entry-row';
+import { useSaveCsv } from '@/modules/expenses/export-csv';
 import { NS } from '@/modules/expenses/i18n';
 import { daysOf, PERIODS, toPeriod } from '@/modules/expenses/periods';
+import { paths } from '@/modules/expenses/paths';
+import { SavedViews } from '@/modules/expenses/saved-views';
 import { SectionTabs } from '@/modules/expenses/section-tabs';
 import { Totals } from '@/modules/expenses/totals';
 
@@ -47,10 +53,15 @@ function byDay(entries: readonly Entry[]): [string, Entry[]][] {
 /** The user's entries: totals for what is shown, filters kept in the URL, and adding one. */
 export function EntriesPage() {
   const { t, i18n } = useTranslation(NS);
+  const { t: tError } = useTranslation('errors');
   const user = useSession((state) => state.user);
+  const saveCsv = useSaveCsv();
   const [params, setParams] = useSearchParams();
   const [adding, setAdding] = useState(false);
   const [managing, setManaging] = useState(false);
+  // Choosing entries for one change to all of them; only those still on the list count.
+  const [selecting, setSelecting] = useState(false);
+  const [chosen, setChosen] = useState<string[]>([]);
   const book = useCategoryBook();
   const undelete = useUndeleteEntry();
 
@@ -77,6 +88,8 @@ export function EntriesPage() {
     ...(merchant ? { merchant } : {}),
   };
   const entries = useEntries(filters);
+  const shown = entries.data ?? [];
+  const picked = chosen.filter((id) => shown.some((entry) => entry.id === id));
   const filtered =
     show !== 'all' ||
     period !== PERIODS[0] ||
@@ -126,7 +139,41 @@ export function EntriesPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="mt-1 text-muted">{t('subtitle')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            disabled={saveCsv.isPending}
+            onClick={() => {
+              saveCsv.mutate(filters, {
+                onSuccess: (name) => toast(t('export.done', { name }), { tone: 'success' }),
+                onError: (error) =>
+                  toast(tError(errorKey(failureCode(error) ?? 'UNKNOWN')), {
+                    tone: 'danger',
+                  }),
+              });
+            }}
+          >
+            <Download aria-hidden="true" className="size-4" />
+            {t('export.button')}
+          </Button>
+          <Link
+            to={paths.import}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-bg"
+          >
+            <FileUp aria-hidden="true" className="size-4" />
+            {t('import.open')}
+          </Link>
+          <Button
+            variant="secondary"
+            aria-pressed={selecting}
+            onClick={() => {
+              setSelecting(!selecting);
+              setChosen([]);
+            }}
+          >
+            <ListChecks aria-hidden="true" className="size-4" />
+            {t('bulk.select')}
+          </Button>
           <Button
             variant="secondary"
             onClick={() => {
@@ -156,6 +203,13 @@ export function EntriesPage() {
 
       {/* One block of filters above everything they scope. */}
       <div className="space-y-3">
+        <SavedViews
+          params={params}
+          filtered={filtered}
+          onOpen={(query) => {
+            setParams(query, { replace: true });
+          }}
+        />
         <div className="flex flex-wrap gap-x-6 gap-y-3">
           <FilterChips
             label={t('filters.show')}
@@ -252,8 +306,22 @@ export function EntriesPage() {
                     entry={entry}
                     category={book.find(entry.category_id)}
                     categoryName={book.nameOf(book.find(entry.category_id))}
+                    selection={
+                      selecting
+                        ? {
+                            selected: picked.includes(entry.id),
+                            onToggle: () => {
+                              setChosen(
+                                picked.includes(entry.id)
+                                  ? picked.filter((id) => id !== entry.id)
+                                  : [...picked, entry.id],
+                              );
+                            },
+                          }
+                        : undefined
+                    }
                     onUndelete={
-                      entry.deleted
+                      !selecting && entry.deleted
                         ? () => {
                             undelete.mutate(entry.id, {
                               onSuccess: () =>
@@ -279,6 +347,19 @@ export function EntriesPage() {
             </Button>
           )}
         </div>
+      )}
+
+      {selecting && (
+        <BulkBar
+          shown={shown}
+          chosen={picked}
+          deleted={show === 'deleted'}
+          onChoose={setChosen}
+          onClose={() => {
+            setSelecting(false);
+            setChosen([]);
+          }}
+        />
       )}
 
       {adding && (

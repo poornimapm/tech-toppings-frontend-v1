@@ -2,6 +2,7 @@ import { Command as Cmdk } from 'cmdk';
 import { ArrowLeft, Search, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 
 import { useAgents, useAskAgent } from '@/core/agents/queries';
 import { env } from '@/core/config/env';
@@ -10,6 +11,7 @@ import { useModuleTiles } from '@/core/modules/queries';
 import { AssistantPanel } from '@/platform/palette/assistant-panel';
 import { useCommands, type Command, type CommandGroup } from '@/platform/palette/commands';
 import { usePalette } from '@/platform/palette/palette-store';
+import { SearchResults } from '@/platform/palette/search-results';
 
 const GROUPS: CommandGroup[] = ['pages', 'modules', 'preferences', 'account'];
 
@@ -38,6 +40,7 @@ export function CommandPalette() {
   const commands = useCommands();
   const { tiles } = useModuleTiles();
   const ask = useAskAgent(env.assistantAgent);
+  const navigate = useNavigate();
 
   function close(next: boolean) {
     setOpen(next);
@@ -116,6 +119,14 @@ export function CommandPalette() {
                 </Cmdk.Item>
               </Cmdk.Group>
             )}
+            <SearchResults
+              query={query}
+              className={item}
+              onOpen={(href) => {
+                void navigate(href);
+                close(false);
+              }}
+            />
             {GROUPS.map((group) => (
               <Cmdk.Group key={group} heading={t(`palette.groups.${group}`)}>
                 {commands

@@ -284,6 +284,12 @@ per feature):
   card under the entries, a payment matched to the person's oldest open loan, and open in
   `loan-draft-form.tsx` to be checked. `keyed-list.ts` removes a saved draft by its key, as
   entries do.
+- **Import** (`import-page.tsx`, `import-mapping.tsx`, `import-preview.tsx`, `imports-api.ts`):
+  the file is read once into base64 and sent with each preview; the last answer stays on screen
+  while a changed mapping is read again, and an incomplete mapping is not sent.
+- **Export CSV** (`export-csv.ts`): the file is fetched with the session (a plain link can't
+  carry it) and handed to the browser as a download, named as the server named it
+  (`Content-Disposition`, exposed by CORS).
 - **Duplicate warning** (`duplicates.ts`, `duplicate-note.tsx`): the entry form and the
   confirm card ask `POST /entries/duplicates/check` and show likely matches under the draft.
   It fails open: a slow or failed check shows nothing and never holds up saving. **Save all**
@@ -351,6 +357,12 @@ no hand-kept list:
 - modules: open, pin or unpin, notify me, show (from the tiles and `useModuleActions`);
 - preferences: theme and language;
 - account: sign out.
+
+**Search.** Once typing pauses, the palette asks `GET /v1/search` (`search-results.tsx`) and
+lists what each module found under the module's name, with the module's icon, its name for
+the kind of thing (manifest `strings.search`) and any money or day. Choosing one opens it in
+its module (`moduleHref` plus the hit's `path`); a saved view's link (`?view=<id>`) is opened by
+the list, which puts the view's filters into its URL.
 
 **Ask the assistant.** This sends the text to the backend agent named by
 `VITE_ASSISTANT_AGENT`, along with the module names on screen, so the user's own words

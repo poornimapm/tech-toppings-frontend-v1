@@ -6,6 +6,25 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 9b: data pack (in progress)
+
+- **Saved views** on the Expenses list: save the filters shown under a name, open them from a
+  chip, rename or delete a view, and give a taken name to new filters.
+- **Bulk edit**: **Select** on the Expenses list ticks entries; move them to a category, add
+  or take off a tag, or delete them (undo from the message); bring back deleted ones.
+- **Search** in the command palette: your saved views, loans, products and entries, under each
+  module's name; a saved view opens from a link (`?view=<id>`).
+- **Export CSV** on the Expenses list: downloads what the list shows.
+- **Import CSV** page: choose a file, check or change the guessed columns and date format, and
+  see what it would add, what is saved already and which rows have a problem; then import it,
+  with progress, carrying on after a dropped connection without adding anything twice.
+- **Monthly report** page (from Overview): print or save as PDF, or download the figures as CSV;
+  the app's header and navigation stay off the printed page.
+- **Chat with expenses** in the command palette: answers about your own figures, worded in
+  English, Tamil and Hindi; palette answers now write days in your language too.
+- **Other currencies**: a new entry can be in any currency with a rate; the list shows what it
+  counted as in yours.
+
 ### Added — Phase 9a: planning pack (2026-10-16)
 
 - **Plan** tab in Expenses, with four sections:

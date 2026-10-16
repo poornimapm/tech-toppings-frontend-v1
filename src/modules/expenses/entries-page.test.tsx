@@ -151,6 +151,7 @@ describe('expenses list', () => {
       kind: 'expense',
       title: 'Vegetables',
       amount_minor: 25050,
+      currency: 'INR', // a new entry says its currency
       quantity: 500,
       unit: 'g',
       category_id: 'groceries',

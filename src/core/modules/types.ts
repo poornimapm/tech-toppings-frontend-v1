@@ -36,6 +36,8 @@ export interface ModuleStrings {
   feed?: Record<string, string>;
   /** Wording of the static-mode answers of the module's agent skills, keyed by message code. */
   replies?: Record<string, string>;
+  /** What the module's search finds, named by the `kind` of each thing (e.g. "Saved view"). */
+  search?: Record<string, string>;
 }
 
 /**

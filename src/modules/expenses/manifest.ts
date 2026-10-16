@@ -55,6 +55,18 @@ export default defineModule({
         Component: (await import('@/modules/expenses/plan-page')).PlanPage,
       }),
     },
+    {
+      path: 'report',
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/report-page')).ReportPage,
+      }),
+    },
+    {
+      path: 'import',
+      lazy: async () => ({
+        Component: (await import('@/modules/expenses/import-page')).ImportPage,
+      }),
+    },
   ],
   // The pages the assistant's client tools open; drafts, loans and product matches arrive there
   // with the action (capture-panel.tsx, prices-page.tsx).
@@ -92,6 +104,10 @@ export default defineModule({
         'expenses.entry_updated': 'Edited “{{title}}” in {{module}}',
         'expenses.entry_deleted': 'Deleted “{{title}}” from {{module}}',
         'expenses.entry_undeleted': 'Brought “{{title}}” back to {{module}}',
+        'expenses.entries_changed': 'Changed {{count}} entries in {{module}} at once',
+        'expenses.entries_deleted': 'Deleted {{count}} entries from {{module}}',
+        'expenses.entries_undeleted': 'Brought {{count}} entries back to {{module}}',
+        'expenses.entries_imported': 'Entries imported into {{module}} from a file: {{count}}',
         'expenses.entry_restored': 'Restored an earlier version of “{{title}}”',
         'expenses.price_alert':
           '{{product}} cost {{price}}/{{unit}}, more than the {{limit}} you set',
@@ -102,7 +118,33 @@ export default defineModule({
         'expenses.iou_due_lent': '{{person}} is due to pay you back {{outstanding}} by {{due}}',
         'expenses.iou_due_borrowed': "You're due to pay {{person}} back {{outstanding}} by {{due}}",
       },
+      search: {
+        saved_filter: 'Saved view',
+        loan_lent: 'Owed to you',
+        loan_borrowed: 'You owe',
+        product: 'Prices',
+        entry_expense: 'Spent',
+        entry_income: 'Received',
+      },
       replies: {
+        'ask-expenses.total.expense': 'You spent {{amount}} from {{from}} to {{to}}.',
+        'ask-expenses.total.income': 'You received {{amount}} from {{from}} to {{to}}.',
+        'ask-expenses.count.expense': '{{count}} expenses from {{from}} to {{to}}.',
+        'ask-expenses.count.income': '{{count}} times money came in from {{from}} to {{to}}.',
+        'ask-expenses.average.expense':
+          '{{amount}} an expense on average ({{count}} of them), from {{from}} to {{to}}.',
+        'ask-expenses.average.income':
+          '{{amount}} on average each time money came in ({{count}} times), from {{from}} to {{to}}.',
+        'ask-expenses.largest.expense':
+          'The biggest expense was {{amount}}, from {{from}} to {{to}}.',
+        'ask-expenses.largest.income':
+          'The most that came in at once was {{amount}}, from {{from}} to {{to}}.',
+        'ask-expenses.top.1': 'From {{from}} to {{to}}, it was all {{first_name}}: {{first}}.',
+        'ask-expenses.top.2':
+          'From {{from}} to {{to}}, most went to {{first_name}} ({{first}}), then {{second_name}} ({{second}}).',
+        'ask-expenses.top.3':
+          'From {{from}} to {{to}}, most went to {{first_name}} ({{first}}), then {{second_name}} ({{second}}) and {{third_name}} ({{third}}).',
+        'ask-expenses.none': 'Nothing found from {{from}} to {{to}}.',
         'track-expenses.ready.open': 'Here are your expenses.',
         'track-expenses.ready.draft': "Here's what I understood. Check it in Expenses, then save.",
         'track-expenses.ready.iou':
@@ -146,6 +188,10 @@ export default defineModule({
         'expenses.entry_updated': '{{module}} இல் “{{title}}” திருத்தப்பட்டது',
         'expenses.entry_deleted': '{{module}} இலிருந்து “{{title}}” நீக்கப்பட்டது',
         'expenses.entry_undeleted': '{{module}} இல் “{{title}}” மீட்டெடுக்கப்பட்டது',
+        'expenses.entries_changed': '{{module}} இல் {{count}} பதிவுகள் ஒரே நேரத்தில் மாற்றப்பட்டன',
+        'expenses.entries_deleted': '{{module}} இலிருந்து {{count}} பதிவுகள் நீக்கப்பட்டன',
+        'expenses.entries_undeleted': '{{module}} இல் {{count}} பதிவுகள் மீட்டெடுக்கப்பட்டன',
+        'expenses.entries_imported': '{{module}} இல் கோப்பிலிருந்து இறக்கிய பதிவுகள்: {{count}}',
         'expenses.entry_restored': '“{{title}}” இன் முந்தைய பதிப்பு மீட்டமைக்கப்பட்டது',
         'expenses.price_alert':
           '{{product}} விலை {{price}}/{{unit}}, நீங்கள் வைத்த {{limit}} ஐ விட அதிகம்',
@@ -159,7 +205,32 @@ export default defineModule({
         'expenses.iou_due_borrowed':
           'நீங்கள் {{person}} க்கு {{due}} க்குள் {{outstanding}} திருப்பித் தர வேண்டும்',
       },
+      search: {
+        saved_filter: 'சேமித்த பார்வை',
+        loan_lent: 'உங்களுக்கு வர வேண்டியது',
+        loan_borrowed: 'நீங்கள் தர வேண்டியது',
+        product: 'விலைகள்',
+        entry_expense: 'செலவு',
+        entry_income: 'வரவு',
+      },
       replies: {
+        'ask-expenses.total.expense': '{{from}} முதல் {{to}} வரை நீங்கள் செலவழித்தது {{amount}}.',
+        'ask-expenses.total.income': '{{from}} முதல் {{to}} வரை உங்களுக்கு வந்தது {{amount}}.',
+        'ask-expenses.count.expense': '{{from}} முதல் {{to}} வரை {{count}} செலவுகள்.',
+        'ask-expenses.count.income': '{{from}} முதல் {{to}} வரை {{count}} முறை பணம் வந்தது.',
+        'ask-expenses.average.expense':
+          '{{from}} முதல் {{to}} வரை ஒரு செலவுக்குச் சராசரி {{amount}} ({{count}} செலவுகள்).',
+        'ask-expenses.average.income':
+          '{{from}} முதல் {{to}} வரை ஒவ்வொரு முறையும் சராசரியாக {{amount}} வந்தது ({{count}} முறை).',
+        'ask-expenses.largest.expense': '{{from}} முதல் {{to}} வரை பெரிய செலவு {{amount}}.',
+        'ask-expenses.largest.income':
+          '{{from}} முதல் {{to}} வரை ஒரே முறையில் அதிகம் வந்தது {{amount}}.',
+        'ask-expenses.top.1': '{{from}} முதல் {{to}} வரை அனைத்தும் {{first_name}}: {{first}}.',
+        'ask-expenses.top.2':
+          '{{from}} முதல் {{to}} வரை அதிகம் {{first_name}} ({{first}}), அடுத்து {{second_name}} ({{second}}).',
+        'ask-expenses.top.3':
+          '{{from}} முதல் {{to}} வரை அதிகம் {{first_name}} ({{first}}), அடுத்து {{second_name}} ({{second}}), {{third_name}} ({{third}}).',
+        'ask-expenses.none': '{{from}} முதல் {{to}} வரை எதுவும் இல்லை.',
         'track-expenses.ready.open': 'இதோ உங்கள் செலவுகள்.',
         'track-expenses.ready.draft':
           'நான் புரிந்துகொண்டது இதோ. செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.',
@@ -204,6 +275,10 @@ export default defineModule({
         'expenses.entry_updated': '{{module}} में “{{title}}” बदला',
         'expenses.entry_deleted': '{{module}} से “{{title}}” हटाया',
         'expenses.entry_undeleted': '{{module}} में “{{title}}” वापस लाया',
+        'expenses.entries_changed': '{{module}} में {{count}} प्रविष्टियाँ एक साथ बदलीं',
+        'expenses.entries_deleted': '{{module}} से {{count}} प्रविष्टियाँ हटाईं',
+        'expenses.entries_undeleted': '{{module}} में {{count}} प्रविष्टियाँ वापस लाईं',
+        'expenses.entries_imported': '{{module}} में फ़ाइल से आयात की गई प्रविष्टियाँ: {{count}}',
         'expenses.entry_restored': '“{{title}}” का पुराना संस्करण वापस लाया',
         'expenses.price_alert':
           '{{product}} की कीमत {{price}}/{{unit}} रही, आपकी तय {{limit}} से ज़्यादा',
@@ -214,7 +289,32 @@ export default defineModule({
         'expenses.iou_due_lent': '{{person}} को {{due}} तक आपको {{outstanding}} लौटाने हैं',
         'expenses.iou_due_borrowed': 'आपको {{due}} तक {{person}} को {{outstanding}} लौटाने हैं',
       },
+      search: {
+        saved_filter: 'सहेजा गया व्यू',
+        loan_lent: 'आपको मिलने हैं',
+        loan_borrowed: 'आपको देने हैं',
+        product: 'कीमतें',
+        entry_expense: 'खर्च',
+        entry_income: 'आमदनी',
+      },
       replies: {
+        'ask-expenses.total.expense': '{{from}} से {{to}} तक आपने {{amount}} खर्च किए।',
+        'ask-expenses.total.income': '{{from}} से {{to}} तक आपको {{amount}} मिले।',
+        'ask-expenses.count.expense': '{{from}} से {{to}} तक {{count}} खर्च।',
+        'ask-expenses.count.income': '{{from}} से {{to}} तक {{count}} बार पैसा आया।',
+        'ask-expenses.average.expense':
+          '{{from}} से {{to}} तक एक खर्च औसतन {{amount}} ({{count}} खर्च)।',
+        'ask-expenses.average.income':
+          '{{from}} से {{to}} तक हर बार औसतन {{amount}} आए ({{count}} बार)।',
+        'ask-expenses.largest.expense': '{{from}} से {{to}} तक सबसे बड़ा खर्च {{amount}} था।',
+        'ask-expenses.largest.income':
+          '{{from}} से {{to}} तक एक बार में सबसे ज़्यादा {{amount}} आए।',
+        'ask-expenses.top.1': '{{from}} से {{to}} तक सब {{first_name}} पर: {{first}}।',
+        'ask-expenses.top.2':
+          '{{from}} से {{to}} तक सबसे ज़्यादा {{first_name}} ({{first}}), फिर {{second_name}} ({{second}})।',
+        'ask-expenses.top.3':
+          '{{from}} से {{to}} तक सबसे ज़्यादा {{first_name}} ({{first}}), फिर {{second_name}} ({{second}}) और {{third_name}} ({{third}})।',
+        'ask-expenses.none': '{{from}} से {{to}} तक कुछ नहीं मिला।',
         'track-expenses.ready.open': 'ये रहे आपके खर्च।',
         'track-expenses.ready.draft': 'मैंने यह समझा है। खर्च में जाँचकर सहेजें।',
         'track-expenses.ready.iou': 'मैंने इसे उधार समझा है। खर्च में जाँचकर सहेजें।',
