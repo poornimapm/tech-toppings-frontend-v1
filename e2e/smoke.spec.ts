@@ -221,6 +221,11 @@ async function stubExpenses(page: Page): Promise<string[]> {
   );
   // Nothing followed yet (stubProducts, registered later, takes over when a test needs them).
   await page.route('**/api/v1/expenses/products**', (route) => route.fulfill({ json: listOf([]) }));
+  // No saved views yet, and rates only for the base currency: the list and form as most start.
+  await page.route('**/api/v1/expenses/saved-filters**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/fx/rates**', (route) =>
+    route.fulfill({ json: { base: 'INR', date: '2026-10-08', rates: {} } }),
+  );
   await page.route('**/api/v1/expenses/categories', (route) =>
     route.fulfill({
       json: listOf([category('groceries', 'expense', '🛒'), category('salary', 'income', '💼')]),
@@ -385,6 +390,10 @@ test('the command palette navigates and asks the assistant', async ({ page }) =>
   );
   await page.route('**/api/v1/agents/proposals/proposal-1/confirm', (route) =>
     route.fulfill({ json: { ...proposal, status: 'confirmed' } }),
+  );
+  // What is typed is also searched for; nothing of the user's matches here.
+  await page.route('**/api/v1/search**', (route) =>
+    route.fulfill({ json: { query: 'pin journal', groups: [] } }),
   );
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
