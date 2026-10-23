@@ -18,6 +18,7 @@ export {
 } from '@/design-system/primitives/filter-chips';
 export { LoadError } from '@/design-system/primitives/load-error';
 export { Meter, type MeterProps, type MeterTone } from '@/design-system/primitives/meter';
+export { Pager, type PagerProps } from '@/design-system/primitives/pager';
 export { PasswordField, type PasswordFieldProps } from '@/design-system/primitives/password-field';
 export { SearchField, type SearchFieldProps } from '@/design-system/primitives/search-field';
 export {
@@ -27,6 +28,7 @@ export {
 } from '@/design-system/primitives/select-field';
 export { Skeleton } from '@/design-system/primitives/skeleton';
 export { Switch, type SwitchProps } from '@/design-system/primitives/switch';
+export { Table, type TableColumn, type TableProps } from '@/design-system/primitives/table';
 export { TextField, type TextFieldProps } from '@/design-system/primitives/text-field';
 export { toast, useToasts, type ToastOptions } from '@/design-system/primitives/toast-store';
 export { Toaster } from '@/design-system/primitives/toaster';

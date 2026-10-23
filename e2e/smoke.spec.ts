@@ -15,6 +15,7 @@ const user = {
   ai_consent: false,
   must_change_password: false,
   has_password: true,
+  two_factor: false,
   auth_providers: [],
   created_at: '2026-10-01T10:00:00Z',
 };
@@ -107,6 +108,11 @@ async function stubApi(
   });
   await page.route('**/api/v1/reminders?*', (route) => route.fulfill({ json: listOf([]) }));
   await page.route('**/api/v1/dashboard?*', (route) => route.fulfill({ json: dashboard }));
+  await page.route('**/api/v1/auth/totp', (route) =>
+    route.fulfill({
+      json: { available: true, enabled: false, enabled_at: null, recovery_codes_left: 0 },
+    }),
+  );
 }
 
 const notifications = [
@@ -336,6 +342,62 @@ test('a signed-out visitor signs in and lands where they were going', async ({ p
 
   await expect(page.getByRole('heading', { name: 'Security' })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Signed in as Asha' })).toBeVisible();
+});
+
+test('with two-step sign-in on, a code finishes signing in', async ({ page }) => {
+  await stubApi(page, { signedIn: false });
+  await page.route('**/api/v1/auth/login', (route) =>
+    route.fulfill({
+      json: { two_factor_required: true, challenge_token: 'e2e-challenge', expires_in: 300 },
+    }),
+  );
+  await page.route('**/api/v1/auth/login/totp', (route) =>
+    route.fulfill({ json: { ...token, user: { ...user, two_factor: true } } }),
+  );
+  await page.goto('/login');
+
+  await page.getByLabel('Email').fill('asha@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('Correct-Horse-42');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByRole('heading', { name: 'Two-step sign-in' })).toBeVisible();
+  await page.getByLabel('Code').fill('123456');
+  await page.getByRole('button', { name: 'Verify' }).click();
+
+  await expect(page.getByRole('navigation', { name: 'Signed in as Asha' })).toBeVisible();
+});
+
+test('an admin reaches the console; it lists accounts', async ({ page }) => {
+  await stubApi(page);
+  const admin = { ...user, role: 'admin' };
+  await page.route('**/api/v1/auth/refresh', (route) =>
+    route.fulfill({ json: { ...token, user: admin } }),
+  );
+  await page.route('**/api/v1/admin/users?*', (route) =>
+    route.fulfill({
+      json: listOf([
+        {
+          id: 'user-2',
+          email: 'bob@example.com',
+          name: 'Bob',
+          role: 'user',
+          created_at: '2026-10-02T10:00:00Z',
+          last_login_at: null,
+          disabled: false,
+          must_change_password: false,
+          two_factor: false,
+          locked: false,
+          providers: [],
+        },
+      ]),
+    }),
+  );
+  await page.goto('/');
+
+  await page.getByRole('link', { name: 'Admin' }).click();
+  await page.getByRole('link', { name: 'Users' }).click();
+  await expect(
+    page.getByRole('table', { name: 'Users' }).getByText('bob@example.com'),
+  ).toBeVisible();
 });
 
 test('database outage is explained, not hidden', async ({ page }) => {

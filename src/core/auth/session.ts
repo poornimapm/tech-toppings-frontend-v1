@@ -46,16 +46,37 @@ function establish(token: TokenResponse): TokenResponse {
   return token;
 }
 
-export async function signIn(credentials: Schemas['LoginIn']): Promise<TokenResponse> {
-  return establish(await unwrap(api.POST('/v1/auth/login', { body: credentials })));
+/** With two-step sign-in on, the first step answers with a challenge instead of a session. */
+export type TwoFactorChallenge = Schemas['TwoFactorChallengeOut'];
+export type SignInResult = TokenResponse | TwoFactorChallenge;
+
+export function needsCode(result: SignInResult): result is TwoFactorChallenge {
+  return 'challenge_token' in result;
+}
+
+function establishOrAsk(result: SignInResult): SignInResult {
+  return needsCode(result) ? result : establish(result);
+}
+
+export async function signIn(credentials: Schemas['LoginIn']): Promise<SignInResult> {
+  return establishOrAsk(await unwrap(api.POST('/v1/auth/login', { body: credentials })));
+}
+
+/** The second step: the challenge and a code from the authenticator app (or a recovery code). */
+export async function finishSignIn(challengeToken: string, code: string): Promise<TokenResponse> {
+  return establish(
+    await unwrap(
+      api.POST('/v1/auth/login/totp', { body: { challenge_token: challengeToken, code } }),
+    ),
+  );
 }
 
 export async function register(details: Schemas['RegisterIn']): Promise<TokenResponse> {
   return establish(await unwrap(api.POST('/v1/auth/register', { body: details })));
 }
 
-export async function signInWithGoogle(idToken: string): Promise<TokenResponse> {
-  return establish(await unwrap(api.POST('/v1/auth/google', { body: { id_token: idToken } })));
+export async function signInWithGoogle(idToken: string): Promise<SignInResult> {
+  return establishOrAsk(await unwrap(api.POST('/v1/auth/google', { body: { id_token: idToken } })));
 }
 
 export async function changePassword(input: Schemas['PasswordChangeIn']): Promise<TokenResponse> {

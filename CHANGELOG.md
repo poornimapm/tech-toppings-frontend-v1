@@ -6,6 +6,54 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 10: admin console, account security
+
+- **Two-step sign-in**:
+  - after the password or Google, sign-in asks for a code from an authenticator app, or a
+    recovery code;
+  - a sign-in that ran out starts over with a reason.
+- **Security page**:
+  - **Two-step sign-in**: set it up (a link for the authenticator app and the key in groups),
+    see recovery codes once (copy or download), get new ones, or turn it off. Turning it on or
+    off asks for the password, or Google again for an account without one, plus a code.
+  - **Your data**: download everything as one JSON file, or delete the account. Deleting asks
+    for the email typed out, the password (or Google again) and a code if two-step is on.
+- **Setting a first password** (an account made with Google): sign in with Google again, plus a
+  code with two-step on.
+- **Admin console** at `/admin`, for admins only. The link sits in the header and the command
+  palette. It has five sections:
+  - **Usage**: accounts, active users, assistant requests and fallback rate, sign-ups per day,
+    AI calls by provider, errors by code, and database size against the quota.
+  - **Users**: search and filter. Each account shows its details and lets you change its role,
+    disable or enable it, sign it out everywhere, or reset its password (the one-time password
+    is shown once). Each change is confirmed first, and a refusal shows in that dialog. Your own
+    account offers no actions.
+  - **Allowlist**: invite by email with a note. Entries from server settings are marked and
+    can't be removed here.
+  - **Modules**: each module's stage and on/off for everyone, with a reset to how it ships.
+  - **Audit log**: filter by action, subject and UTC days, with times in UTC. Opened from an
+    account, it shows that account's entries. Allowlist and module changes show up in it at
+    once.
+- Design system: `Table`, `Pager`, `SelectField` `hideLabel`, and `SearchField` `maxLength`.
+- `core/api/save-file`: any file the API sends, saved under its own name.
+- English, Tamil and Hindi text for all of the above and the new error codes.
+
+### Fixed — Phase 10 review
+
+- After deleting the account, the "account deleted" message and the move to sign-in now happen
+  (they ran from a page that had already closed).
+- A refused Google re-check asks for a new Google sign-in instead of keeping the refused one,
+  and the delete dialog starts empty each time it opens.
+- Delete stays disabled until the two-step code is typed (an empty code counted toward the
+  lockout).
+- The one-time recovery codes stay on screen even when refreshing the status fails.
+- A new setup no longer shows the last attempt's "wrong code" error.
+- Copying recovery codes says so when the clipboard isn't available.
+- The code field takes the focus when sign-in moves to the code step.
+- Admin: only the latest action's error shows; per-row buttons have their own names ("Remove
+  someone@example.com", "Reset Expenses"); search and filter fields stop at the server's
+  limits; the audit log's page goes back to 1 when moving between accounts.
+
 ### Added — Phase 9b: data pack (in progress)
 
 - **Saved views** on the Expenses list: save the filters shown under a name, open them from a

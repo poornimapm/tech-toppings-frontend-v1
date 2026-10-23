@@ -5,6 +5,7 @@ import {
   KeyRound,
   LayoutDashboard,
   ShieldCheck,
+  UserCog,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -17,10 +18,13 @@ export interface PageMeta {
     | 'nav.notifications'
     | 'nav.activity'
     | 'nav.security'
+    | 'nav.admin'
     | 'security.changePassword';
   icon: LucideIcon;
   /** Extra search words for the command palette. */
   keywords: readonly string[];
+  /** Listed only for admins (the API refuses everyone else anyway). */
+  adminOnly?: boolean;
 }
 
 /** The shell's pages: the router mounts them, and the navigation and command palette list them. */
@@ -55,5 +59,12 @@ export const pages = {
     labelKey: 'security.changePassword',
     icon: KeyRound,
     keywords: ['password'],
+  },
+  admin: {
+    path: '/admin',
+    labelKey: 'nav.admin',
+    icon: UserCog,
+    keywords: ['users', 'allowlist', 'audit', 'usage', 'analytics'],
+    adminOnly: true,
   },
 } satisfies Record<string, PageMeta>;

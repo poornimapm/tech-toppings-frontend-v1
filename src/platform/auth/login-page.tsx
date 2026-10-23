@@ -7,11 +7,12 @@ import * as z from 'zod/mini';
 
 import { safeNext } from '@/core/auth/safe-next';
 import { useAuthConfig } from '@/core/auth/queries';
-import { signIn, signInWithGoogle } from '@/core/auth/session';
+import { needsCode, signIn, signInWithGoogle, type SignInResult } from '@/core/auth/session';
 import { Alert, Button, PasswordField, TextField } from '@/design-system';
 import { AuthCard } from '@/platform/auth/auth-card';
 import { describeError } from '@/platform/auth/describe-error';
 import { GoogleSignInButton } from '@/platform/auth/google-sign-in-button';
+import { TwoFactorStep } from '@/platform/auth/two-factor-step';
 import { validationMessage } from '@/platform/auth/validation';
 
 const schema = z.object({
@@ -27,6 +28,7 @@ export function LoginPage() {
   const [params] = useSearchParams();
   const config = useAuthConfig();
   const [failure, setFailure] = useState<string | null>(null);
+  const [challenge, setChallenge] = useState<string | null>(null);
   const form = useForm<LoginForm>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
@@ -34,17 +36,35 @@ export function LoginPage() {
   const { errors, isSubmitting } = form.formState;
   const next = safeNext(params.get('next'));
 
-  const finish = async (attempt: () => Promise<unknown>) => {
+  const goOn = () => navigate(next, { replace: true });
+
+  const finish = async (attempt: () => Promise<SignInResult>) => {
     setFailure(null);
     try {
-      await attempt();
-      await navigate(next, { replace: true });
+      const result = await attempt();
+      if (needsCode(result)) setChallenge(result.challenge_token);
+      else await goOn();
     } catch (error) {
       setFailure(describeError(error, t, tError));
     }
   };
 
   const googleClientId = config.data?.google_client_id;
+
+  if (challenge) {
+    return (
+      <AuthCard title={t('auth.twoFactor.title')}>
+        <TwoFactorStep
+          challenge={challenge}
+          onSignedIn={goOn}
+          onRestart={(reason) => {
+            setChallenge(null);
+            setFailure(reason ?? null);
+          }}
+        />
+      </AuthCard>
+    );
+  }
 
   return (
     <AuthCard title={t('auth.login.title')}>

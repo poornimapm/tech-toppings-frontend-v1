@@ -53,5 +53,18 @@
   "EXPENSE_LEDGER_FULL": "This is full: it can't take more money in or out. Start a new one to carry on.",
   "EXPENSE_RECURRING_NOT_DUE": "That isn't a due date of this bill yet. Mark the next one paid first.",
   "EXPENSE_SETTLEMENT_INVALID": "That payment doesn't fit this loan: pay back no more than is left, on a day from the loan's date to today.",
-  "EXPENSE_IOU_BELOW_SETTLED": "The amount can't be less than what has been paid back already."
+  "EXPENSE_IOU_BELOW_SETTLED": "The amount can't be less than what has been paid back already.",
+  "AUTH_TWO_FACTOR_CODE_INVALID": "That code is wrong or was already used. Try the newest code.",
+  "AUTH_TWO_FACTOR_CHALLENGE_INVALID": "That sign-in took too long. Please sign in again.",
+  "AUTH_TWO_FACTOR_ALREADY_ON": "Two-step sign-in is already on.",
+  "AUTH_TWO_FACTOR_OFF": "Two-step sign-in is off.",
+  "AUTH_TWO_FACTOR_NOT_SET_UP": "Start the setup again, then enter a code.",
+  "AUTH_TWO_FACTOR_UNAVAILABLE": "Two-step sign-in isn't available on this server right now.",
+  "ACCOUNT_CONFIRM_MISMATCH": "That isn't your email address. Type it exactly.",
+  "ACCOUNT_LAST_ADMIN": "You're the only admin. Make someone else an admin first.",
+  "ADMIN_SELF_CHANGE": "Change your own account from your Security page.",
+  "ALLOWLIST_EXISTS": "That email is already on the list.",
+  "ALLOWLIST_IN_SETTINGS": "That email is set in the server settings and can only be removed there.",
+  "AUTH_GOOGLE_REAUTH_REQUIRED": "That Google sign-in is too old or isn't for this account. Sign in with Google again.",
+  "ADMIN_LAST_ADMIN": "At least one active admin must remain."
 }

@@ -26,6 +26,7 @@ export const testUser: Schemas['UserOut'] = {
   ai_consent: false,
   must_change_password: false,
   has_password: true,
+  two_factor: false,
   auth_providers: [],
   created_at: '2026-10-01T10:00:00Z',
 };
@@ -293,6 +294,14 @@ const handlers = [
   http.post('*/api/v1/auth/logout', () => new HttpResponse(null, { status: 204 })),
   http.post('*/api/v1/auth/logout-all', () => new HttpResponse(null, { status: 204 })),
   http.get('*/api/v1/me/sessions', () => HttpResponse.json(testSessions)),
+  http.get('*/api/v1/auth/totp', () =>
+    HttpResponse.json({
+      available: true,
+      enabled: false,
+      enabled_at: null,
+      recovery_codes_left: 0,
+    }),
+  ),
   http.delete('*/api/v1/me/sessions/:id', () => new HttpResponse(null, { status: 204 })),
   http.patch('*/api/v1/me', async ({ request }) =>
     HttpResponse.json({ ...testUser, ...((await request.json()) as object) }),

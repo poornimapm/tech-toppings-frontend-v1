@@ -7,6 +7,8 @@ export interface SearchFieldProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  /** The longest search the server takes: longer words would only be refused. */
+  maxLength?: number;
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -17,7 +19,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 /** Search box: "/" focuses it, Escape clears it. (Ctrl/⌘+K is the command palette.) */
-export function SearchField({ label, value, onChange, placeholder }: SearchFieldProps) {
+export function SearchField({ label, value, onChange, placeholder, maxLength }: SearchFieldProps) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
 
@@ -47,6 +49,7 @@ export function SearchField({ label, value, onChange, placeholder }: SearchField
         aria-keyshortcuts="/"
         value={value}
         placeholder={placeholder}
+        maxLength={maxLength}
         onChange={(event) => {
           onChange(event.target.value);
         }}

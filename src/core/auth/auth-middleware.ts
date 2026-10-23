@@ -1,7 +1,7 @@
 import type { Middleware } from 'openapi-fetch';
 
 /** Endpoints that authenticate with the refresh cookie or credentials, never retried. */
-const CREDENTIAL_ENDPOINT = /\/v1\/auth\/(refresh|login|register|google|logout)$/;
+const CREDENTIAL_ENDPOINT = /\/v1\/auth\/(refresh|login|login\/totp|register|google|logout)$/;
 
 /** 401 codes meaning the session itself is over (sign in again), not just an old token. */
 const SESSION_ENDED = new Set(['AUTH_SESSION_REVOKED', 'AUTH_TOKEN_INVALID', 'UNAUTHENTICATED']);

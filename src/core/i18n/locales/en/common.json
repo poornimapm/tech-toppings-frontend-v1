@@ -128,7 +128,8 @@
     "dashboard": "Dashboard",
     "notifications": "Notifications",
     "activity": "Activity",
-    "main": "Main"
+    "main": "Main",
+    "admin": "Admin"
   },
   "auth": {
     "restoring": "Signing you in…",
@@ -159,7 +160,9 @@
       "current": "Current password",
       "currentOneTime": "One-time or current password",
       "new": "New password",
-      "submit": "Save new password"
+      "submit": "Save new password",
+      "setTitle": "Set a password",
+      "setBody": "Your account signs in with Google. To add a password, sign in with Google again to confirm it's you."
     },
     "google": {
       "divider": "or"
@@ -178,7 +181,15 @@
       "mismatch": "Passwords don't match.",
       "tooLong": "That's too long."
     },
-    "lockedFor": "Too many attempts. Try again in {{minutes}} min."
+    "lockedFor": "Too many attempts. Try again in {{minutes}} min.",
+    "twoFactor": {
+      "title": "Two-step sign-in",
+      "prompt": "Enter the 6-digit code from your authenticator app.",
+      "code": "Code",
+      "recoveryHint": "Lost your phone? Enter one of your recovery codes instead.",
+      "submit": "Verify",
+      "back": "Back to sign in"
+    }
   },
   "security": {
     "title": "Security",
@@ -190,7 +201,49 @@
     "signOutEverywhere": "Sign out of all devices",
     "confirmEverywhere": "Sign out of every device, including this one?",
     "changePassword": "Change password",
-    "empty": "No other devices are signed in."
+    "empty": "No other devices are signed in.",
+    "twoFactor": {
+      "title": "Two-step sign-in",
+      "unavailable": "Two-step sign-in isn't available on this server yet.",
+      "explain": "Each time you sign in, also enter a code from an authenticator app on your phone, so a stolen password alone can't get in.",
+      "start": "Set up two-step sign-in",
+      "scan": "Add this account to your authenticator app (Google Authenticator, Aegis, 2FAS or any TOTP app).",
+      "openApp": "Open in authenticator app",
+      "typeKey": "Or type this key into the app:",
+      "enterCode": "Enter the 6-digit code the app shows.",
+      "turnOn": "Turn on",
+      "on": "Two-step sign-in is on.",
+      "onSince": "On since {{date}}.",
+      "codesLeft_one": "{{count}} recovery code left.",
+      "codesLeft_other": "{{count}} recovery codes left.",
+      "renew": "New recovery codes",
+      "turnOff": "Turn off",
+      "turnedOff": "Two-step sign-in is off.",
+      "codesOnce": "Save these recovery codes somewhere safe. Each one signs you in once if you lose your phone. They won't be shown again.",
+      "codesLabel": "Recovery codes",
+      "copy": "Copy",
+      "copied": "Copied.",
+      "download": "Download",
+      "saved": "I've saved them",
+      "copyFailed": "Couldn't copy. Download the codes or write them down instead."
+    },
+    "data": {
+      "title": "Your data",
+      "exportExplain": "Download everything the app keeps about you as one JSON file.",
+      "export": "Export my data",
+      "deleteExplain": "Delete your account and everything in it. This can't be undone.",
+      "delete": "Delete account",
+      "deleteTitle": "Delete your account?",
+      "deleteWarning": "Everything you've added, your settings and your devices will be erased for good. Export your data first if you want a copy.",
+      "confirmEmail": "Type your email ({{email}}) to confirm",
+      "deleteForGood": "Delete for good",
+      "deleted": "Your account was deleted."
+    },
+    "reauth": {
+      "googleAgain": "Sign in with Google again to confirm it's you.",
+      "googleConfirmed": "Confirmed with Google.",
+      "noGoogle": "Google sign-in isn't available right now, so this can't be confirmed. An admin can reset your password."
+    }
   },
   "actions": {
     "cancel": "Cancel",
@@ -199,7 +252,11 @@
     "clearSearch": "Clear search",
     "undo": "Undo",
     "retry": "Try again",
-    "showMore": "Show more"
+    "showMore": "Show more",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}}",
+    "pages": "Pages"
   },
   "notifications": "Notifications",
   "module": {
@@ -388,6 +445,155 @@
         "mark-read_one": "Mark {{count}} notification as read",
         "mark-read_other": "Mark {{count}} notifications as read"
       }
+    }
+  },
+  "admin": {
+    "title": "Admin",
+    "nav": {
+      "usage": "Usage",
+      "users": "Users",
+      "allowlist": "Allowlist",
+      "modules": "Modules",
+      "audit": "Audit log"
+    },
+    "usage": {
+      "span": "Period",
+      "days_one": "Last {{count}} day",
+      "days_other": "Last {{count}} days",
+      "totalUsers": "Accounts",
+      "activeUsers": "Signed in during the period",
+      "aiRuns": "Assistant requests",
+      "fallbackRate": "Answered by rules instead of AI",
+      "percent": "{{value}}%",
+      "signups": "Sign-ups per day",
+      "assistant": "Assistant",
+      "byAi": "Answered by AI",
+      "byRules": "Answered by rules",
+      "fellBack": "Rules because AI couldn't",
+      "providerCalls": "AI calls: {{provider}}",
+      "errors": "Errors by code",
+      "noErrors": "No errors in this period.",
+      "code": "Code",
+      "count": "Times",
+      "database": "Database",
+      "mb": "{{value}} MB",
+      "storage": "Storage",
+      "used": "{{used}} of {{quota}} used ({{pct}}%)",
+      "collections": "Collections",
+      "collection": "Collection",
+      "records": "Records",
+      "indexes": "Indexes"
+    },
+    "users": {
+      "search": "Search name or email",
+      "role": "Role",
+      "anyRole": "Any role",
+      "roles": {
+        "admin": "Admin",
+        "user": "User"
+      },
+      "state": "Status",
+      "states": {
+        "active": "Active",
+        "disabled": "Disabled",
+        "all": "All"
+      },
+      "none": "No accounts match.",
+      "account": "Account",
+      "status": "Status",
+      "lastSignIn": "Last sign-in",
+      "never": "Never",
+      "disabled": "Disabled",
+      "locked": "Locked",
+      "mustChange": "Must change password",
+      "twoFactor": "Two-step on"
+    },
+    "user": {
+      "joined": "Joined",
+      "google": "Google sign-in",
+      "linked": "Linked",
+      "notLinked": "Not linked",
+      "devices": "Devices",
+      "liveSessions_one": "{{count}} signed-in device",
+      "liveSessions_other": "{{count}} signed-in devices",
+      "trail": "See this account's audit log",
+      "oneTime": "One-time password: give it to them privately. It is shown only now; they must choose a new password when they sign in.",
+      "actions": "Actions",
+      "self": "This is your own account. Change it from your Security page.",
+      "roleSaved": "Role saved.",
+      "enable": "Enable account",
+      "disable": "Disable account",
+      "revoke": "Sign out everywhere",
+      "reset": "Reset password",
+      "confirm": "Yes, do it",
+      "disableTitle": "Disable {{name}}'s account?",
+      "disableBody": "They're signed out everywhere and can't sign in until you enable the account again. Nothing is deleted.",
+      "enableTitle": "Enable {{name}}'s account?",
+      "enableBody": "They can sign in again.",
+      "revokeTitle": "Sign {{name}} out everywhere?",
+      "revokeBody": "Every device they're signed in on has to sign in again.",
+      "revoked_one": "{{count}} device signed out.",
+      "revoked_other": "{{count}} devices signed out.",
+      "resetTitle": "Reset {{name}}'s password?",
+      "resetBody": "You'll get a one-time password to give them. Their devices are signed out and two-step sign-in is turned off, so they can get back in.",
+      "roleTitle": "Change {{name}}'s role to {{role}}?",
+      "roleBody": "Every device they're signed in on has to sign in again. The change is kept in the audit log."
+    },
+    "allowlist": {
+      "mode": {
+        "open": "Registration is open to anyone right now, so this list isn't used until it's switched to invitation only.",
+        "closed": "Registration is closed right now, so nobody can register, even from this list."
+      },
+      "add": "Invite someone",
+      "note": "Note (optional)",
+      "addButton": "Add",
+      "added": "{{email}} can now register.",
+      "none": "Nobody is on the list yet.",
+      "source": "From",
+      "sources": {
+        "settings": "Server settings",
+        "admin": "Added here"
+      },
+      "addedAt": "Added",
+      "remove": "Remove",
+      "removeOne": "Remove {{email}}"
+    },
+    "modules": {
+      "explain": "Changes here apply to everyone. Reset puts a module back to how it ships.",
+      "module": "Module",
+      "stage": "Stage",
+      "stageOf": "Stage of {{name}}",
+      "stages": {
+        "live": "Live",
+        "beta": "Beta",
+        "coming_soon": "Coming soon"
+      },
+      "on": "On for everyone",
+      "onFor": "{{name}} on for everyone",
+      "reset": "Reset",
+      "resetHint": "Back to the module's own settings",
+      "resetOne": "Reset {{name}}"
+    },
+    "audit": {
+      "action": "Action",
+      "entity": "About",
+      "anyEntity": "Anything",
+      "entities": {
+        "user": "Accounts",
+        "allowed_email": "Allowlist",
+        "module": "Modules"
+      },
+      "from": "From (UTC)",
+      "to": "To (UTC)",
+      "forOne": "Showing one account's entries.",
+      "everyone": "Show everyone's",
+      "none": "Nothing recorded for these filters.",
+      "when": "When (UTC)",
+      "who": "By",
+      "whose": "Account",
+      "details": "Details",
+      "ip": "IP address",
+      "system": "System"
     }
   }
 }

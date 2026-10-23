@@ -14,8 +14,39 @@ import { RouteErrorPage } from '@/platform/shell/route-error-page';
  * /change-password         signed in; also the only page while a reset password is pending
  * /, /dashboard, /notifications, /activity, /account/security
  *                          signed in with a password of their own (RequirePasswordFresh)
+ * /admin/*                 admins only: usage, users, allowlist, modules, audit
  * /m/<slug>/*              a module's own pages, while it is available to the user
  */
+
+const adminRoutes: RouteObject[] = [
+  {
+    index: true,
+    lazy: async () => ({ Component: (await import('@/platform/admin/usage-page')).UsagePage }),
+  },
+  {
+    path: 'users',
+    lazy: async () => ({ Component: (await import('@/platform/admin/users-page')).UsersPage }),
+  },
+  {
+    path: 'users/:userId',
+    lazy: async () => ({ Component: (await import('@/platform/admin/user-page')).UserPage }),
+  },
+  {
+    path: 'allowlist',
+    lazy: async () => ({
+      Component: (await import('@/platform/admin/allowlist-page')).AllowlistPage,
+    }),
+  },
+  {
+    path: 'modules',
+    lazy: async () => ({ Component: (await import('@/platform/admin/modules-page')).ModulesPage }),
+  },
+  {
+    path: 'audit',
+    lazy: async () => ({ Component: (await import('@/platform/admin/audit-page')).AuditPage }),
+  },
+];
+
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -81,6 +112,13 @@ export const routes: RouteObject[] = [
                 lazy: async () => ({
                   Component: (await import('@/platform/auth/security-page')).SecurityPage,
                 }),
+              },
+              {
+                path: pages.admin.path.slice(1),
+                lazy: async () => ({
+                  Component: (await import('@/platform/admin/admin-layout')).AdminLayout,
+                }),
+                children: adminRoutes,
               },
               ...moduleRoutes(),
             ],

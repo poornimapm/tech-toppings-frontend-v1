@@ -1,10 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import { useSession } from '@/core/auth/session-store';
 import { useThemeStore } from '@/core/theme/theme-store';
+import { fakeGoogle } from '@/test/google';
 import { authConfig, errorEnvelope, server, signedOut, testUser, tokenFor } from '@/test/msw';
 import { renderApp } from '@/test/render';
 
@@ -141,23 +142,10 @@ describe('sign in', () => {
         return HttpResponse.json(tokenFor());
       }),
     );
-    let callback: ((response: { credential: string }) => void) | undefined;
-    window.google = {
-      accounts: {
-        id: {
-          initialize: vi.fn((options: { callback: (r: { credential: string }) => void }) => {
-            callback = options.callback;
-          }),
-          renderButton: vi.fn(),
-        },
-      },
-    };
+    const google = fakeGoogle();
     renderApp('/login');
 
-    await waitFor(() => {
-      expect(callback).toBeDefined();
-    });
-    callback?.({ credential: 'google-id-token' });
+    await google.signIn('google-id-token');
 
     expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
     expect(posted).toEqual({ id_token: 'google-id-token' });
@@ -284,6 +272,42 @@ describe('changing the password', () => {
     await user.click(screen.getByRole('button', { name: 'Save new password' }));
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/');
+    });
+  });
+
+  it('lets a Google-only account set its first password with Google again and a code', async () => {
+    let sent: unknown = null;
+    server.use(
+      http.get('*/api/v1/auth/config', () =>
+        HttpResponse.json({ ...authConfig, google_client_id: 'client-1' }),
+      ),
+      http.post('*/api/v1/auth/refresh', () =>
+        HttpResponse.json(tokenFor({ has_password: false, two_factor: true })),
+      ),
+      http.post('*/api/v1/auth/password/change', async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json(tokenFor());
+      }),
+    );
+    const google = fakeGoogle();
+    const { user, router } = renderApp('/change-password');
+
+    expect(await screen.findByRole('heading', { name: 'Set a password' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Current password')).toBeNull();
+    await user.type(screen.getByLabelText('New password'), 'Brand-New-Pass-7');
+    await user.type(screen.getByLabelText('Confirm password'), 'Brand-New-Pass-7');
+    await user.type(screen.getByLabelText('Code'), '123456');
+    expect(screen.getByRole('button', { name: 'Save new password' })).toBeDisabled();
+
+    await google.signIn('fresh-google-token');
+    await user.click(await screen.findByRole('button', { name: 'Save new password' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/');
+    });
+    expect(sent).toEqual({
+      new_password: 'Brand-New-Pass-7',
+      google_id_token: 'fresh-google-token',
+      code: '123456',
     });
   });
 });

@@ -14,6 +14,8 @@ export interface SelectFieldProps extends Omit<ComponentProps<'select'>, 'childr
   placeholder?: string;
   /** Validation message; marks the select invalid and is announced with it. */
   error?: string | undefined;
+  /** Keep the label for screen readers only (e.g. in a table row, under a column heading). */
+  hideLabel?: boolean;
 }
 
 /** A labelled native select: the platform's own picker on phones, and fully keyboard-operable. */
@@ -22,6 +24,7 @@ export function SelectField({
   options,
   placeholder,
   error,
+  hideLabel = false,
   id,
   className,
   ...select
@@ -31,7 +34,7 @@ export function SelectField({
   const errorId = `${selectId}-error`;
   return (
     <div className={cx('space-y-1', className)}>
-      <label htmlFor={selectId} className="block text-sm font-medium">
+      <label htmlFor={selectId} className={hideLabel ? 'sr-only' : 'block text-sm font-medium'}>
         {label}
       </label>
       <select

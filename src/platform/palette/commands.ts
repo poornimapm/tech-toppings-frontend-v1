@@ -13,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
+import { useSession } from '@/core/auth/session-store';
 import { useSavePreferences } from '@/core/auth/use-save-preferences';
 import { useSignOut } from '@/core/auth/use-sign-out';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
@@ -42,7 +43,11 @@ const THEME_ICONS: Record<ThemePreference, LucideIcon> = {
 function usePageCommands(): Command[] {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  return Object.entries(pages).map(([id, page]) => ({
+  const isAdmin = useSession((state) => state.user?.role === 'admin');
+  const visible = Object.entries(pages).filter(
+    ([, page]) => isAdmin || !('adminOnly' in page && page.adminOnly),
+  );
+  return visible.map(([id, page]) => ({
     id: `page:${id}`,
     group: 'pages',
     label: t(page.labelKey),

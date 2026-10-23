@@ -8,7 +8,9 @@ import type { components } from '@/core/api/schema';
 import { userKeys } from '@/core/auth/queries';
 import { signOutEverywhere } from '@/core/auth/session';
 import { relativeTime } from '@/core/utils/relative-time';
+import { DataCard } from '@/platform/auth/data-card';
 import { describeDevice } from '@/platform/auth/device';
+import { TwoFactorCard } from '@/platform/auth/two-factor-card';
 import { Button, Card } from '@/design-system';
 
 type Session = components['schemas']['SessionOut'];
@@ -124,6 +126,8 @@ export function SecurityPage() {
           </Button>
         )}
       </div>
+      <TwoFactorCard />
+      <DataCard />
     </div>
   );
 }
