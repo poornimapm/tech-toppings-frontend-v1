@@ -1,5 +1,6 @@
-import { animate, m, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { useMediaQuery } from '@/core/utils/use-media-query';
 
 export interface AnimatedNumberProps {
   value: number;
@@ -10,10 +11,17 @@ export interface AnimatedNumberProps {
   className?: string;
 }
 
-/** A figure that counts up to its value. Screen readers get only the final value. */
+const DURATION_MS = 900;
+/** Quick start, gentle landing (close to the cubic-bezier(0.16, 1, 0.3, 1) it replaces). */
+const easeOut = (progress: number) => 1 - (1 - progress) ** 4;
+
+/** A figure that counts up to its value. Screen readers get only the final value. A few lines
+ *  of requestAnimationFrame, so pages that show figures load no animation engine for it. */
 export function AnimatedNumber({ value, locale, currency, className }: AnimatedNumberProps) {
-  const reduceMotion = useReducedMotion();
-  const count = useMotionValue(0);
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const [counted, setCounted] = useState(0);
+  /** Where the count is now: a new value counts on from there. */
+  const current = useRef(0);
   const format = useMemo(() => {
     const formatter = new Intl.NumberFormat(
       locale,
@@ -21,22 +29,29 @@ export function AnimatedNumber({ value, locale, currency, className }: AnimatedN
     );
     return (n: number) => formatter.format(Math.round(n));
   }, [locale, currency]);
-  const text = useTransform(count, format);
 
   useEffect(() => {
     if (reduceMotion) {
-      count.set(value);
+      current.current = value;
       return undefined;
     }
-    const controls = animate(count, value, { duration: 0.9, ease: [0.16, 1, 0.3, 1] });
+    const from = current.current;
+    let start: number | undefined; // the first frame's time: frames carry their own clock
+    let frame = requestAnimationFrame(function step(now) {
+      start ??= now;
+      const progress = Math.min((now - start) / DURATION_MS, 1);
+      current.current = from + (value - from) * easeOut(progress);
+      setCounted(current.current);
+      if (progress < 1) frame = requestAnimationFrame(step);
+    });
     return () => {
-      controls.stop();
+      cancelAnimationFrame(frame);
     };
-  }, [count, value, reduceMotion]);
+  }, [value, reduceMotion]);
 
   return (
     <span className={className}>
-      <m.span aria-hidden="true">{text}</m.span>
+      <span aria-hidden="true">{format(reduceMotion ? value : counted)}</span>
       <span className="sr-only">{format(value)}</span>
     </span>
   );

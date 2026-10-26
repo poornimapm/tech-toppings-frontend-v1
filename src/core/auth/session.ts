@@ -1,7 +1,9 @@
 import { ApiError } from '@/core/api/api-error';
 import { api, unwrap } from '@/core/api/client';
 import type { components } from '@/core/api/schema';
+import { runSignOutSteps } from '@/core/auth/device-cleanup';
 import { useSession, type TokenResponse } from '@/core/auth/session-store';
+import { env } from '@/core/config/env';
 
 type Schemas = components['schemas'];
 
@@ -83,9 +85,12 @@ export async function changePassword(input: Schemas['PasswordChangeIn']): Promis
   return establish(await unwrap(api.POST('/v1/auth/password/change', { body: input })));
 }
 
-/** Sign out this device. Local state is cleared even if the server can't be reached. */
+/** Sign out this device. Local state is cleared even if the server can't be reached. Features'
+ *  own sign-out steps run first, while the token still works; a server still waking up is
+ *  not waited for. */
 export async function signOut(): Promise<void> {
   try {
+    await runSignOutSteps(env.wakeThresholdMs);
     await unwrap(api.POST('/v1/auth/logout'));
   } finally {
     useSession.getState().clear();
@@ -94,6 +99,7 @@ export async function signOut(): Promise<void> {
 
 export async function signOutEverywhere(): Promise<void> {
   try {
+    await runSignOutSteps(env.wakeThresholdMs);
     await unwrap(api.POST('/v1/auth/logout-all'));
   } finally {
     useSession.getState().clear();

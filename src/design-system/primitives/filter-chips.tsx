@@ -1,6 +1,3 @@
-import { m } from 'motion/react';
-import { useId } from 'react';
-
 import { cx } from '@/core/utils/cx';
 
 export interface FilterChip<T extends string> {
@@ -16,14 +13,14 @@ export interface FilterChipsProps<T extends string> {
   onChange: (value: T) => void;
 }
 
-/** One-of-many filter as pill buttons; the highlight glides to the selected chip. */
+/** One-of-many filter as pill buttons; the highlight grows in under the selected chip (CSS
+ *  only: pages that show chips before their first paint load no animation library). */
 export function FilterChips<T extends string>({
   label,
   chips,
   value,
   onChange,
 }: FilterChipsProps<T>) {
-  const highlightId = useId();
   return (
     <div role="group" aria-label={label} className="flex flex-wrap gap-2">
       {chips.map((chip) => {
@@ -33,7 +30,6 @@ export function FilterChips<T extends string>({
             key={chip.value}
             type="button"
             aria-pressed={selected}
-            aria-label={chip.count === undefined ? undefined : `${chip.label} (${chip.count})`}
             onClick={() => {
               onChange(chip.value);
             }}
@@ -45,23 +41,27 @@ export function FilterChips<T extends string>({
             )}
           >
             {selected && (
-              <m.span
-                layoutId={highlightId}
+              <span
                 aria-hidden="true"
-                className="absolute inset-0 -z-10 rounded-full bg-primary shadow-md shadow-primary/30"
-                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                className="absolute inset-0 -z-10 rounded-full bg-primary shadow-md shadow-primary/30 transition-[opacity,scale] duration-200 ease-out starting:scale-75 starting:opacity-0"
               />
             )}
             {chip.label}
+            {/* Named from its words ("All (4)"), never a label that differs from what shows. */}
             {chip.count !== undefined && (
-              <span
-                className={cx(
-                  'rounded-full px-1.5 text-xs tabular-nums',
-                  selected ? 'bg-primary-contrast/20' : 'bg-bg text-muted',
-                )}
-              >
-                {chip.count}
-              </span>
+              <>
+                {' '}
+                <span className="sr-only">({chip.count})</span>
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'rounded-full px-1.5 text-xs tabular-nums',
+                    selected ? 'bg-primary-contrast/20' : 'bg-bg text-muted',
+                  )}
+                >
+                  {chip.count}
+                </span>
+              </>
             )}
           </button>
         );

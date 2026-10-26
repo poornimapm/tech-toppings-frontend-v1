@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, unwrap } from '@/core/api/client';
 import type { components } from '@/core/api/schema';
 import { saveFile } from '@/core/api/save-file';
+import { forgetAccount } from '@/core/auth/device-cleanup';
 import { userKeys } from '@/core/auth/queries';
 import { useSession } from '@/core/auth/session-store';
+import { env } from '@/core/config/env';
 
 type Schemas = components['schemas'];
 export type TwoFactorStatus = Schemas['TwoFactorOut'];
@@ -67,7 +69,8 @@ export function useExportData() {
 }
 
 /**
- * Delete the account for good; on success the session is gone and so is the user's cached data.
+ * Delete the account for good; on success the session is gone and so is the user's cached data,
+ * including what this device kept for it (offline items, drafts).
  * `onDeleted` runs first: clearing the session unmounts the page that asked, and a callback
  * passed to `mutate` would never run.
  */
@@ -75,7 +78,9 @@ export function useDeleteAccount(onDeleted: () => void) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: AccountDeleteIn) => unwrap(api.DELETE('/v1/me', { body })),
-    onSuccess: () => {
+    onSuccess: async () => {
+      const owner = useSession.getState().user?.id;
+      if (owner) await forgetAccount(owner, env.wakeThresholdMs);
       onDeleted();
       useSession.getState().clear();
       queryClient.removeQueries({ queryKey: userKeys.all });

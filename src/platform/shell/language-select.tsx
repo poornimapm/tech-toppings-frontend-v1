@@ -2,8 +2,10 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSavePreferences } from '@/core/auth/use-save-preferences';
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
+import { LANGUAGE_NAMES, shownLanguage, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
 
+/** Shows the language actually shown, not the one chosen: after a failed download that is
+ *  English, so choosing the other language again is a change, and retries it. */
 export function LanguageSelect() {
   const { t, i18n } = useTranslation();
   const savePreferences = useSavePreferences();
@@ -16,7 +18,7 @@ export function LanguageSelect() {
       </label>
       <select
         id={id}
-        value={toLanguage(i18n.resolvedLanguage)}
+        value={shownLanguage()}
         onChange={(event) => {
           const language = toLanguage(event.target.value);
           void i18n.changeLanguage(language);

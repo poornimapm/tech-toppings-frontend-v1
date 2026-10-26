@@ -3,6 +3,9 @@ import type { CSSProperties } from 'react';
 import { slugOf } from '@/core/modules/registry';
 import type { ModuleTile } from '@/core/modules/types';
 
+/** The tile grid, and its placeholders while tiles load. */
+export const TILE_GRID = 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3';
+
 /** CSS variables that point the `tile` / `tile-soft` colours at the module's accent pair. */
 export function accentStyle(tile: ModuleTile): CSSProperties {
   const accent = tile.definition.accent;

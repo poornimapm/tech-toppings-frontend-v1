@@ -13,6 +13,9 @@ export function createQueryClient(): QueryClient {
         // Retry only failures that a retry can fix (network, cold start); never 4xx.
         retry: (failureCount, error) => isTransient(error) && failureCount < MAX_TRANSIENT_RETRIES,
       },
+      // A change made with no network is tried at once and fails (or waits in the outbox,
+      // ADR-0010), instead of hanging, paused in memory, until the device is back online.
+      mutations: { networkMode: 'always' },
     },
   });
 }

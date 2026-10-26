@@ -66,5 +66,7 @@
   "ALLOWLIST_EXISTS": "That email is already on the list.",
   "ALLOWLIST_IN_SETTINGS": "That email is set in the server settings and can only be removed there.",
   "AUTH_GOOGLE_REAUTH_REQUIRED": "That Google sign-in is too old or isn't for this account. Sign in with Google again.",
-  "ADMIN_LAST_ADMIN": "At least one active admin must remain."
+  "ADMIN_LAST_ADMIN": "At least one active admin must remain.",
+  "PUSH_UNAVAILABLE": "Notifications on devices aren't set up on this server.",
+  "PUSH_ENDPOINT_NOT_ALLOWED": "This browser's notification service isn't one the server sends to."
 }

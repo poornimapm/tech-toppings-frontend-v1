@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -200,6 +200,52 @@ describe('expenses list', () => {
     expect(await screen.findByText('Added rice')).toBeInTheDocument();
     expect(saves()).toHaveLength(1);
     expect(checks()).toHaveLength(asked); // not checked again while saving: it would find itself
+  });
+
+  it('asks before a half-filled entry is left for another page', async () => {
+    const { user, router } = await open();
+    await user.click(screen.getByRole('button', { name: 'Add entry' }));
+    const form = within(await screen.findByRole('dialog', { name: 'Add an entry' }));
+    await user.type(form.getByRole('textbox', { name: 'Amount (INR)' }), '250');
+
+    await act(() => router.navigate('/notifications')); // e.g. a notification clicked
+    const ask = await screen.findByRole('dialog', { name: 'Leave without saving?' });
+    await user.click(within(ask).getByRole('button', { name: 'Keep editing' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Leave without saving?' })).toBeNull();
+    });
+    expect(router.state.location.pathname).toBe('/m/expenses');
+    expect(form.getByRole('textbox', { name: 'Amount (INR)' })).toHaveValue('250');
+
+    await act(() => router.navigate('/notifications'));
+    const again = await screen.findByRole('dialog', { name: 'Leave without saving?' });
+    await user.click(within(again).getByRole('button', { name: 'Leave without saving' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/notifications');
+    });
+  });
+
+  it('leaves an entry form without asking when nothing was typed', async () => {
+    const { user, router } = await open();
+    await user.click(screen.getByRole('button', { name: 'Add entry' }));
+    await screen.findByRole('dialog', { name: 'Add an entry' });
+
+    await act(() => router.navigate('/notifications'));
+
+    expect(router.state.location.pathname).toBe('/notifications');
+    expect(screen.queryByRole('dialog', { name: 'Leave without saving?' })).toBeNull();
+  });
+
+  it('asks before words typed to be read are left', async () => {
+    const { user, router } = await open();
+    await user.type(screen.getByRole('textbox', { name: 'Say or type what you spent' }), 'tea 15');
+
+    await act(() => router.navigate('/m/expenses?show=income')); // the page stays: no question
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await act(() => router.navigate('/notifications'));
+
+    expect(await screen.findByRole('dialog', { name: 'Leave without saving?' })).toBeVisible();
+    expect(router.state.location.pathname).toBe('/m/expenses');
   });
 
   it('shows deleted entries and brings one back', async () => {

@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router';
 
 import type { components } from '@/core/api/schema';
 import type { Language } from '@/core/i18n';
+import type { OutboxSender } from '@/core/offline/outbox';
 
 /** A module as the API reports it for the signed-in user (status, availability, stat ...). */
 export type ModuleView = components['schemas']['ModuleView'];
@@ -60,6 +61,9 @@ export interface ModuleDefinition {
   /** Where a notification leads, by its code: a path under `/m/<slug>` with `{{param}}`s filled
    *  from the notification (otherwise it leads to the module's home). */
   links?: Record<string, string>;
+  /** How the module sends what was made offline, by outbox item kind (`<key>.<what>`): loaded
+   *  only when such an item waits, so it costs the first page nothing. */
+  outbox?: Record<string, () => Promise<OutboxSender>>;
 }
 
 /** A module ready to render: the API's view merged with its frontend definition. */

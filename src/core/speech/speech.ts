@@ -9,12 +9,15 @@ import type { Language } from '@/core/i18n';
  * app works the same without it.
  */
 
+/** One stretch of speech: its best guess first, and whether the browser has settled on it. */
+export type RecognitionResult = ArrayLike<{ transcript: string }> & { isFinal: boolean };
+
 /** The parts of the (still vendor-prefixed) recognition API this app uses. */
 interface Recognition {
   lang: string;
   interimResults: boolean;
   continuous: boolean;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onresult: ((event: { results: ArrayLike<RecognitionResult> }) => void) | null;
   onerror: ((event: { error: string }) => void) | null;
   onend: (() => void) | null;
   start: () => void;
@@ -45,9 +48,13 @@ export interface Dictation {
 
 /**
  * Dictation in the given language. `onText` gets everything heard so far each time it
- * changes, so the caller can show it live and let the user correct it before using it.
+ * changes, so the caller can show it live and let the user correct it before using it;
+ * `final` says the browser has settled on the words (the utterance is over).
  */
-export function useDictation(language: Language, onText: (text: string) => void): Dictation {
+export function useDictation(
+  language: Language,
+  onText: (text: string, final: boolean) => void,
+): Dictation {
   const [listening, setListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const active = useRef<Recognition | null>(null);
@@ -65,8 +72,9 @@ export function useDictation(language: Language, onText: (text: string) => void)
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.onresult = (event) => {
-      const parts = Array.from(event.results, (result) => result[0]?.transcript ?? '');
-      heard.current(parts.join(' ').trim());
+      const results = Array.from(event.results);
+      const text = results.map((result) => result[0]?.transcript ?? '').join(' ');
+      heard.current(text.trim(), results.length > 0 && results.every((result) => result.isFinal));
     };
     recognition.onerror = (event) => {
       setError(event.error);

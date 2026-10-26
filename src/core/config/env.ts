@@ -1,25 +1,10 @@
-import * as z from 'zod/mini'; // tree-shakable build of zod: only what's used ships
-
 /**
  * Browser-visible configuration, validated once at startup.
  * Values come from VITE_* variables (.env / host build settings); every one has a safe default.
  * Never put secrets here: VITE_* values are embedded in the public bundle.
+ * (Checked by hand rather than with zod: this runs on every first page, which zod would weigh.)
  */
-const text = (fallback: string) => z._default(z.string().check(z.trim(), z.minLength(1)), fallback);
-const milliseconds = (fallback: number) =>
-  z._default(z.coerce.number().check(z.int(), z.positive()), fallback);
-
-const schema = z.object({
-  VITE_APP_NAME: text('Tech-Toppings'),
-  VITE_API_BASE_URL: text('/api'),
-  VITE_WAKE_THRESHOLD_MS: milliseconds(3000),
-  VITE_WAKE_MAX_WAIT_MS: milliseconds(90_000),
-  VITE_HEALTH_POLL_MS: milliseconds(60_000),
-  VITE_CSRF_HEADER: text('X-TT-CSRF'),
-  VITE_ASSISTANT_AGENT: text('assistant'),
-  VITE_NOTIFICATIONS_POLL_MS: milliseconds(60_000),
-  VITE_SPEECH_REGION: text('IN'),
-});
+type Raw = Record<string, unknown>;
 
 export interface AppEnv {
   appName: string;
@@ -37,23 +22,41 @@ export interface AppEnv {
   speechRegion: string;
 }
 
-export function parseEnv(raw: Record<string, unknown>): AppEnv {
-  const result = schema.safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid environment configuration:\n${z.prettifyError(result.error)}`);
-  }
-  const value = result.data;
-  return {
-    appName: value.VITE_APP_NAME,
-    apiBaseUrl: value.VITE_API_BASE_URL,
-    wakeThresholdMs: value.VITE_WAKE_THRESHOLD_MS,
-    wakeMaxWaitMs: value.VITE_WAKE_MAX_WAIT_MS,
-    healthPollMs: value.VITE_HEALTH_POLL_MS,
-    csrfHeader: value.VITE_CSRF_HEADER,
-    assistantAgent: value.VITE_ASSISTANT_AGENT,
-    notificationsPollMs: value.VITE_NOTIFICATIONS_POLL_MS,
-    speechRegion: value.VITE_SPEECH_REGION,
+export function parseEnv(raw: Raw): AppEnv {
+  const problems: string[] = [];
+  /** Unset: the default; set: trimmed, and never empty. */
+  const text = (name: string, fallback: string): string => {
+    const given = raw[name];
+    if (given === undefined) return fallback;
+    const value = typeof given === 'string' ? given.trim() : '';
+    if (!value) problems.push(`${name}: must not be empty`);
+    return value;
   };
+  /** Unset: the default; set: a whole number of milliseconds above zero. */
+  const milliseconds = (name: string, fallback: number): number => {
+    if (raw[name] === undefined) return fallback;
+    const value = Number(raw[name]);
+    if (!Number.isInteger(value) || value <= 0) {
+      problems.push(`${name}: must be a whole number above 0`);
+    }
+    return value;
+  };
+
+  const env: AppEnv = {
+    appName: text('VITE_APP_NAME', 'Tech-Toppings'),
+    apiBaseUrl: text('VITE_API_BASE_URL', '/api'),
+    wakeThresholdMs: milliseconds('VITE_WAKE_THRESHOLD_MS', 3000),
+    wakeMaxWaitMs: milliseconds('VITE_WAKE_MAX_WAIT_MS', 90_000),
+    healthPollMs: milliseconds('VITE_HEALTH_POLL_MS', 60_000),
+    csrfHeader: text('VITE_CSRF_HEADER', 'X-TT-CSRF'),
+    assistantAgent: text('VITE_ASSISTANT_AGENT', 'assistant'),
+    notificationsPollMs: milliseconds('VITE_NOTIFICATIONS_POLL_MS', 60_000),
+    speechRegion: text('VITE_SPEECH_REGION', 'IN'),
+  };
+  if (problems.length) {
+    throw new Error(`Invalid environment configuration:\n${problems.join('\n')}`);
+  }
+  return env;
 }
 
 export const env: AppEnv = parseEnv(import.meta.env);

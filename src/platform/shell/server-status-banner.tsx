@@ -5,13 +5,24 @@ import { Button } from '@/design-system';
 
 interface Props {
   status: ServerStatus;
+  /** The device has no network at all: that, not the server, is the news. */
+  deviceOffline?: boolean;
   onRetry: () => void;
 }
 
 /** Explains cold starts ("waking") and outages; announced politely to screen readers. */
-export function ServerStatusBanner({ status, onRetry }: Props) {
+export function ServerStatusBanner({ status, deviceOffline = false, onRetry }: Props) {
   const { t } = useTranslation();
 
+  if (deviceOffline) {
+    return (
+      <div role="status" aria-live="polite">
+        <p className="border-b border-border bg-surface px-4 py-2 text-center text-sm text-warning">
+          {t('banner.deviceOffline')}
+        </p>
+      </div>
+    );
+  }
   return (
     <div role="status" aria-live="polite">
       {status === 'waking' && (

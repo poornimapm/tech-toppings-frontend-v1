@@ -1,6 +1,6 @@
 import { Command as Cmdk } from 'cmdk';
 import { ArrowLeft, Search, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
@@ -42,34 +42,60 @@ export function CommandPalette() {
   const ask = useAskAgent(env.assistantAgent);
   const navigate = useNavigate();
 
-  function close(next: boolean) {
-    setOpen(next);
-    if (!next) {
+  const { mutate, reset } = ask;
+  // However it closed (Esc, a choice, Ctrl+K), it opens afresh next time.
+  const [shown, setShown] = useState(open);
+  if (shown !== open) {
+    setShown(open);
+    if (!open) {
       setQuery('');
       setAsking(false);
-      ask.reset();
     }
   }
+  useEffect(() => {
+    if (!open) reset();
+  }, [open, reset]);
 
-  function askAssistant() {
+  const language = toLanguage(i18n.language);
+  const send = useCallback(
+    (input: string) => {
+      mutate({
+        input,
+        locale: language,
+        // The names the user sees, so "Habit tracker" or "பழக்கம்" both find the module.
+        context: { modules: tiles.map((tile) => ({ key: tile.view.key, name: tile.text.name })) },
+      });
+    },
+    [language, mutate, tiles],
+  );
+  function askAssistant(input: string) {
     setAsking(true);
-    ask.mutate({
-      input: query,
-      locale: toLanguage(i18n.language),
-      // The names the user sees, so "Habit tracker" or "பழக்கம்" both find the module.
-      context: { modules: tiles.map((tile) => ({ key: tile.view.key, name: tile.text.name })) },
-    });
+    send(input);
   }
+
+  // Words said elsewhere (Simple mode's microphone): shown here, and put to the assistant once
+  // per ask. The store hands each question out once, so a re-run effect never sends it twice.
+  const question = usePalette((state) => state.question);
+  const [taken, setTaken] = useState<string | null>(null);
+  if (open && question && question.id !== taken) {
+    setTaken(question.id);
+    setQuery(question.text);
+    setAsking(true);
+  }
+  useEffect(() => {
+    const text = taken === null ? null : usePalette.getState().take(taken);
+    if (text !== null) send(text);
+  }, [send, taken]);
 
   function run(command: Command) {
     command.run();
-    close(false);
+    setOpen(false);
   }
 
   return (
     <Cmdk.Dialog
       open={open}
-      onOpenChange={close}
+      onOpenChange={setOpen}
       label={t('palette.title')}
       loop
       overlayClassName="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
@@ -83,7 +109,7 @@ export function CommandPalette() {
             className="rounded-full p-1 text-muted hover:bg-bg hover:text-text"
             onClick={() => {
               setAsking(false);
-              ask.reset();
+              reset();
             }}
           >
             <ArrowLeft aria-hidden="true" className="size-5" />
@@ -111,7 +137,9 @@ export function CommandPalette() {
                 <Cmdk.Item
                   value={`ask ${query}`}
                   forceMount
-                  onSelect={askAssistant}
+                  onSelect={() => {
+                    askAssistant(query);
+                  }}
                   className={item}
                 >
                   <Sparkles aria-hidden="true" className="size-4 text-primary" />
@@ -124,7 +152,7 @@ export function CommandPalette() {
               className={item}
               onOpen={(href) => {
                 void navigate(href);
-                close(false);
+                setOpen(false);
               }}
             />
             {GROUPS.map((group) => (
@@ -158,9 +186,11 @@ export function CommandPalette() {
           run={ask.data}
           pending={ask.isPending}
           error={ask.error}
-          onRetry={askAssistant}
+          onRetry={() => {
+            askAssistant(query);
+          }}
           onClose={() => {
-            close(false);
+            setOpen(false);
           }}
         />
       )}

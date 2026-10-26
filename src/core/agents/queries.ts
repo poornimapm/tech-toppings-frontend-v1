@@ -33,6 +33,8 @@ export function useAskAgent(agent: string) {
   return useMutation({
     mutationFn: (body: RunInput) =>
       unwrap(api.POST('/v1/agents/{name}/runs', { params: { path: { name: agent } }, body })),
+    // Offline, it must fail rather than pause: what was said is then kept to read later.
+    networkMode: 'always',
     // Quota and availability may have changed.
     onSettled: () => client.invalidateQueries({ queryKey: agentKeys.list }),
   });

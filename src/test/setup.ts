@@ -3,12 +3,15 @@ import '@/core/auth/install';
 
 import { cleanup, configure } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
-import { afterAll, afterEach, beforeAll, expect } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest';
 import * as axeMatchers from 'vitest-axe/matchers';
 
 import { useSession } from '@/core/auth/session-store';
 import i18n from '@/core/i18n';
+import { setOutboxStorage } from '@/core/offline/outbox';
+import { memoryStorage } from '@/core/offline/outbox-storage';
 import { useThemeStore } from '@/core/theme/theme-store';
+import { entryDrafts, loanDrafts } from '@/modules/expenses/drafts-store';
 import { usePalette } from '@/platform/palette/palette-store';
 import { useToasts } from '@/design-system';
 import { installMatchMedia, resetMatchMedia } from '@/test/media';
@@ -39,6 +42,11 @@ beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' });
 });
 
+beforeEach(() => {
+  // Tests start as a returning browser: the app asks the (fake) server about the session.
+  localStorage.setItem('tt-session', '1');
+});
+
 afterEach(async () => {
   cleanup();
   server.resetHandlers();
@@ -46,7 +54,10 @@ afterEach(async () => {
   resetNotificationState();
   resetReminderState();
   useToasts.getState().clear();
-  usePalette.setState({ open: false });
+  usePalette.getState().setOpen(false); // drops a question it hasn't taken, too
+  setOutboxStorage(memoryStorage());
+  entryDrafts.clear();
+  loanDrafts.clear();
   resetMatchMedia();
   localStorage.clear();
   useSession.setState({ status: 'unknown', accessToken: null, user: null });

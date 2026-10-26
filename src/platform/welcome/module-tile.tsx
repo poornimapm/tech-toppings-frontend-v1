@@ -72,17 +72,17 @@ export function ModuleTile({ tile, index, onOpenDetails, onTogglePin }: ModuleTi
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
       transition={{ type: 'spring', stiffness: 360, damping: 30, delay: Math.min(index, 8) * 0.04 }}
-      className="list-none"
+      className="list-none perspective-[900px]"
     >
       <m.article
         aria-labelledby={nameId}
-        style={{ ...tilt.style, ...accentStyle(tile) }}
+        style={accentStyle(tile)}
         {...tilt.handlers}
         whileHover={reduceMotion ? undefined : { y: -4 }}
         whileTap={reduceMotion ? undefined : { scale: 0.985 }}
         className={cx(
           'group relative isolate flex h-full min-h-48 flex-col overflow-hidden rounded-3xl border border-border bg-glass p-5 shadow-sm backdrop-blur-xl',
-          'transition-shadow duration-300 hover:shadow-xl hover:shadow-tile/15',
+          'transition-[rotate,box-shadow] duration-300 ease-out hover:shadow-xl hover:shadow-tile/15',
           locked && 'opacity-80 saturate-50',
         )}
       >

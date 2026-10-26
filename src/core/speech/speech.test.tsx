@@ -1,36 +1,16 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { FakeRecognition, installFakeRecognition } from '@/core/speech/fake-recognition';
 import { speak, speechLocale, useDictation } from '@/core/speech/speech';
 
-/** A stand-in for the browser's recognition object; the test plays the browser's part. */
-class FakeRecognition {
-  static last: FakeRecognition | null = null;
-  lang = '';
-  interimResults = false;
-  continuous = false;
-  onresult: ((event: { results: { transcript: string }[][] }) => void) | null = null;
-  onerror: ((event: { error: string }) => void) | null = null;
-  onend: (() => void) | null = null;
-  start = vi.fn();
-  stop = vi.fn(() => this.onend?.());
-  abort = vi.fn();
-
-  constructor() {
-    FakeRecognition.last = this;
-  }
-
-  hear(...phrases: string[]) {
-    this.onresult?.({ results: phrases.map((transcript) => [{ transcript }]) });
-  }
-}
-
 const scope = window as unknown as Record<string, unknown>;
+let uninstall: (() => void) | undefined;
 
 afterEach(() => {
-  delete scope.webkitSpeechRecognition;
+  uninstall?.();
+  uninstall = undefined;
   delete scope.speechSynthesis;
-  FakeRecognition.last = null;
 });
 
 describe('dictation', () => {
@@ -46,7 +26,7 @@ describe('dictation', () => {
   });
 
   it('listens in the user language and passes on what it hears, as it hears it', () => {
-    scope.webkitSpeechRecognition = FakeRecognition;
+    uninstall = installFakeRecognition();
     const heard = vi.fn();
     const { result } = renderHook(() => useDictation('ta', heard));
 
@@ -63,30 +43,50 @@ describe('dictation', () => {
     expect(result.current.listening).toBe(true);
     expect(recognition?.lang).toBe('ta-IN');
     expect(recognition?.interimResults).toBe(true);
-    expect(heard.mock.calls).toEqual([['தக்காளி'], ['தக்காளி 40 ரூபாய்']]);
+    expect(heard.mock.calls).toEqual([
+      ['தக்காளி', false],
+      ['தக்காளி 40 ரூபாய்', false],
+    ]);
 
     act(() => {
-      result.current.stop();
+      recognition?.settle('தக்காளி 40 ரூபாய்');
     });
+    expect(heard).toHaveBeenLastCalledWith('தக்காளி 40 ரூபாய்', true); // the words are settled
     expect(result.current.listening).toBe(false);
   });
 
-  it('reports why it could not listen, and lets go of the microphone when it leaves', () => {
-    scope.webkitSpeechRecognition = FakeRecognition;
-    const { result, unmount } = renderHook(() => useDictation('en', vi.fn()));
+  it('can be stopped', () => {
+    uninstall = installFakeRecognition();
+    const { result } = renderHook(() => useDictation('en', vi.fn()));
 
     act(() => {
       result.current.start();
     });
     act(() => {
-      FakeRecognition.last?.onerror?.({ error: 'not-allowed' });
-      FakeRecognition.last?.onend?.();
+      result.current.stop();
+    });
+
+    expect(FakeRecognition.last?.stop).toHaveBeenCalled();
+    expect(result.current.listening).toBe(false);
+  });
+
+  it('reports why it could not listen, and lets go of the microphone when it leaves', () => {
+    uninstall = installFakeRecognition();
+    const { result, unmount } = renderHook(() => useDictation('en', vi.fn()));
+
+    act(() => {
+      result.current.start();
+    });
+    const recognition = FakeRecognition.last;
+    act(() => {
+      recognition?.onerror?.({ error: 'not-allowed' });
+      recognition?.onend?.();
     });
     expect(result.current.error).toBe('not-allowed');
     expect(result.current.listening).toBe(false);
 
     unmount();
-    expect(FakeRecognition.last?.abort).toHaveBeenCalled();
+    expect(recognition?.abort).toHaveBeenCalled();
   });
 });
 

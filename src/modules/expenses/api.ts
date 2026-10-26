@@ -1,12 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type NetworkMode } from '@tanstack/react-query';
 
 import { ApiError } from '@/core/api/api-error';
 import { api, unwrap } from '@/core/api/client';
 import type { components } from '@/core/api/schema';
 import { usePages } from '@/core/api/use-pages';
 import { userKeys } from '@/core/auth/queries';
+import { useSession } from '@/core/auth/session-store';
 import i18n, { errorKey } from '@/core/i18n';
+import { enqueue, isOffline } from '@/core/offline/outbox';
 import { toast } from '@/design-system';
+import { OUTBOX_ENTRY } from '@/modules/expenses/outbox-kinds';
 
 type Schemas = components['schemas'];
 export type Entry = Schemas['EntryOut'];
@@ -144,11 +147,12 @@ function sayWhyNot(error: unknown): void {
  */
 export function useChange<TInput, TResult>(
   run: (input: TInput) => Promise<TResult>,
-  { quiet = false } = {},
+  { quiet = false, ...options }: { quiet?: boolean; networkMode?: NetworkMode } = {},
 ) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: run,
+    ...options, // only what is given: an undefined option would hide the client's default
     onSuccess: () => client.invalidateQueries({ queryKey: userKeys.all }),
     onError: quiet ? undefined : sayWhyNot,
   });
@@ -162,21 +166,42 @@ export interface SaveEntry {
   editing?: Pick<Entry, 'id' | 'revision_no'>;
 }
 
+/** A new entry saved with no network: kept on this device and sent when it's back. */
+export interface QueuedEntry {
+  queued: true;
+  title: string;
+}
+
+export const isQueued = (saved: Entry | QueuedEntry): saved is QueuedEntry => 'queued' in saved;
+
 export function useSaveEntry() {
+  const owner = useSession((state) => state.user?.id);
   return useChange(
-    ({ body, key, editing }: SaveEntry) =>
-      unwrap(
-        editing
-          ? api.PUT('/v1/expenses/entries/{entry_id}', {
-              params: { path: { entry_id: editing.id } },
-              body: { ...body, revision_no: editing.revision_no },
-            })
-          : api.POST('/v1/expenses/entries', {
-              params: { header: { 'Idempotency-Key': key } },
-              body,
-            }),
-      ),
-    { quiet: true },
+    async ({ body, key, editing }: SaveEntry): Promise<Entry | QueuedEntry> => {
+      if (editing) {
+        return unwrap(
+          api.PUT('/v1/expenses/entries/{entry_id}', {
+            params: { path: { entry_id: editing.id } },
+            body: { ...body, revision_no: editing.revision_no },
+          }),
+        );
+      }
+      try {
+        return await unwrap(
+          api.POST('/v1/expenses/entries', {
+            params: { header: { 'Idempotency-Key': key } },
+            body,
+          }),
+        );
+      } catch (error) {
+        // An edit needs the latest revision, so only a new entry can wait (ADR-0010).
+        if (!isOffline(error) || !key || !owner) throw error;
+        await enqueue({ id: key, kind: OUTBOX_ENTRY, owner, label: body.title, payload: body });
+        return { queued: true, title: body.title };
+      }
+    },
+    // Offline, the request must be tried (and fail) rather than pause: the entry is then kept.
+    { quiet: true, networkMode: 'always' },
   );
 }
 

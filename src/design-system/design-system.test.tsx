@@ -1,9 +1,28 @@
-import { act, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { AnimatedNumber, FilterChips, Meter, Switch, toast, useToasts } from '@/design-system';
+import {
+  AnimatedNumber,
+  FilterChips,
+  Meter,
+  Switch,
+  toast,
+  usePointerTilt,
+  useToasts,
+} from '@/design-system';
 import { renderWithProviders } from '@/test/render';
+
+/** The OS asks for reduced motion (from now until the test ends). */
+function preferReducedMotion() {
+  const matchMedia = window.matchMedia.bind(window);
+  vi.spyOn(window, 'matchMedia').mockImplementation((query) => {
+    const list = matchMedia(query);
+    return query.includes('prefers-reduced-motion: reduce')
+      ? Object.defineProperty(list, 'matches', { value: true })
+      : list;
+  });
+}
 
 describe('toasts', () => {
   it('announces a message politely and runs its action once', async () => {
@@ -40,6 +59,32 @@ describe('toasts', () => {
         screen.getByRole('button', { name: 'Dismiss' }).click();
       });
       expect(useToasts.getState().toasts).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('fades a dismissed toast out, hidden from assistive tech and the keyboard meanwhile', () => {
+    vi.useFakeTimers();
+    try {
+      renderWithProviders(<p>page</p>);
+      act(() => {
+        toast('Leaving', { durationMs: 60_000 });
+      });
+      const item = screen.getByText('Leaving').closest('li');
+
+      act(() => {
+        screen.getByRole('button', { name: 'Dismiss' }).click();
+      });
+      expect(useToasts.getState().toasts).toEqual([]);
+      expect(item).toHaveAttribute('aria-hidden', 'true');
+      expect(item).toHaveAttribute('inert');
+      expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull();
+
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      expect(screen.queryByText('Leaving')).toBeNull();
     } finally {
       vi.useRealTimers();
     }
@@ -133,5 +178,72 @@ describe('animated number', () => {
     renderWithProviders(<AnimatedNumber value={4320.4} locale="en" currency="INR" />);
 
     expect(screen.getByText('₹4,320', { selector: '.sr-only' })).toBeInTheDocument();
+  });
+
+  it('counts up to the value on screen', async () => {
+    renderWithProviders(<AnimatedNumber value={1500} locale="en" />);
+
+    expect(screen.getByText('0', { selector: '[aria-hidden]' })).toBeInTheDocument();
+    expect(
+      await screen.findByText('1,500', { selector: '[aria-hidden]' }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the value at once when the OS asks for reduced motion', () => {
+    preferReducedMotion();
+    renderWithProviders(<AnimatedNumber value={1500} locale="en" />);
+
+    expect(screen.getByText('1,500', { selector: '[aria-hidden]' })).toBeInTheDocument();
+  });
+});
+
+describe('pointer tilt', () => {
+  function Card() {
+    const tilt = usePointerTilt();
+    return (
+      <div data-testid="card" {...tilt.handlers}>
+        card
+      </div>
+    );
+  }
+
+  /** Point with a `pointerType` at (x, y) of a 200 x 100 card at the page's top left. */
+  function pointAt(card: HTMLElement, x: number, y: number, pointerType = 'mouse') {
+    card.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 100 }) as DOMRect;
+    fireEvent.pointerMove(card, { pointerType, clientX: x, clientY: y });
+  }
+
+  it('leans toward the pointer and lights up under it, then settles when it leaves', () => {
+    renderWithProviders(<Card />);
+    const card = screen.getByTestId('card');
+
+    pointAt(card, 200, 0); // top right corner
+
+    expect(card.style.getPropertyValue('--spot-x')).toBe('100.0%');
+    expect(card.style.getPropertyValue('--spot-y')).toBe('0.0%');
+    expect(card.style.rotate).toBe('5.00 5.00 0 7.07deg');
+    fireEvent.pointerLeave(card);
+    expect(card.style.rotate).toBe('');
+  });
+
+  it('keeps still for touch', () => {
+    renderWithProviders(<Card />);
+    const card = screen.getByTestId('card');
+
+    pointAt(card, 200, 0, 'touch');
+
+    expect(card.style.getPropertyValue('--spot-x')).toBe('');
+    expect(card.style.rotate).toBe('');
+  });
+
+  it('keeps still for reduced motion, while the light still follows', () => {
+    preferReducedMotion();
+    renderWithProviders(<Card />);
+    const card = screen.getByTestId('card');
+
+    pointAt(card, 200, 0);
+
+    expect(card.style.getPropertyValue('--spot-x')).toBe('100.0%');
+    expect(card.style.rotate).toBe('');
   });
 });

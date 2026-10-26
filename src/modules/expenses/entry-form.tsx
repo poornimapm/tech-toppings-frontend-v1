@@ -4,13 +4,16 @@ import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { useSession } from '@/core/auth/session-store';
+import { UnsavedGuard } from '@/core/forms/unsaved-guard';
 import { errorKey } from '@/core/i18n';
+import { useSimpleMode } from '@/core/theme/ui-mode';
 import { todayIn } from '@/core/utils/dates';
 import { toInput, toMinor } from '@/core/utils/money';
 import { useSettled } from '@/core/utils/use-settled';
 import { Alert, Button, Dialog, SelectField, TextField, toast } from '@/design-system';
 import {
   failureCode,
+  isQueued,
   PAYMENT_MODES,
   useFacets,
   useSaveEntry,
@@ -127,12 +130,14 @@ export interface EntryFormProps {
   draft?: Draft;
   onClose: () => void;
   onSaved?: (entry: Entry) => void;
+  /** A new entry saved with no network: kept on this device, sent once back online. */
+  onQueued?: () => void;
   /** The entry had changed elsewhere and the user asked for the latest. */
   onReload?: () => void;
 }
 
 /** Add or edit an entry, in a dialog: the essentials first, the rest under "More details". */
-export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFormProps) {
+export function EntryForm({ entry, draft, onClose, onSaved, onQueued, onReload }: EntryFormProps) {
   const { t } = useTranslation(NS);
   const { t: tError } = useTranslation('errors');
   const listId = useId();
@@ -140,6 +145,7 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
   const book = useCategoryBook();
   const facets = useFacets().data;
   const save = useSaveEntry();
+  const simple = useSimpleMode();
   // One key for this form's whole life (a draft brings its own): saving again after a lost
   // reply can't add the entry twice.
   const [key] = useState(() => draft?.key ?? crypto.randomUUID());
@@ -155,7 +161,7 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
   });
   const units = useUnits().data ?? [];
   const unitText = useUnitText();
-  const { errors } = form.formState;
+  const { errors, isDirty } = form.formState;
   const minor = currency ? toMinor(amount, currency) : null;
   // Only a new entry is compared with saved ones, once it has a name, an amount and a day; and
   // only in the base currency, which saved ones are compared in.
@@ -187,8 +193,13 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
       () => null, // shown from save.error
     );
     if (!saved) return;
-    toast(t(entry ? 'toast.saved' : 'toast.added', { title: saved.title }), { tone: 'success' });
-    onSaved?.(saved);
+    if (isQueued(saved)) {
+      toast(t('toast.queued', { title: saved.title }));
+      onQueued?.();
+    } else {
+      toast(t(entry ? 'toast.saved' : 'toast.added', { title: saved.title }), { tone: 'success' });
+      onSaved?.(saved);
+    }
     onClose();
   });
 
@@ -200,6 +211,8 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
       }}
       title={t(entry ? 'form.editTitle' : 'form.addTitle')}
     >
+      {/* Changed and not yet saved (or kept to send): leaving the page asks first. */}
+      <UnsavedGuard dirty={isDirty && !save.isSuccess} />
       <form noValidate className="space-y-4" onSubmit={(event) => void submit(event)}>
         {failure === 'VERSION_CONFLICT' ? (
           <Alert tone="danger">
@@ -339,71 +352,74 @@ export function EntryForm({ entry, draft, onClose, onSaved, onReload }: EntryFor
         />
         <DuplicateNote matches={matches} />
 
-        <details open={DETAILS.some((name) => form.getValues(name) !== '')}>
-          <summary className="cursor-pointer text-sm font-medium text-primary">
-            {t('form.more')}
-          </summary>
-          <div className="mt-3 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <TextField type="time" label={t('form.time')} {...form.register('time')} />
-              <SelectField
-                label={t('form.paymentMode')}
-                placeholder={t('form.notSet')}
-                options={PAYMENT_MODES.map((mode) => ({
-                  value: mode,
-                  label: t(`paymentMode.${mode}`),
-                }))}
-                {...form.register('payment_mode')}
+        {/* Simple mode asks a new entry only for the essentials; an edit shows what it has. */}
+        {(!simple || entry) && (
+          <details open={DETAILS.some((name) => form.getValues(name) !== '')}>
+            <summary className="cursor-pointer text-sm font-medium text-primary">
+              {t('form.more')}
+            </summary>
+            <div className="mt-3 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <TextField type="time" label={t('form.time')} {...form.register('time')} />
+                <SelectField
+                  label={t('form.paymentMode')}
+                  placeholder={t('form.notSet')}
+                  options={PAYMENT_MODES.map((mode) => ({
+                    value: mode,
+                    label: t(`paymentMode.${mode}`),
+                  }))}
+                  {...form.register('payment_mode')}
+                />
+              </div>
+              <TextField
+                label={t('form.merchant')}
+                maxLength={80}
+                list={`${listId}-merchants`}
+                {...form.register('merchant')}
               />
+              <TextField
+                label={t('form.forWhom')}
+                maxLength={60}
+                list={`${listId}-people`}
+                {...form.register('for_whom')}
+              />
+              <TextField
+                label={t('form.tags')}
+                hint={t('form.tagsHint')}
+                list={`${listId}-tags`}
+                error={errors.tags?.message}
+                {...form.register('tags', {
+                  validate: (value) =>
+                    tagsOf(value).length <= MAX_TAGS || t('form.tagsError', { max: MAX_TAGS }),
+                })}
+              />
+              <TextField label={t('form.note')} maxLength={1000} {...form.register('note')} />
+              <TextField
+                type="url"
+                label={t('form.link')}
+                placeholder="https://"
+                error={errors.link?.message}
+                {...form.register('link', {
+                  validate: (value) =>
+                    value === '' || /^https?:\/\/\S+\.\S+/.test(value) || t('form.linkError'),
+                })}
+              />
+              {(
+                [
+                  ['merchants', facets?.merchants],
+                  ['people', facets?.for_whom],
+                  ['tags', facets?.tags],
+                ] as const
+              ).map(([name, values]) => (
+                <datalist key={name} id={`${listId}-${name}`}>
+                  {values?.map((value) => (
+                    <option key={value} value={value} />
+                  ))}
+                </datalist>
+              ))}
             </div>
-            <TextField
-              label={t('form.merchant')}
-              maxLength={80}
-              list={`${listId}-merchants`}
-              {...form.register('merchant')}
-            />
-            <TextField
-              label={t('form.forWhom')}
-              maxLength={60}
-              list={`${listId}-people`}
-              {...form.register('for_whom')}
-            />
-            <TextField
-              label={t('form.tags')}
-              hint={t('form.tagsHint')}
-              list={`${listId}-tags`}
-              error={errors.tags?.message}
-              {...form.register('tags', {
-                validate: (value) =>
-                  tagsOf(value).length <= MAX_TAGS || t('form.tagsError', { max: MAX_TAGS }),
-              })}
-            />
-            <TextField label={t('form.note')} maxLength={1000} {...form.register('note')} />
-            <TextField
-              type="url"
-              label={t('form.link')}
-              placeholder="https://"
-              error={errors.link?.message}
-              {...form.register('link', {
-                validate: (value) =>
-                  value === '' || /^https?:\/\/\S+\.\S+/.test(value) || t('form.linkError'),
-              })}
-            />
-            {(
-              [
-                ['merchants', facets?.merchants],
-                ['people', facets?.for_whom],
-                ['tags', facets?.tags],
-              ] as const
-            ).map(([name, values]) => (
-              <datalist key={name} id={`${listId}-${name}`}>
-                {values?.map((value) => (
-                  <option key={value} value={value} />
-                ))}
-              </datalist>
-            ))}
-          </div>
-        </details>
+          </details>
+        )}
 
         <Button type="submit" className="w-full" disabled={save.isPending}>
           {t('form.save')}

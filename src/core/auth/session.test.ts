@@ -54,6 +54,15 @@ describe('refreshSession', () => {
 
     await expect(refreshSession()).rejects.toBeInstanceOf(ApiError);
     expect(useSession.getState().status).toBe('anonymous');
+    expect(localStorage.getItem('tt-session')).toBe('0');
+  });
+
+  it('leaves the session alone when the server is unreachable', async () => {
+    server.use(http.post('*/api/v1/auth/refresh', () => HttpResponse.error()));
+
+    await expect(refreshSession()).rejects.toBeInstanceOf(ApiError);
+    expect(useSession.getState().status).toBe('unknown');
+    expect(localStorage.getItem('tt-session')).toBe('1');
   });
 
   it('holds a cross-tab lock where the browser supports it', async () => {
@@ -73,6 +82,7 @@ describe('signing out', () => {
 
     await expect(signOut()).rejects.toBeInstanceOf(ApiError);
     expect(useSession.getState()).toMatchObject({ status: 'anonymous', accessToken: null });
+    expect(localStorage.getItem('tt-session')).toBe('0');
   });
 
   it('signs out everywhere', async () => {

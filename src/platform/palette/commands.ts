@@ -1,5 +1,8 @@
 import {
+  ALargeSmall,
   Bell,
+  Compass,
+  Download,
   Eye,
   Languages,
   LogOut,
@@ -16,9 +19,12 @@ import { useNavigate } from 'react-router';
 import { useSession } from '@/core/auth/session-store';
 import { useSavePreferences } from '@/core/auth/use-save-preferences';
 import { useSignOut } from '@/core/auth/use-sign-out';
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, toLanguage } from '@/core/i18n';
+import { LANGUAGE_NAMES, shownLanguage, SUPPORTED_LANGUAGES } from '@/core/i18n';
 import { useModuleTiles } from '@/core/modules/queries';
+import { usePwa } from '@/core/pwa/pwa-store';
 import { useThemeStore, type ThemePreference } from '@/core/theme/theme-store';
+import { useSimpleMode } from '@/core/theme/ui-mode';
+import { useTour } from '@/platform/onboarding/tour-store';
 import { pages } from '@/platform/shell/pages';
 import { moduleHref } from '@/platform/welcome/module-style';
 import { useModuleActions } from '@/platform/welcome/use-module-actions';
@@ -122,30 +128,73 @@ function usePreferenceCommands(): Command[] {
         save({ theme });
       },
     }));
-  const languages = SUPPORTED_LANGUAGES.filter(
-    (language) => language !== toLanguage(i18n.language),
-  ).map((language): Command => ({
-    id: `language:${language}`,
+  const simple = useSimpleMode();
+  const uiMode: Command = {
+    id: 'ui-mode',
     group: 'preferences',
-    label: t('palette.language', { name: LANGUAGE_NAMES[language] }),
-    icon: Languages,
-    keywords: [language],
+    label: t(simple ? 'uiMode.turnOff' : 'uiMode.turnOn'),
+    icon: ALargeSmall,
+    keywords: ['simple', 'large', 'text', 'bigger'],
     run: () => {
-      void i18n.changeLanguage(language);
-      save({ locale: language });
+      save({ ui_mode: simple ? 'standard' : 'simple' });
     },
-  }));
-  return [...themes, ...languages];
+  };
+  // Every language but the one shown: after a failed download that is English, so the chosen
+  // language is offered again, and choosing it retries.
+  const shown = shownLanguage();
+  const languages = SUPPORTED_LANGUAGES.filter((language) => language !== shown).map(
+    (language): Command => ({
+      id: `language:${language}`,
+      group: 'preferences',
+      label: t('palette.language', { name: LANGUAGE_NAMES[language] }),
+      icon: Languages,
+      keywords: [language],
+      run: () => {
+        void i18n.changeLanguage(language);
+        save({ locale: language });
+      },
+    }),
+  );
+  return [...themes, uiMode, ...languages];
+}
+
+/** Install the app on this device, while the browser offers it. */
+function useInstallCommands(): Command[] {
+  const { t } = useTranslation();
+  const offered = usePwa((state) => state.installPrompt !== null);
+  const install = usePwa((state) => state.install);
+  return offered
+    ? [
+        {
+          id: 'app:install',
+          group: 'preferences',
+          label: t('pwa.install'),
+          icon: Download,
+          keywords: ['pwa', 'app'],
+          run: () => void install(),
+        },
+      ]
+    : [];
 }
 
 /** Everything the palette can do without AI, from the app's own registries. */
 export function useCommands(): Command[] {
   const { t } = useTranslation();
   const signOut = useSignOut();
+  const showTour = useTour((state) => state.request);
   return [
     ...usePageCommands(),
     ...useModuleCommands(),
     ...usePreferenceCommands(),
+    ...useInstallCommands(),
+    {
+      id: 'app:tour',
+      group: 'account',
+      label: t('tour.again'),
+      icon: Compass,
+      keywords: ['help', 'tour', 'guide', 'start'],
+      run: showTour,
+    },
     {
       id: 'account:sign-out',
       group: 'account',

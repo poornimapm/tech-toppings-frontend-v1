@@ -4,18 +4,27 @@ import { Link, Outlet } from 'react-router';
 import { useServerStatus } from '@/core/api/server-status';
 import { useSession } from '@/core/auth/session-store';
 import { env } from '@/core/config/env';
+import { useOnline } from '@/core/pwa/use-online';
 import { useMediaQuery } from '@/core/utils/use-media-query';
+import { TourHost } from '@/platform/onboarding/tour-host';
 import { PaletteHost } from '@/platform/palette/palette-host';
 import { PaletteTrigger } from '@/platform/palette/palette-trigger';
 import { AccountNav } from '@/platform/shell/account-nav';
+import { InstallButton } from '@/platform/shell/install-button';
 import { LanguageSelect } from '@/platform/shell/language-select';
+import { OutboxBanner } from '@/platform/shell/outbox-banner';
+import { OutboxSync } from '@/platform/shell/outbox-sync';
+import { PushSync } from '@/platform/shell/push-sync';
 import { ServerStatusBanner } from '@/platform/shell/server-status-banner';
 import { ShellNav, WIDE_SCREEN } from '@/platform/shell/shell-nav';
 import { ThemeToggle } from '@/platform/shell/theme-toggle';
+import { UiModeToggle } from '@/platform/shell/ui-mode-toggle';
+import { UpdateBanner } from '@/platform/shell/update-banner';
 
 export function AppLayout() {
   const { t } = useTranslation();
   const server = useServerStatus();
+  const online = useOnline();
   const user = useSession((state) => state.user);
   const wide = useMediaQuery(WIDE_SCREEN);
   /** Signed in with a password of their own: the pages behind the shell are reachable. */
@@ -47,13 +56,19 @@ export function AppLayout() {
           <div className="flex items-center gap-1 sm:gap-2">
             {ready && wide && <ShellNav />}
             {ready && <PaletteTrigger />}
+            <InstallButton />
             <LanguageSelect />
+            {ready && <UiModeToggle />}
             <ThemeToggle />
             <AccountNav />
           </div>
         </div>
       </header>
-      <ServerStatusBanner status={server.status} onRetry={server.retry} />
+      <ServerStatusBanner status={server.status} deviceOffline={!online} onRetry={server.retry} />
+      <UpdateBanner />
+      {ready && <OutboxBanner />}
+      {ready && <OutboxSync />}
+      {ready && <PushSync />}
       <main
         id="main"
         tabIndex={-1}
@@ -68,6 +83,7 @@ export function AppLayout() {
         </div>
       )}
       {ready && <PaletteHost />}
+      {ready && <TourHost />}
     </div>
   );
 }

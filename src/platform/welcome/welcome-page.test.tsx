@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { Box } from 'lucide-react';
 import { http, HttpResponse } from 'msw/http';
 import { createMemoryRouter } from 'react-router';
@@ -244,12 +244,40 @@ describe('welcome page', () => {
     expect(router.state.location.search).toBe('');
   });
 
+  it('opens details once for more taps while they load, so one Escape closes them', async () => {
+    const { user, router } = renderWelcome();
+    const details = within(await tile('Receipts & warranty')).getByRole('button', {
+      name: 'Receipts & warranty',
+    });
+    const otherDetails = within(await tile('Government documents')).getByRole('button', {
+      name: 'Government documents',
+    });
+
+    await user.click(details);
+    await waitFor(() => {
+      expect(router.state.location.search).toBe('?module=receipts');
+    });
+    // The dialog may still be loading (no overlay to stop the tap yet): tap straight on, here
+    // and on another tile.
+    fireEvent.click(details);
+    fireEvent.click(otherDetails);
+    expect(router.state.location.search).toBe('?module=receipts');
+    expect(await screen.findByRole('dialog', { name: 'Receipts & warranty' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+    expect(router.state.location.search).toBe('');
+  });
+
   it('arranges and hides modules in customize mode', async () => {
     const { user } = renderWelcome();
     await tile('Expenses');
 
     await user.click(screen.getByRole('button', { name: 'Customize' }));
-    expect(screen.getByRole('button', { name: 'Move Expenses earlier' })).toBeDisabled();
+    // The board loads when arranging starts (drag and drop isn't part of the first page).
+    expect(await screen.findByRole('button', { name: 'Move Expenses earlier' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Move Expenses later' }));
 
     await waitFor(() => {

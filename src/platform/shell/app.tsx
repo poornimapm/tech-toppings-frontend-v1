@@ -5,6 +5,7 @@ import type { createBrowserRouter } from 'react-router';
 
 import { AuthBootstrap } from '@/core/auth/auth-bootstrap';
 import { useApplyTheme } from '@/core/theme/theme-store';
+import { useApplyUiMode } from '@/core/theme/ui-mode';
 import { MotionProvider, Toaster } from '@/design-system';
 import { AppErrorBoundary } from '@/platform/shell/app-error-boundary';
 import { PreferenceSync } from '@/platform/shell/preference-sync';
@@ -13,6 +14,7 @@ type AppRouter = ReturnType<typeof createBrowserRouter>;
 
 function ThemeEffect() {
   useApplyTheme();
+  useApplyUiMode();
   return null;
 }
 

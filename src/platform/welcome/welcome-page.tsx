@@ -1,6 +1,5 @@
-import { Check, SearchX, SlidersHorizontal, Star } from 'lucide-react';
-import { AnimatePresence, LayoutGroup, m } from 'motion/react';
-import { useId, useState, type ReactNode } from 'react';
+import { Check, SlidersHorizontal } from 'lucide-react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
@@ -8,16 +7,26 @@ import { useSession } from '@/core/auth/session-store';
 import { matchesSearch } from '@/core/modules/module-text';
 import { useModuleTiles } from '@/core/modules/queries';
 import type { ModuleTile as Tile } from '@/core/modules/types';
-import { Button, EmptyState, FilterChips, LoadError, SearchField, Skeleton } from '@/design-system';
-import { ArrangeBoard } from '@/platform/welcome/arrange-board';
+import { useSimpleMode } from '@/core/theme/ui-mode';
+import { Button, FilterChips, LoadError, SearchField, Skeleton } from '@/design-system';
 import { AuroraBackground } from '@/platform/welcome/aurora-background';
 import { formatToday, partOfDay } from '@/platform/welcome/greeting';
-import { ModuleDetailsDialog } from '@/platform/welcome/module-details-dialog';
-import { accentStyle } from '@/platform/welcome/module-style';
-import { ModuleTile } from '@/platform/welcome/module-tile';
+import { accentStyle, TILE_GRID } from '@/platform/welcome/module-style';
 import { ModuleIcon } from '@/platform/welcome/module-visuals';
+import { SpeakCard } from '@/platform/welcome/speak-card';
 import { SystemStatusPill } from '@/platform/welcome/system-status-pill';
 import { useModuleActions } from '@/platform/welcome/use-module-actions';
+
+// Not part of the first paint (the bundle budget), so each loads apart from the page: the
+// tiles beside the request for them, drag and drop once arranging starts, the dialog (and
+// its overlay library) once a module's details open.
+const loadSections = () => import('@/platform/welcome/module-sections');
+const ModuleSections = lazy(async () => ({ default: (await loadSections()).ModuleSections }));
+const loadArrangeBoard = () => import('@/platform/welcome/arrange-board');
+const ArrangeBoard = lazy(async () => ({ default: (await loadArrangeBoard()).ArrangeBoard }));
+const ModuleDetailsDialog = lazy(async () => ({
+  default: (await import('@/platform/welcome/module-details-dialog')).ModuleDetailsDialog,
+}));
 
 const FILTERS = ['all', 'favourites', 'available', 'soon'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -33,49 +42,9 @@ function toFilter(value: string | null): Filter {
   return FILTERS.find((filter) => filter === value) ?? 'all';
 }
 
-const GRID = 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3';
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  const headingId = useId();
-  return (
-    <m.section layout="position" aria-labelledby={headingId} className="space-y-3">
-      <h2 id={headingId} className="text-sm font-semibold tracking-wide text-muted uppercase">
-        {title}
-      </h2>
-      {children}
-    </m.section>
-  );
-}
-
-function TileGrid({
-  tiles,
-  onOpenDetails,
-  onTogglePin,
-}: {
-  tiles: Tile[];
-  onOpenDetails: (tile: Tile) => void;
-  onTogglePin: (tile: Tile) => void;
-}) {
-  return (
-    <ul role="list" className={GRID}>
-      <AnimatePresence mode="popLayout" initial={false}>
-        {tiles.map((tile, index) => (
-          <ModuleTile
-            key={tile.view.key}
-            tile={tile}
-            index={index}
-            onOpenDetails={onOpenDetails}
-            onTogglePin={onTogglePin}
-          />
-        ))}
-      </AnimatePresence>
-    </ul>
-  );
-}
-
 function LoadingTiles() {
   return (
-    <div className={GRID}>
+    <div className={TILE_GRID}>
       {Array.from({ length: 6 }, (_, index) => (
         <Skeleton key={index} className="h-48 rounded-3xl" />
       ))}
@@ -86,12 +55,16 @@ function LoadingTiles() {
 export function WelcomePage() {
   const { t, i18n } = useTranslation();
   const user = useSession((state) => state.user);
+  const simple = useSimpleMode();
   const { tiles, isPending, isError, refetch } = useModuleTiles();
   const actions = useModuleActions();
   const [params, setParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [arranging, setArranging] = useState(false);
+  useEffect(() => {
+    void loadSections(); // while the modules load, not after
+  }, []);
 
   // Search, filter and the open module live in the URL: shareable, and Back closes details.
   const query = params.get('q') ?? '';
@@ -120,8 +93,6 @@ export function WelcomePage() {
   const hidden = tiles.filter((tile) => !tile.view.enabled);
   const searched = visible.filter((tile) => matchesSearch(tile, query));
   const shown = searched.filter(MATCHES[filter]);
-  const favourites = shown.filter((tile) => tile.view.pinned);
-  const others = shown.filter((tile) => !tile.view.pinned);
   const chips = FILTERS.map((value) => ({
     value,
     label: t(`welcome.filters.${value}`),
@@ -130,6 +101,9 @@ export function WelcomePage() {
   const selected = tiles.find((tile) => tile.view.key === shownKey) ?? null;
 
   const openDetails = (tile: Tile) => {
+    // A tap while a dialog still loads (on any tile: once shown, it is modal) would push another
+    // entry, and Close would need two.
+    if (detailsKey !== null) return;
     updateParams({ module: tile.view.key }, true);
   };
   const togglePin = (tile: Tile) => {
@@ -145,55 +119,30 @@ export function WelcomePage() {
     content = (
       <div className="space-y-3">
         <p className="text-sm text-muted">{t('welcome.arrangeHint')}</p>
-        <ArrangeBoard
-          tiles={tiles}
-          onArrange={actions.arrange}
-          onToggleVisible={(tile) => {
-            actions.setVisible(tile, !tile.view.enabled);
-          }}
-        />
-      </div>
-    );
-  } else if (shown.length === 0) {
-    content = query ? (
-      <EmptyState
-        icon={SearchX}
-        title={t('welcome.empty.title', { query })}
-        body={t('welcome.empty.body')}
-        action={
-          <Button
-            variant="secondary"
-            onClick={() => {
-              updateParams({ q: '' });
+        <Suspense fallback={<LoadingTiles />}>
+          <ArrangeBoard
+            tiles={tiles}
+            onArrange={actions.arrange}
+            onToggleVisible={(tile) => {
+              actions.setVisible(tile, !tile.view.enabled);
             }}
-          >
-            {t('welcome.empty.clear')}
-          </Button>
-        }
-      />
-    ) : (
-      <EmptyState
-        icon={Star}
-        title={t('welcome.empty.favouritesTitle')}
-        body={t('welcome.empty.favouritesBody')}
-      />
+          />
+        </Suspense>
+      </div>
     );
   } else {
     content = (
-      <LayoutGroup>
-        <div className="space-y-8">
-          {favourites.length > 0 && (
-            <Section title={t('welcome.sections.favourites')}>
-              <TileGrid tiles={favourites} onOpenDetails={openDetails} onTogglePin={togglePin} />
-            </Section>
-          )}
-          {others.length > 0 && (
-            <Section title={t('welcome.sections.all')}>
-              <TileGrid tiles={others} onOpenDetails={openDetails} onTogglePin={togglePin} />
-            </Section>
-          )}
-        </div>
-      </LayoutGroup>
+      <Suspense fallback={<LoadingTiles />}>
+        <ModuleSections
+          tiles={shown}
+          query={query}
+          onClearQuery={() => {
+            updateParams({ q: '' });
+          }}
+          onOpenDetails={openDetails}
+          onTogglePin={togglePin}
+        />
+      </Suspense>
     );
   }
 
@@ -203,14 +152,10 @@ export function WelcomePage() {
       <header className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium text-muted">{today}</p>
-          <m.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-            className="mt-1 animate-[tt-shimmer_8s_linear_infinite] bg-[linear-gradient(110deg,var(--tt-text)_35%,var(--tt-primary)_50%,var(--tt-text)_65%)] bg-[length:250%_100%] bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl forced-colors:bg-none forced-colors:text-[CanvasText]"
-          >
+          {/* Rises in as the page opens (CSS: no animation library before the first paint). */}
+          <h1 className="mt-1 animate-[tt-shimmer_8s_linear_infinite] bg-[linear-gradient(110deg,var(--tt-text)_35%,var(--tt-primary)_50%,var(--tt-text)_65%)] bg-[length:250%_100%] bg-clip-text text-3xl font-bold tracking-tight text-transparent transition-[opacity,translate] duration-500 ease-[cubic-bezier(0.22,1.2,0.36,1)] sm:text-4xl starting:translate-y-3 starting:opacity-0 forced-colors:bg-none forced-colors:text-[CanvasText]">
             {greeting}
-          </m.h1>
+          </h1>
           {!isPending && !isError && (
             <p className="mt-2 text-muted">
               {t('welcome.modulesCount', { count: visible.length })}
@@ -223,6 +168,8 @@ export function WelcomePage() {
         </div>
         <SystemStatusPill />
       </header>
+
+      {simple && <SpeakCard />}
 
       <div className="space-y-4">
         <div className="flex gap-3">
@@ -241,6 +188,9 @@ export function WelcomePage() {
             className="ml-auto shrink-0 rounded-2xl px-4"
             aria-pressed={arranging}
             disabled={isPending || isError}
+            // Fetch the board while the pointer or focus is on its way to the button.
+            onPointerEnter={() => void loadArrangeBoard()}
+            onFocus={() => void loadArrangeBoard()}
             onClick={() => {
               setArranging((value) => !value);
             }}
@@ -301,25 +251,30 @@ export function WelcomePage() {
         </details>
       )}
 
-      <ModuleDetailsDialog
-        tile={selected}
-        open={detailsKey !== null && selected !== null}
-        onClose={() => {
-          // Opened from this page: step back, so Back doesn't reopen it. Deep link: just close.
-          const openedHere = (location.state as { openedHere?: boolean } | null)?.openedHere;
-          if (openedHere) void navigate(-1);
-          else updateParams({ module: '' });
-        }}
-        onPin={(tile, pinned) => {
-          actions.setPinned(tile, pinned);
-        }}
-        onVisible={(tile, enabled) => {
-          actions.setVisible(tile, enabled);
-        }}
-        onNotify={(tile, wanted) => {
-          actions.setNotify(tile, wanted);
-        }}
-      />
+      {/* Mounted from the first opening on, so it can animate out as it closes. */}
+      {selected && (
+        <Suspense fallback={null}>
+          <ModuleDetailsDialog
+            tile={selected}
+            open={detailsKey !== null}
+            onClose={() => {
+              // Opened from this page: step back, so Back doesn't reopen it. Deep link: close.
+              const openedHere = (location.state as { openedHere?: boolean } | null)?.openedHere;
+              if (openedHere) void navigate(-1);
+              else updateParams({ module: '' });
+            }}
+            onPin={(tile, pinned) => {
+              actions.setPinned(tile, pinned);
+            }}
+            onVisible={(tile, enabled) => {
+              actions.setVisible(tile, enabled);
+            }}
+            onNotify={(tile, wanted) => {
+              actions.setNotify(tile, wanted);
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

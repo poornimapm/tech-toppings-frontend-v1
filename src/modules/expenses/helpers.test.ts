@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { formatMoney, minorDigits, toInput, toMinor } from '@/core/utils/money';
 import { accentFor } from '@/modules/expenses/category-book';
-import { messages } from '@/modules/expenses/i18n';
 import { daysOf, toPeriod } from '@/modules/expenses/periods';
-import { expectSameKeysAndPlaceholders } from '@/test/translations';
 
 describe('money', () => {
   it('reads what people type as exact minor units', () => {
@@ -55,9 +53,4 @@ describe('categories', () => {
     expect(accentFor('செல்லப்பிராணி 🐶')).toMatch(/^[a-z]+$/);
   });
 });
-
-describe('the module in every language', () => {
-  it('has the same keys and placeholders in Tamil and Hindi as in English', () => {
-    expectSameKeysAndPlaceholders(messages);
-  });
-});
+// Every language's text: src/core/i18n/completeness.test.ts checks each module's.

@@ -337,7 +337,8 @@
     "deleted": "Deleted {{title}}",
     "undeleted": "{{title}} is back",
     "restored": "Restored {{title}}",
-    "failed": "That didn't work. Please try again."
+    "failed": "That didn't work. Please try again.",
+    "queued": "“{{title}}” is kept on this device and sent when you're back online."
   },
   "categories": {
     "manage": "Categories",
@@ -442,7 +443,8 @@
         "dueError": "It can't be due before it was given.",
         "done": "Done"
       }
-    }
+    },
+    "kept": "Kept on this device: it's read when you're back online, and waits here to be checked."
   },
   "duplicates": {
     "note": "You may have saved this already: {{entry}}",

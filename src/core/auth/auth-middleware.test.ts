@@ -84,6 +84,26 @@ describe('auth middleware', () => {
 
     expect(result.response.status).toBe(401);
     expect(useSession.getState().status).toBe('anonymous');
+    expect(localStorage.getItem('tt-session')).toBe('0');
+  });
+
+  it.each([
+    ['offline', () => HttpResponse.error()],
+    ['a server error', () => new HttpResponse(null, { status: 503 })],
+  ])('keeps the session when the refresh fails %s', async (_case, reply) => {
+    signIn('stale-token');
+    server.use(
+      http.get('*/api/v1/me', () =>
+        HttpResponse.json(errorEnvelope('AUTH_TOKEN_EXPIRED', 'expired'), { status: 401 }),
+      ),
+      http.post('*/api/v1/auth/refresh', reply),
+    );
+
+    const result = await api.GET('/v1/me');
+
+    expect(result.response.status).toBe(401);
+    expect(useSession.getState().status).toBe('authenticated');
+    expect(localStorage.getItem('tt-session')).toBe('1');
   });
 
   it.each(['AUTH_SESSION_REVOKED', 'AUTH_TOKEN_INVALID'])('signs out on %s', async (code) => {
@@ -95,6 +115,7 @@ describe('auth middleware', () => {
     await api.GET('/v1/me');
 
     expect(useSession.getState().status).toBe('anonymous');
+    expect(localStorage.getItem('tt-session')).toBe('0'); // this browser remembers it is signed out
   });
 
   it('flags a pending password change', async () => {

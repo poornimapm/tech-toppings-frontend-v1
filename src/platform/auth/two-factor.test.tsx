@@ -86,6 +86,36 @@ function googleOnly(user: Partial<Schemas['UserOut']> = {}) {
   );
 }
 
+type User = ReturnType<typeof renderApp>['user'];
+
+/** The password step answers with a code challenge, and keeps what each try sent. */
+function loginServer() {
+  const sent: unknown[] = [];
+  server.use(
+    http.post('*/api/v1/auth/login', async ({ request }) => {
+      sent.push(await request.json());
+      return HttpResponse.json(challenge);
+    }),
+  );
+  return sent;
+}
+
+async function signInWithPassword(user: User) {
+  await user.type(await screen.findByLabelText('Email'), 'asha@example.com');
+  await user.type(screen.getByLabelText('Password'), PASSWORD);
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
+}
+
+/** Back on the first step, the fields still hold what was typed: one press tries again. */
+async function expectSignInAgain(user: User, logins: unknown[]) {
+  expect(screen.getByLabelText('Email')).toHaveValue('asha@example.com');
+  expect(screen.getByLabelText('Password')).toHaveValue(PASSWORD);
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
+  expect(await screen.findByLabelText('Code')).toBeInTheDocument();
+  expect(logins).toHaveLength(2);
+  expect(logins[1]).toMatchObject({ email: 'asha@example.com', password: PASSWORD });
+}
+
 describe('signing in with two-step on', () => {
   it('asks for a code after the password, then signs in', async () => {
     signedOut();
@@ -142,18 +172,14 @@ describe('signing in with two-step on', () => {
 
   it('keeps the code step on a wrong code, and starts over when the sign-in ran out', async () => {
     signedOut();
+    const logins = loginServer();
     const replies = [
       HttpResponse.json(errorEnvelope('AUTH_TWO_FACTOR_CODE_INVALID', 'x'), { status: 422 }),
       HttpResponse.json(errorEnvelope('AUTH_TWO_FACTOR_CHALLENGE_INVALID', 'x'), { status: 401 }),
     ];
-    server.use(
-      http.post('*/api/v1/auth/login', () => HttpResponse.json(challenge)),
-      http.post('*/api/v1/auth/login/totp', () => replies.shift()),
-    );
+    server.use(http.post('*/api/v1/auth/login/totp', () => replies.shift()));
     const { user } = renderApp('/login');
-    await user.type(await screen.findByLabelText('Email'), 'asha@example.com');
-    await user.type(screen.getByLabelText('Password'), PASSWORD);
-    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    await signInWithPassword(user);
 
     await user.type(await screen.findByLabelText('Code'), '000000');
     await user.click(screen.getByRole('button', { name: 'Verify' }));
@@ -166,6 +192,18 @@ describe('signing in with two-step on', () => {
     expect(
       screen.getByText('That sign-in took too long. Please sign in again.'),
     ).toBeInTheDocument();
+    await expectSignInAgain(user, logins);
+  });
+
+  it('goes back from the code step with the email and password still filled in', async () => {
+    signedOut();
+    const logins = loginServer();
+    const { user } = renderApp('/login');
+    await signInWithPassword(user);
+
+    await user.click(await screen.findByRole('button', { name: 'Back to sign in' }));
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    await expectSignInAgain(user, logins);
   });
 });
 

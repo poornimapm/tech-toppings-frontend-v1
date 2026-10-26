@@ -62,6 +62,8 @@ async function stubApi(
     readiness = 'ready',
   }: { signedIn?: boolean; readiness?: 'ready' | 'down' } = {},
 ) {
+  // A browser that has signed in before asks the server for its session when the app opens.
+  if (signedIn) await page.addInitScript("localStorage.setItem('tt-session', '1')");
   await page.route('**/api/healthz', (route) =>
     route.fulfill({ json: { status: 'ok', name: 'Tech-Toppings API', version: '0.1.0' } }),
   );
@@ -284,6 +286,70 @@ async function stubExpenses(page: Page): Promise<string[]> {
     return entry.deleted ? route.fulfill({ status: 204 }) : route.fulfill({ json: entry });
   });
   return keys;
+}
+
+interface AxeResult {
+  violations: { id: string; impact: string; nodes: { target: string[] }[] }[];
+}
+
+/** WCAG 2.1 A and AA problems on the page as it is now (axe-core, as in a browser extension). */
+async function axeProblems(page: Page): Promise<string[]> {
+  await page.addScriptTag({ path: 'node_modules/axe-core/axe.min.js' });
+  const result = await page.evaluate<AxeResult>(
+    "axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] })",
+  );
+  return result.violations.map(
+    (problem) =>
+      `${problem.id} (${problem.impact}): ${problem.nodes.map((node) => node.target.join(' ')).join(', ')}`,
+  );
+}
+
+// The accessibility audit (Phase 11): every page, in the light and the dark theme.
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`every signed-in page passes axe (${colorScheme})`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.emulateMedia({ colorScheme });
+    await stubApi(page);
+    await stubExpenses(page);
+    await stubPlan(page);
+    await stubLoans(page);
+    const problems: Record<string, string[]> = {};
+    for (const path of [
+      '/',
+      '/dashboard',
+      '/notifications',
+      '/activity',
+      '/account/security',
+      '/change-password',
+      '/m/expenses',
+      '/m/expenses/overview',
+      '/m/expenses/plan',
+      '/m/expenses/prices',
+      '/m/expenses/report',
+      '/m/expenses/import',
+      '/no-such-page',
+    ]) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+      await page.waitForLoadState('networkidle');
+      const found = await axeProblems(page);
+      if (found.length) problems[path] = found;
+    }
+    expect(problems).toEqual({});
+  });
+
+  test(`signing in and registering pass axe (${colorScheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme });
+    await stubApi(page, { signedIn: false });
+    const problems: Record<string, string[]> = {};
+    for (const path of ['/login', '/register']) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+      const found = await axeProblems(page);
+      if (found.length) problems[path] = found;
+    }
+    expect(problems).toEqual({});
+  });
 }
 
 test('home page greets the user, lists modules and shows live system status', async ({ page }) => {
@@ -510,7 +576,7 @@ test('unread notifications show in the navigation and can be cleared', async ({ 
   });
   await page.goto('/');
 
-  await page.getByRole('link', { name: 'Notifications, 1 unread' }).click();
+  await page.getByRole('link', { name: 'Notifications (1 unread)' }).click();
   await expect(page.getByText('Expenses is here. Give it a try!')).toBeVisible();
   await page.getByRole('button', { name: 'Mark all as read' }).click();
 
@@ -518,9 +584,9 @@ test('unread notifications show in the navigation and can be cleared', async ({ 
   await expect(page.getByRole('link', { name: 'Notifications', exact: true })).toBeVisible();
 });
 
-test('what is typed is read into a draft, checked and saved', async ({ page }) => {
-  await stubApi(page);
-  await stubExpenses(page);
+/** The assistant reads anything typed into one draft: "Vegetables", ₹250.50. Returns what it
+ *  was last asked. */
+async function stubVegetablesRun(page: Page): Promise<{ asked: unknown }> {
   const draft = {
     kind: 'expense',
     title: 'Vegetables',
@@ -531,9 +597,9 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
     for_whom: null,
     uncertain: ['category_id'],
   };
-  let asked: unknown = null;
+  const seen: { asked: unknown } = { asked: null };
   await page.route('**/api/v1/agents/assistant/runs', (route) => {
-    asked = route.request().postDataJSON();
+    seen.asked = route.request().postDataJSON();
     return route.fulfill({
       status: 201,
       json: {
@@ -552,6 +618,52 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
       },
     });
   });
+  return seen;
+}
+
+test('an entry saved offline waits on the device, then is sent once back online', async ({
+  page,
+  context,
+}) => {
+  await stubApi(page);
+  const keys = await stubExpenses(page);
+  await stubVegetablesRun(page);
+  // Back online, the server is still out of reach at first (registered last, so tried first;
+  // reads pass through).
+  await page.route('**/api/v1/expenses/entries', (route) =>
+    route.request().method() === 'POST' ? route.abort('internetdisconnected') : route.fallback(),
+  );
+  await page.goto('/m/expenses');
+  await page.getByRole('textbox', { name: 'Say or type what you spent' }).fill('250.50 vegetables');
+  await page.getByRole('button', { name: 'Read it' }).click();
+  const tray = page.getByRole('region', { name: 'Check before saving' });
+  const save = tray.getByRole('button', { name: 'Save Vegetables' });
+  await expect(save).toBeVisible();
+
+  await context.setOffline(true); // the browser knows: the save is still tried, and kept
+  await save.click();
+  await expect(
+    page.getByText("“Vegetables” is kept on this device and sent when you're back online."),
+  ).toBeVisible();
+  await context.setOffline(false);
+
+  await page.reload(); // kept in IndexedDB, not in the page
+  await expect(page.getByText('1 thing you added offline is waiting to be sent.')).toBeVisible();
+  expect(keys).toEqual([]);
+
+  await page.unroute('**/api/v1/expenses/entries');
+  await context.setOffline(true);
+  await context.setOffline(false); // back online: what waits is sent
+  await expect(page.getByText('Sent 1 thing you added offline.')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Today' }).getByText('−₹250.50')).toBeVisible();
+  expect(keys).toHaveLength(1);
+  await expect(page.getByText(/waiting to be sent/)).toBeHidden();
+});
+
+test('what is typed is read into a draft, checked and saved', async ({ page }) => {
+  await stubApi(page);
+  await stubExpenses(page);
+  const seen = await stubVegetablesRun(page);
   await page.goto('/m/expenses');
 
   await page.getByRole('textbox', { name: 'Say or type what you spent' }).fill('250.50 vegetables');
@@ -560,7 +672,7 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
   const tray = page.getByRole('region', { name: 'Check before saving' });
   await expect(tray.getByText('Check: Category')).toBeVisible();
   await expect(page.getByText('Read in Quick mode.')).toBeVisible();
-  expect(asked).toMatchObject({ skill: 'track-expenses', context: { input_type: 'text' } });
+  expect(seen.asked).toMatchObject({ skill: 'track-expenses', context: { input_type: 'text' } });
   await expect(page.getByText('Nothing here yet')).toBeVisible(); // not saved by reading it
 
   await tray.getByRole('button', { name: 'Save Vegetables' }).click();

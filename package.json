@@ -17,6 +17,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run typecheck && vite build",
+    "budget": "node scripts/check-budget.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "eslint . --max-warnings 0",
@@ -25,11 +26,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "i18n:check": "vitest run src/core/i18n/completeness.test.ts",
     "e2e:install": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
     "e2e": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright test",
     "knip": "knip",
     "gen:api": "node scripts/gen-api-types.mjs",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run knip && vite build",
+    "gen:icons": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 node scripts/gen-icons.mjs",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run knip && vite build && npm run budget",
     "prepare": "husky"
   },
   "dependencies": {

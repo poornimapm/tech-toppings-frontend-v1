@@ -1,5 +1,3 @@
-import { m } from 'motion/react';
-import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
 
@@ -20,7 +18,6 @@ const BADGE_MAX = 9;
 export function ShellNav({ bar = false }: { bar?: boolean }) {
   const { t } = useTranslation();
   const unread = useUnreadCount().data ?? 0;
-  const highlightId = useId();
   const items = [...(bar ? [pages.home] : []), pages.dashboard, pages.notifications];
 
   return (
@@ -42,7 +39,6 @@ export function ShellNav({ bar = false }: { bar?: boolean }) {
             to={page.path}
             end
             title={bar ? undefined : label}
-            aria-label={count > 0 ? `${label}, ${t('inbox.unread', { count })}` : undefined}
             className={cx(
               'relative isolate text-muted transition-colors hover:text-text aria-[current=page]:text-primary',
               bar
@@ -52,12 +48,12 @@ export function ShellNav({ bar = false }: { bar?: boolean }) {
           >
             {({ isActive }) => (
               <>
+                {/* The highlight grows in under the current page: CSS only, so the shell
+                    loads no animation library (reduce motion stills it, tokens.css). */}
                 {isActive && (
-                  <m.span
-                    layoutId={highlightId}
+                  <span
                     aria-hidden="true"
-                    className="absolute inset-0 -z-10 rounded-[inherit] bg-primary/10"
-                    transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                    className="absolute inset-0 -z-10 rounded-[inherit] bg-primary/10 transition-[opacity,scale] duration-300 ease-out starting:scale-75 starting:opacity-0"
                   />
                 )}
                 <span className="relative">
@@ -72,6 +68,14 @@ export function ShellNav({ bar = false }: { bar?: boolean }) {
                   )}
                 </span>
                 <span className={bar ? undefined : 'sr-only lg:not-sr-only'}>{label}</span>
+                {/* Named from its words: "Notifications (2 unread)" (the badge is decoration).
+                    Browsers space out flex items, so no punctuation leans on the label. */}
+                {count > 0 && (
+                  <>
+                    {' '}
+                    <span className="sr-only">({t('inbox.unread', { count })})</span>
+                  </>
+                )}
               </>
             )}
           </NavLink>

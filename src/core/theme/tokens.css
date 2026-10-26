@@ -178,6 +178,11 @@
 }
 
 @layer base {
+  /* Simple mode (ui-mode.ts): everything sized in rem grows with it, tap targets too. */
+  :root[data-ui-mode='simple'] {
+    font-size: 118.75%;
+  }
+
   body {
     @apply bg-bg font-sans text-text antialiased;
   }

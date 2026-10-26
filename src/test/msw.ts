@@ -360,6 +360,10 @@ const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
   http.get('*/api/v1/reminders', () => HttpResponse.json(pageOf(reminderState))),
+  // A server without VAPID keys, as most tests need: no push card at all.
+  http.get('*/api/v1/push', () =>
+    HttpResponse.json({ available: false, public_key: null, devices: 0 }),
+  ),
   http.post('*/api/v1/reminders/:id/snooze', async ({ params, request }) => {
     const { days } = (await request.json()) as { days: number };
     const item = reminderState.find((candidate) => candidate.id === params.id);

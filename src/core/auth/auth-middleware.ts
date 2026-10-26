@@ -9,8 +9,10 @@ const SESSION_ENDED = new Set(['AUTH_SESSION_REVOKED', 'AUTH_TOKEN_INVALID', 'UN
 export interface AuthMiddlewareDeps {
   csrfHeader: string;
   getToken: () => string | null;
-  /** Returns a fresh access token, or rejects when the session can't be renewed. */
+  /** Returns a fresh access token, or rejects when the session can't be renewed. It ends the
+   *  session itself when the server says there is none (401); an outage proves nothing. */
   refresh: () => Promise<string>;
+  /** The server said the session is over: sign in again. */
   onSessionEnded: () => void;
   onPasswordChangeRequired: () => void;
 }
@@ -60,7 +62,8 @@ export function createAuthMiddleware(deps: AuthMiddlewareDeps): Middleware {
         try {
           token = await deps.refresh();
         } catch {
-          deps.onSessionEnded();
+          // A 401 has signed out already; offline or a server error keeps the session (the
+          // next request tries again).
           return response;
         }
         const retry = new Request(original);

@@ -26,7 +26,7 @@ describe('main navigation', () => {
 
     expect(destinations(nav)).toEqual(['/', '/dashboard', '/notifications']);
     expect(within(nav).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
-    const bell = await within(nav).findByRole('link', { name: 'Notifications, 1 unread' });
+    const bell = await within(nav).findByRole('link', { name: 'Notifications (1 unread)' });
 
     await user.click(within(nav).getByRole('link', { name: 'Dashboard' }));
     // The router moves first; the links follow on the next render.
@@ -40,6 +40,17 @@ describe('main navigation', () => {
     expect(bell).not.toHaveAttribute('aria-current');
   });
 
+  it('highlights the current page only, with decoration hidden from assistive tech', async () => {
+    renderApp('/');
+    const nav = await screen.findByRole('navigation', { name: 'Main' });
+    const highlight = (name: string) =>
+      within(nav).getByRole('link', { name }).querySelector('.bg-primary\\/10');
+
+    expect(highlight('Home')).toHaveAttribute('aria-hidden', 'true');
+    expect(highlight('Dashboard')).toBeNull();
+    expect(nav.querySelectorAll('.bg-primary\\/10')).toHaveLength(1);
+  });
+
   it('moves into the header on wider screens, where the logo leads home', async () => {
     renderApp('/');
     const nav = await screen.findByRole('navigation', { name: 'Main' });
@@ -49,8 +60,11 @@ describe('main navigation', () => {
       setWideScreen(true);
     });
 
-    const headerNav = await screen.findByRole('navigation', { name: 'Main' });
-    expect(headerNav.closest('header')).not.toBeNull();
+    // The bar may still be there for a moment: wait for the nav to have moved.
+    await waitFor(() => {
+      expect(screen.getByRole('navigation', { name: 'Main' }).closest('header')).not.toBeNull();
+    });
+    const headerNav = screen.getByRole('navigation', { name: 'Main' });
     expect(destinations(headerNav)).toEqual(['/dashboard', '/notifications']);
   });
 
@@ -66,7 +80,7 @@ describe('main navigation', () => {
     );
     renderApp('/');
 
-    const busy = await screen.findByRole('link', { name: 'Notifications, 12 unread' });
+    const busy = await screen.findByRole('link', { name: 'Notifications (12 unread)' });
     expect(within(busy).getByText('9+')).toBeInTheDocument();
   });
 

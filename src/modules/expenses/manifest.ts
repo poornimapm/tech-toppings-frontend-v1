@@ -85,6 +85,11 @@ export default defineModule({
     'expenses.iou_due_lent': 'plan?show=loans&focus={{iou_id}}',
     'expenses.iou_due_borrowed': 'plan?show=loans&focus={{iou_id}}',
   },
+  // What was saved or said offline (ADR-0010): loaded only when such an item waits to be sent.
+  outbox: {
+    'expenses.entry': async () => (await import('@/modules/expenses/outbox')).sendEntry,
+    'expenses.capture': async () => (await import('@/modules/expenses/outbox')).sendCapture,
+  },
   // Only what the shell shows outside the module (tile, dashboard, feeds, assistant) is here;
   // the module's own screens are worded in ./i18n and load with them.
   strings: {

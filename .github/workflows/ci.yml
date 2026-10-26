@@ -41,6 +41,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Missing translations (every text in en, ta and hi)
+        run: npm run i18n:check
+
       - name: Unit tests (coverage gate in vite.config.ts)
         run: npm run test:coverage
 
@@ -49,6 +52,9 @@ jobs:
 
       - name: Production build
         run: npx vite build
+
+      - name: Performance budget (first-load JavaScript, gzipped)
+        run: npm run budget
 
       - name: Dependency audit
         run: npm audit --audit-level=high

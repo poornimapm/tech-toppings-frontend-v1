@@ -7,7 +7,7 @@ import { errorKey, toLanguage } from '@/core/i18n';
 import { speak } from '@/core/speech/speech';
 import { formatMoney, toMinor } from '@/core/utils/money';
 import { Alert, Badge, Button, toast } from '@/design-system';
-import { failureCode, useSaveEntry, type Entry } from '@/modules/expenses/api';
+import { failureCode, isQueued, useSaveEntry, type Entry } from '@/modules/expenses/api';
 import { useReadBack, type Draft } from '@/modules/expenses/capture';
 import { useCategoryBook } from '@/modules/expenses/category-book';
 import { CategoryIcon } from '@/modules/expenses/category-icon';
@@ -102,6 +102,10 @@ export function DraftsTray({
           .catch(() => null);
         if (!entry) return; // shown from save.error; the rest stay as drafts
         onRemove(draft.key);
+        if (isQueued(entry)) {
+          toast(t('toast.queued', { title: entry.title }));
+          continue;
+        }
         toast(t('toast.added', { title: entry.title }), { tone: 'success' });
         sayAloud(entry);
       }
@@ -224,6 +228,9 @@ export function DraftsTray({
           onSaved={(entry) => {
             onRemove(editing.key);
             sayAloud(entry);
+          }}
+          onQueued={() => {
+            onRemove(editing.key);
           }}
         />
       )}

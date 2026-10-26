@@ -5,12 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content="Tech-Toppings: your modular, voice-first personal toolkit." />
+    <meta name="theme-color" content="#4f46e5" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <title>Tech-Toppings</title>
+    <style>
+      /* What shows before the app's code has loaded: its header, so a slow phone paints at once.
+         React replaces it on its first render. Colours: --tt-bg, --tt-border, --tt-text and
+         --tt-primary (tokens.css), light and dark. */
+      .boot {
+        min-height: 100dvh;
+        background: #f8fafc;
+        font-family: system-ui, sans-serif;
+      }
+      .boot header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #cbd5e1;
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: #0f172a;
+      }
+      .boot header span {
+        display: grid;
+        place-items: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.75rem;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 0.875rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot {
+          background: #0b1120;
+        }
+        .boot header {
+          border-color: #334155;
+          color: #f1f5f9;
+        }
+      }
+    </style>
   </head>
   <body>
     <noscript>Tech-Toppings needs JavaScript enabled to run.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" aria-hidden="true">
+        <header><span>T</span>Tech-Toppings</header>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

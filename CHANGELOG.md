@@ -6,6 +6,55 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 11: PWA, i18n, a11y, polish
+
+- **Installable and offline** (ADR-0018), with no PWA library:
+  - a manifest and icons; a service worker built by `vite-plugins/pwa.ts` keeps the app's files,
+    so the app opens with no network (the API is never cached). The shell is kept under `/`, so
+    hosts that redirect `/index.html` (Cloudflare Pages) still open offline;
+  - a new version waits for "Reload". Other open tabs keep working on the previous build until
+    they reload;
+  - an Install button and palette command while the browser offers it;
+  - a banner when the device is offline.
+- **Offline outbox** (`core/offline`): an expense saved with no network, or words said offline,
+  wait in IndexedDB. They are sent once back online, one tab at a time, each under its own
+  Idempotency-Key, so nothing is saved twice. A network failure, a busy or waking server, or a
+  sign-in problem makes them wait; what the server refuses is shown, to try again or discard.
+  Drafts to check are kept on the device per account, safe across tabs. Modules declare their
+  senders in `ModuleDefinition.outbox`.
+- **Unsaved input is asked about**: a new entry or the quick-add box with input asks before the
+  page is left (`core/forms/unsaved-guard`), and the browser asks before the tab closes.
+- **Reminders on this device** (Web Push): turn on per browser under Notifications, send a test,
+  turn off. The worker words a push in the user's language, as the bell does, and shows it even
+  with the app in front (the bell updates too). A click opens the page in an open app window,
+  without reloading it. Signing out stops this browser's pushes.
+- **Simple mode**, for the account: larger text, a new entry asks only the essentials, and the
+  home starts with a large microphone that asks the assistant once, with the final words.
+- **A first-run tour** of five steps, for new accounts; "Show the tour again" in the palette.
+- **Missing-key check**: every text in en, ta and hi, for the shell, each module and each
+  manifest (keys, placeholders, nothing left in English). `npm run i18n:check`, its own CI step.
+- **Performance budget**: `npm run budget` keeps the JavaScript each first page needs (the entry,
+  plus the route's own chunk) within 200 KB gzipped: now 195.4 KB for the home and 189.2 KB for
+  sign-in. It is part of `npm run check` and CI.
+- **Accessibility sweep**: axe-core on every page in the browser, light and dark (e2e).
+
+### Changed — Phase 11
+
+- Tamil and Hindi load when chosen; English ships with the first page. A failed download is
+  retried, then said, and the app stays honestly in English.
+- The shared vendor chunk holds only what every page needs; forms, validation and the animation
+  engine load with their pages.
+- Startup config is checked without zod, and the sign-in form without react-hook-form or zod.
+- The shell's small animations (toasts, navigation and filter highlights, the greeting, counting
+  numbers) are CSS. The home's tile sections, arrange board and module details load as their own
+  chunks.
+- Changes no longer wait silently offline: they fail at once, or go to the outbox.
+- A browser known to be signed out opens without asking the server (`tt-session` hint). A failed
+  restore (offline, a waking server) keeps the session for the next start.
+- The first paint is the app's header, straight from `index.html`.
+- The notifications bell and filter chips are named from their words (WCAG 2.5.3).
+- Deleting the account also removes what this device kept for it (offline items, drafts).
+
 ### Added — Phase 10: admin console, account security
 
 - **Two-step sign-in**:

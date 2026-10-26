@@ -1,19 +1,14 @@
 import { expect } from 'vitest';
 
-/** Every leaf of a translation tree as a dotted path: `{a: {b: 'x'}}` -> `['a.b']`. */
-function keyPaths(value: unknown, prefix = ''): string[] {
-  if (typeof value !== 'object' || value === null) return [prefix];
-  return Object.entries(value).flatMap(([key, child]) =>
-    keyPaths(child, prefix ? `${prefix}.${key}` : key),
-  );
+type Leaf = [path: string[], text: string];
+
+/** Every leaf of a translation tree with its path; keys may hold dots (feed codes do). */
+function leaves(value: unknown, path: string[] = []): Leaf[] {
+  if (typeof value !== 'object' || value === null) return [[path, String(value)]];
+  return Object.entries(value).flatMap(([key, child]) => leaves(child, [...path, key]));
 }
 
-function valueAt(tree: unknown, path: string): string {
-  const value = path
-    .split('.')
-    .reduce<unknown>((node, key) => (node as Record<string, unknown>)[key], tree);
-  return String(value);
-}
+const named = (path: string[]) => path.join(' › ');
 
 /**
  * Fails unless every language has exactly English's keys, and keeps every `{{placeholder}}`
@@ -22,12 +17,13 @@ function valueAt(tree: unknown, path: string): string {
 export function expectSameKeysAndPlaceholders(
   bundles: Record<'en', unknown> & Record<string, unknown>,
 ) {
-  const english = bundles.en;
+  const english = leaves(bundles.en);
   for (const [language, bundle] of Object.entries(bundles)) {
-    expect(keyPaths(bundle).sort(), language).toEqual(keyPaths(english).sort());
-    for (const path of keyPaths(english)) {
-      for (const placeholder of valueAt(english, path).match(/{{\w+}}/g) ?? []) {
-        expect(valueAt(bundle, path), `${language} ${path}`).toContain(placeholder);
+    const texts = new Map(leaves(bundle).map(([path, text]) => [named(path), text]));
+    expect([...texts.keys()].sort(), language).toEqual(english.map(([path]) => named(path)).sort());
+    for (const [path, text] of english) {
+      for (const placeholder of text.match(/{{\w+}}/g) ?? []) {
+        expect(texts.get(named(path)), `${language} ${named(path)}`).toContain(placeholder);
       }
     }
   }

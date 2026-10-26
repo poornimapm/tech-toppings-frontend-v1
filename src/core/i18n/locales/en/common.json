@@ -1,7 +1,8 @@
 {
   "skipToContent": "Skip to main content",
   "language": {
-    "label": "Language"
+    "label": "Language",
+    "loadFailed": "{{name}} couldn't be downloaded, so the app shows English for now. Choose it again to retry."
   },
   "theme": {
     "light": "Light",
@@ -107,7 +108,10 @@
   "banner": {
     "waking": "Waking up the server. The free hosting plan sleeps when idle, so this can take up to a minute.",
     "offline": "We can't reach the server right now.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "deviceOffline": "You're offline. You can keep adding expenses: they're sent when you're back online.",
+    "update": "A new version of the app is ready.",
+    "reload": "Reload"
   },
   "notFound": {
     "title": "Page not found",
@@ -365,6 +369,9 @@
       "notify_off": "Cancelled the launch notice for {{module}}",
       "arranged": "Rearranged your modules",
       "launched": "{{module}} is here. Give it a try!"
+    },
+    "push": {
+      "test": "Notifications work on this device."
     }
   },
   "agents": {
@@ -595,5 +602,88 @@
       "ip": "IP address",
       "system": "System"
     }
+  },
+  "pwa": {
+    "install": "Install the app on this device"
+  },
+  "outbox": {
+    "waiting_one": "{{count}} thing you added offline is waiting to be sent.",
+    "waiting_other": "{{count}} things you added offline are waiting to be sent.",
+    "sent_one": "Sent {{count}} thing you added offline.",
+    "sent_other": "Sent {{count}} things you added offline.",
+    "refused": "“{{label}}” wasn't saved: {{reason}}",
+    "discard": "Discard",
+    "discardOne": "Discard “{{label}}”",
+    "retry": "Try again",
+    "retryOne": "Try again to send “{{label}}”"
+  },
+  "unsaved": {
+    "title": "Leave without saving?",
+    "body": "What you entered here isn't saved yet. If you leave now, it will be lost.",
+    "stay": "Keep editing",
+    "leave": "Leave without saving"
+  },
+  "push": {
+    "title": "Reminders on this device",
+    "explain": "Get reminders here even when the app is closed. Each device is turned on by itself.",
+    "turnOn": "Turn on",
+    "turnOff": "Turn off",
+    "test": "Send a test",
+    "on": "On for this browser.",
+    "off": "Off for this browser.",
+    "dismissed": "Notifications weren't allowed yet. Press “Turn on” to be asked again.",
+    "noWorker": "This browser isn't ready for notifications yet. Reload the page, then try again.",
+    "testSent_zero": "No device could be reached. Try again later.",
+    "testSent_one": "Sent to {{count}} device.",
+    "testSent_other": "Sent to {{count}} devices.",
+    "unsupported": "This browser can't show the app's notifications. On iPhone or iPad, add the app to the Home Screen and open it from there.",
+    "blocked": "Notifications are blocked for this site. Allow them in your browser's site settings, then come back here.",
+    "fallback": "You have a new notification. Open the app to see it."
+  },
+  "uiMode": {
+    "simple": "Simple mode: larger text, fewer fields",
+    "turnOn": "Turn on Simple mode (larger text, fewer fields)",
+    "turnOff": "Turn off Simple mode",
+    "notSaved": "Couldn't save the Simple mode change. Check your connection and try again."
+  },
+  "speak": {
+    "title": "What would you like to do?",
+    "error": "Couldn't hear that. Tap the microphone to try again, or type it below.",
+    "blocked": "The microphone isn't allowed for this site. Type it in the box below instead.",
+    "listen": "Tap and speak",
+    "stop": "Stop listening",
+    "listening": "Listening… say it in your own words.",
+    "hint": "Tap the microphone and say it, like “250 rupees for vegetables”.",
+    "typeOnly": "Type it below, like “250 rupees for vegetables”.",
+    "type": "Or type it here",
+    "ask": "Go"
+  },
+  "tour": {
+    "home": {
+      "title": "Welcome! This is your home",
+      "body": "Each tile is a module. Open one to use it, or star it to keep it first. Hide the ones you don't need."
+    },
+    "palette": {
+      "title": "Find anything, or just ask",
+      "body": "Press Ctrl+K (or the search button at the top) to jump to any page, or ask the assistant in your own words, in English, Tamil or Hindi."
+    },
+    "voice": {
+      "title": "Say it, and it's tracked",
+      "body": "On Expenses, say or type what you spent, like “250 for vegetables”. You check it before it's saved. Without a connection, it waits on your phone."
+    },
+    "reminders": {
+      "title": "Reminders that find you",
+      "body": "The bell shows what's due. Under Notifications you can also get reminders on this device when the app is closed."
+    },
+    "yours": {
+      "title": "Make it yours",
+      "body": "At the top: language, theme, and Simple mode for larger text and fewer fields. Security keeps your account safe and lets you download or delete your data."
+    },
+    "progress": "Step {{step}} of {{count}}",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "done": "Start",
+    "again": "Show the tour again"
   }
 }

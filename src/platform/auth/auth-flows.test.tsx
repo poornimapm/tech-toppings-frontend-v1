@@ -26,6 +26,69 @@ beforeAll(async () => {
   ]);
 }, 120_000);
 
+describe('a browser known to be signed out', () => {
+  it('opens signed out at once, without asking the server', async () => {
+    localStorage.setItem('tt-session', '0');
+    let asked = 0;
+    server.use(
+      http.post('*/api/v1/auth/refresh', () => {
+        asked += 1;
+        return HttpResponse.json(tokenFor());
+      }),
+    );
+    const { user, router } = renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/login');
+    expect(asked).toBe(0);
+
+    await user.type(screen.getByLabelText('Email'), 'asha@example.com');
+    await user.type(screen.getByLabelText('Password'), PASSWORD);
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    await screen.findByRole('heading', { level: 1, name: /, Asha$/ });
+    expect(localStorage.getItem('tt-session')).toBe('1'); // asked about next time
+  });
+});
+
+describe('a browser without the hint', () => {
+  it('asks the server, so a session from an older build or cleared storage restores', async () => {
+    localStorage.removeItem('tt-session');
+    renderApp('/');
+
+    expect(await screen.findByRole('heading', { level: 1, name: /, Asha$/ })).toBeInTheDocument();
+    expect(localStorage.getItem('tt-session')).toBe('1');
+  });
+
+  it('asks once when new, then remembers there is no session', async () => {
+    localStorage.removeItem('tt-session');
+    signedOut();
+    renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(localStorage.getItem('tt-session')).toBe('0');
+  });
+});
+
+describe('a returning browser', () => {
+  it('forgets the session once the server says there is none', async () => {
+    signedOut();
+    renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(localStorage.getItem('tt-session')).toBe('0');
+  });
+
+  it('still asks next time when the server could not say (an error, not a "no")', async () => {
+    server.use(http.post('*/api/v1/auth/refresh', () => new HttpResponse(null, { status: 500 })));
+    const { router } = renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/login');
+    expect(useSession.getState().status).toBe('anonymous');
+    expect(localStorage.getItem('tt-session')).toBe('1');
+  });
+});
+
 describe('route guards', () => {
   it('sends signed-out visitors to sign in and back to where they were going', async () => {
     signedOut();
@@ -360,6 +423,7 @@ describe('devices and signing out', () => {
       expect(router.state.location.pathname).toBe('/login');
     });
     expect(screen.queryByRole('navigation', { name: /Signed in as/ })).not.toBeInTheDocument();
+    expect(localStorage.getItem('tt-session')).toBe('0');
   });
 });
 

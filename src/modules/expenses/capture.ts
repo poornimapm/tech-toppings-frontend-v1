@@ -8,7 +8,7 @@ import { toLanguage } from '@/core/i18n';
 import type { EntryKind } from '@/modules/expenses/api';
 
 /** The assistant skill that reads what was said, and the client tool it answers with. */
-const SKILL = 'track-expenses';
+export const CAPTURE_SKILL = 'track-expenses';
 export const DRAFT_TOOL = 'expenses_draft';
 
 /**
@@ -83,7 +83,7 @@ export function useCapture() {
     read: (input: string, inputType: 'text' | 'speech') =>
       ask.mutateAsync({
         input,
-        skill: SKILL,
+        skill: CAPTURE_SKILL,
         locale: toLanguage(i18n.language),
         context: { input_type: inputType },
       }),

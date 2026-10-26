@@ -74,9 +74,14 @@ export default defineConfig(
     },
   })),
   {
-    // Node-side TypeScript (configs, e2e).
-    files: ['vite.config.ts', 'playwright.config.ts', 'e2e/**/*.ts'],
+    // Node-side TypeScript (configs, build plugins, e2e).
+    files: ['vite.config.ts', 'vite-plugins/**/*.ts', 'playwright.config.ts', 'e2e/**/*.ts'],
     languageOptions: { globals: globals.node },
+  },
+  {
+    // The service worker runs in its own global scope, without the DOM.
+    files: ['src/sw/**/*.ts'],
+    languageOptions: { globals: globals.serviceworker },
   },
   {
     // Plain JavaScript (this file, scripts): no type information available.

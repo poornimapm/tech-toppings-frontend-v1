@@ -1,37 +1,41 @@
-import { useMotionValue, useReducedMotion, useSpring, type MotionStyle } from 'motion/react';
 import type { PointerEvent } from 'react';
 
+import { useMediaQuery } from '@/core/utils/use-media-query';
+
 const MAX_TILT_DEG = 5;
-const SPRING = { stiffness: 260, damping: 22, mass: 0.6 };
 
 /**
  * Card that leans toward the pointer and lights up under it ("spotlight"): spread `handlers`
- * on an `m.*` element, apply `style`, and use `var(--spot-x)` / `var(--spot-y)` in a
- * background gradient. Touch and reduced-motion users get a still card.
+ * on the card, give its parent depth (`perspective-[900px]`) and the card a transition that
+ * includes `rotate`, and use `var(--spot-x)` / `var(--spot-y)` in a background gradient.
+ * The lean is the CSS `rotate` property, eased by that transition: no animation engine loads
+ * for it, and it composes with a `transform` an animation sets. Touch and reduced-motion
+ * users get a still card.
  */
 export function usePointerTilt() {
-  const reduceMotion = useReducedMotion();
-  const rotateX = useSpring(useMotionValue(0), SPRING);
-  const rotateY = useSpring(useMotionValue(0), SPRING);
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   function onPointerMove(event: PointerEvent<HTMLElement>) {
     if (event.pointerType !== 'mouse') return;
-    const box = event.currentTarget.getBoundingClientRect();
+    const card = event.currentTarget;
+    const box = card.getBoundingClientRect();
     const x = (event.clientX - box.left) / box.width;
     const y = (event.clientY - box.top) / box.height;
-    event.currentTarget.style.setProperty('--spot-x', `${(x * 100).toFixed(1)}%`);
-    event.currentTarget.style.setProperty('--spot-y', `${(y * 100).toFixed(1)}%`);
-    if (!reduceMotion) {
-      rotateY.set((x - 0.5) * 2 * MAX_TILT_DEG);
-      rotateX.set((0.5 - y) * 2 * MAX_TILT_DEG);
-    }
+    card.style.setProperty('--spot-x', `${(x * 100).toFixed(1)}%`);
+    card.style.setProperty('--spot-y', `${(y * 100).toFixed(1)}%`);
+    if (reduceMotion) return;
+    // Leaning back and forth (about x) and sideways (about y) at once: for angles this small,
+    // one turn about the combined axis is the same lean.
+    const aboutX = (0.5 - y) * 2 * MAX_TILT_DEG;
+    const aboutY = (x - 0.5) * 2 * MAX_TILT_DEG;
+    const angle = Math.hypot(aboutX, aboutY);
+    card.style.rotate =
+      angle > 0 ? `${aboutX.toFixed(2)} ${aboutY.toFixed(2)} 0 ${angle.toFixed(2)}deg` : '';
   }
 
-  function onPointerLeave() {
-    rotateX.set(0);
-    rotateY.set(0);
+  function onPointerLeave(event: PointerEvent<HTMLElement>) {
+    event.currentTarget.style.rotate = '';
   }
 
-  const style: MotionStyle = { rotateX, rotateY, transformPerspective: 900 };
-  return { style, handlers: { onPointerMove, onPointerLeave } };
+  return { handlers: { onPointerMove, onPointerLeave } };
 }

@@ -13,7 +13,9 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'list',
-  use: { baseURL, trace: 'on-first-retry' },
+  // The service worker would answer some requests before page.route() sees them: blocked here,
+  // allowed in e2e/pwa.spec.ts, which tests it.
+  use: { baseURL, trace: 'on-first-retry', serviceWorkers: 'block' },
   webServer: {
     command: `npx vite build && npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
     url: baseURL,

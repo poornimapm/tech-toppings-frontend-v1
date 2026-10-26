@@ -273,6 +273,26 @@ With the backend running and signed in.
 2. The list shows "−$120" and beneath it what that counted as in your currency that day (for
    example "≈ ₹10,020"); every total counts the rupees, and they don't change when rates do.
 
+## Installable, offline and Simple mode: try it
+
+Phase 11 (ADR-0018). Use a production build (`npm run build`, then `npm run preview`): the dev
+server has no service worker.
+
+1. **Install**: the browser's install icon, or the download button in the header, or "Install the
+   app on this device" in the palette (Ctrl+K).
+2. **Offline**: open the app once, then turn the network off (DevTools → Network → Offline) and
+   reload. The app still opens, with "You're offline". On Expenses, save an entry or say one: it
+   waits on the device ("1 thing you added offline is waiting"). Turn the network back on and it
+   is sent ("Sent 1 thing you added offline"), never twice. Type into a new entry, then click
+   another page: the app asks before the input is lost.
+3. **Reminders on this device**: Notifications → Turn on (the backend needs `PUSH_*`, see its
+   README) → Send a test. The notification shows even with the app in front; clicking it opens
+   the page in the app.
+4. **Simple mode**: the "Aa" button in the header. The text grows, a new entry asks only the
+   essentials, and the home page starts with a large microphone (the assistant is asked once,
+   when you stop speaking).
+5. **The tour** opens for a new account; the palette has "Show the tour again".
+
 ## Scripts
 
 | Command                                     | What it does                                                                                            |
@@ -287,6 +307,9 @@ With the backend running and signed in.
 | `npm run e2e`                               | Playwright smoke tests against the production build (API stubbed)                                       |
 | `npm run knip`                              | Find unused files, exports and dependencies                                                             |
 | `npm run gen:api`                           | Regenerate `src/core/api/schema.d.ts` from the backend's `openapi.json` (run `poe openapi` there first) |
+| `npm run gen:icons`                         | Render the app icons (`public/icons/*.png`) from `public/favicon.svg`                                   |
+| `npm run i18n:check`                        | Every text in en, ta and hi: keys, placeholders, nothing left in English                                |
+| `npm run budget`                            | Each first page's JavaScript within `BUNDLE_BUDGET_KB` (200) gzipped; run after a build                 |
 | `npm run check`                             | **Everything CI's quality job runs**, locally                                                           |
 
 ## Configuration

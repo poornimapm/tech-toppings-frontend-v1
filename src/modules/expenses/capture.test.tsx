@@ -1,3 +1,4 @@
+import { onlineManager } from '@tanstack/react-query';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -92,6 +93,97 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   useReadBack.setState({ on: false });
+});
+
+/** The device loses its network: the browser says so, and the query client hears it. */
+function goOffline() {
+  const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+  act(() => {
+    window.dispatchEvent(new Event('offline'));
+  });
+  return online;
+}
+
+describe('with no network', () => {
+  afterEach(() => {
+    onlineManager.setOnline(true);
+  });
+
+  it('keeps an entry on the device and sends it once back, under the same key', async () => {
+    answerWith([VEGETABLES]);
+    server.use(http.post('*/api/v1/expenses/entries', () => HttpResponse.error(), { once: true }));
+    const { user } = await open();
+    await say(user, '250.50 for vegetables at big bazaar yesterday');
+    const draft = await tray().findByText('Vegetables');
+
+    const online = goOffline();
+    await user.click(tray().getByRole('button', { name: 'Save Vegetables' }));
+    expect(
+      await screen.findByText(
+        "“Vegetables” is kept on this device and sent when you're back online.",
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(draft).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('1 thing you added offline is waiting to be sent.')).toBeVisible();
+    expect(saves()).toHaveLength(0);
+
+    online.mockReturnValue(true);
+    act(() => {
+      window.dispatchEvent(new Event('online'));
+    });
+    expect(await screen.findByText('Sent 1 thing you added offline.')).toBeInTheDocument();
+    const [sent] = saves();
+    expect(sent?.key).toMatch(/^[0-9a-f-]{36}$/); // the draft's own key: never saved twice
+    expect(sent?.body).toMatchObject({ title: 'Vegetables', amount_minor: 25050 });
+    expect(screen.queryByText(/waiting to be sent/)).toBeNull();
+  });
+
+  it('keeps what was said, and reads it into drafts once back online', async () => {
+    server.use(http.post('*/api/v1/agents/:name/runs', () => HttpResponse.error(), { once: true }));
+    const { user } = await open();
+    const online = goOffline();
+
+    await say(user, '250.50 for vegetables at big bazaar yesterday');
+    expect(
+      await screen.findByText(/Kept on this device: it's read when you're back/),
+    ).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Say or type what you spent' })).toHaveValue('');
+
+    answerWith([VEGETABLES]);
+    online.mockReturnValue(true);
+    act(() => {
+      window.dispatchEvent(new Event('online'));
+    });
+    await screen.findByRole('region', { name: 'Check before saving' });
+    expect(tray().getByText('Vegetables')).toBeInTheDocument();
+    expect(asked).toEqual([
+      {
+        input: '250.50 for vegetables at big bazaar yesterday',
+        skill: 'track-expenses',
+        locale: 'en',
+        context: { input_type: 'text' },
+      },
+    ]);
+    expect(saves()).toHaveLength(0); // still only a draft, to check
+  });
+
+  it('keeps the words as a draft when nothing could be read from them', async () => {
+    server.use(http.post('*/api/v1/agents/:name/runs', () => HttpResponse.error(), { once: true }));
+    const { user } = await open();
+    const online = goOffline();
+    await say(user, 'something at the market');
+    await screen.findByText(/Kept on this device/);
+
+    answerWith([]);
+    online.mockReturnValue(true);
+    act(() => {
+      window.dispatchEvent(new Event('online'));
+    });
+    await screen.findByRole('region', { name: 'Check before saving' });
+    expect(tray().getByText('something at the market')).toBeInTheDocument();
+  });
 });
 
 describe('capturing an entry', () => {
@@ -426,6 +518,12 @@ describe('capturing an entry', () => {
     );
 
     expect(await tray().findByText('Vegetables')).toBeInTheDocument();
+    // Taken once: the history entry forgets it, so a reload or Back doesn't add it again.
+    await waitFor(() => {
+      expect(router.state.location.state).toBeNull();
+    });
+    expect(router.state.location.pathname).toBe('/m/expenses');
+    expect(tray().getAllByText('Vegetables')).toHaveLength(1);
   });
 
   it('has no detectable accessibility violations', { timeout: 40_000 }, async () => {

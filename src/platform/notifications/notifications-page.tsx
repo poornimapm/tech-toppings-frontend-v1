@@ -12,6 +12,7 @@ import { Button } from '@/design-system';
 import { FeedPage } from '@/platform/feed/feed-page';
 import { FeedRow } from '@/platform/feed/feed-row';
 import { useNoticeHref } from '@/platform/notifications/notice-href';
+import { PushCard } from '@/platform/notifications/push-card';
 import { RemindersPanel } from '@/platform/notifications/reminders-panel';
 import { pages } from '@/platform/shell/pages';
 
@@ -50,7 +51,12 @@ export function NotificationsPage() {
           </Button>
         )
       }
-      lead={<RemindersPanel />}
+      lead={
+        <>
+          <PushCard />
+          <RemindersPanel />
+        </>
+      }
     >
       {(item) => {
         const text = feedText(item.type, item.params);

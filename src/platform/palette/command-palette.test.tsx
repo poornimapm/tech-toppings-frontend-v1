@@ -1,9 +1,12 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw/http';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import type { RunInput } from '@/core/agents/queries';
+import { languageFiles } from '@/core/i18n';
+import { useToasts } from '@/design-system';
+import { usePalette } from '@/platform/palette/palette-store';
 
 import {
   errorEnvelope,
@@ -39,6 +42,13 @@ beforeAll(async () => {
     import('@/platform/palette/command-palette'),
   ]);
 }, 120_000);
+
+const TAMIL = './locales/ta/common.json';
+const realLanguageFiles = { ...languageFiles };
+
+afterEach(() => {
+  Object.assign(languageFiles, realLanguageFiles);
+});
 
 describe('command palette', () => {
   it('opens with Ctrl+K or the header button and lists what it can do', async () => {
@@ -83,6 +93,30 @@ describe('command palette', () => {
     await user.keyboard('{Control>}k{/Control}');
     await user.click(await screen.findByRole('option', { name: 'Theme: Dark' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+
+  it('offers a language again after its download failed, and loads it when chosen', async () => {
+    languageFiles[TAMIL] = () => Promise.reject(new Error('offline'));
+    const { user } = await openPalette();
+
+    await user.click(screen.getByRole('option', { name: 'Language: தமிழ்' }));
+    await waitFor(() => {
+      // after i18next's own retries
+      expect(useToasts.getState().toasts.map((toast) => toast.message)).toContainEqual(
+        expect.stringContaining("தமிழ் couldn't be downloaded"),
+      );
+    });
+
+    // The app still shows English: Tamil is offered again, English is not.
+    Object.assign(languageFiles, realLanguageFiles);
+    await user.keyboard('{Control>}k{/Control}');
+    const dialog = await screen.findByRole('dialog', { name: 'Command palette' });
+    expect(within(dialog).queryByRole('option', { name: 'Language: English' })).toBeNull();
+    await user.click(within(dialog).getByRole('option', { name: 'Language: தமிழ்' }));
+
+    await waitFor(() => {
+      expect(document.documentElement.lang).toBe('ta');
+    });
   });
 
   it('asks the assistant and confirms what it proposes (quick mode)', async () => {
@@ -270,6 +304,50 @@ describe('command palette', () => {
     await askAssistant(user, 'pin journal');
     await screen.findByText('Quick mode');
     expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('puts each question from elsewhere to the assistant once, and drops it when closed', async () => {
+    const asked: string[] = [];
+    server.use(
+      http.post('*/api/v1/agents/:name/runs', async ({ request }) => {
+        asked.push(((await request.json()) as RunInput).input);
+        return HttpResponse.json(testRun({ message: 'Opening Expenses.' }), { status: 201 });
+      }),
+    );
+    const { user } = renderApp('/');
+    await screen.findByRole('heading', { level: 1 });
+    const shut = async (keys: string) => {
+      await user.keyboard(keys);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBeNull();
+      });
+    };
+
+    act(() => {
+      usePalette.getState().ask('open expenses');
+    });
+    expect(await screen.findByText('Opening Expenses.')).toBeInTheDocument();
+    await shut('{Control>}k{/Control}');
+
+    // The same words again are a new question, not the old answer.
+    act(() => {
+      usePalette.getState().ask('open expenses');
+    });
+    await waitFor(() => {
+      expect(asked).toEqual(['open expenses', 'open expenses']);
+    });
+    expect(await screen.findByText('Opening Expenses.')).toBeInTheDocument();
+    await shut('{Escape}');
+
+    // A question shut away before the palette took it is never sent on a later open.
+    act(() => {
+      usePalette.getState().ask('pin journal');
+      usePalette.getState().toggle();
+    });
+    await user.keyboard('{Control>}k{/Control}');
+    expect(await screen.findByRole('option', { name: 'Security' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toHaveValue('');
+    expect(asked).toEqual(['open expenses', 'open expenses']);
   });
 
   it('is not offered to signed-out visitors', async () => {
