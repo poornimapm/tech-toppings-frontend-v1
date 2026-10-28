@@ -319,6 +319,19 @@ Every variable is documented in [.env.example](.env.example).
 - `VITE_*` values are compiled into the public bundle, so never put secrets there.
 - `DEV_*` / `PREVIEW_*` values configure only the local servers.
 
+## Deployment (Cloudflare Pages)
+
+The backend's [`docs/deployment.md`](../tech-toppings-backend-v1/docs/deployment.md) is the
+runbook. On Pages:
+
+- build command `npm run build`, output `dist`; Node comes from `.node-version`;
+- [`functions/api/[[path]].ts`](functions/api/[[path]].ts) proxies `/api/*` to the API. It
+  needs `API_ORIGIN` (the Render address) and `API_PROXY_SECRET` (the API's
+  `SECURITY_PROXY_SECRET`) in the Pages settings;
+- [`public/_headers`](public/_headers) gives the app's files their Content-Security-Policy,
+  HSTS, framing, permission and caching rules. `npm run preview` and the e2e tests serve the
+  same policy (`vite-plugins/pages-headers.ts`), so a page it would break fails locally first.
+
 ## Project layout
 
 ```
@@ -357,9 +370,14 @@ src/
                          confirm card, prices (products, price chart, matches), overview
                          (analytics charts, insight card), i18n/{en,ta,hi}.json
     medicine/ ...        the other seven: manifest only, coming soon
-  test/                  test setup, MSW server, render helpers, naming-convention test
+  test/                  test setup, MSW server, render helpers, naming-convention test, and the
+                         tests of the Pages Function and the headers file
+  sw/                    the service worker (built by vite-plugins/pwa.ts)
+functions/api/           the Cloudflare Pages Function proxying /api/* to the API
+public/_headers          headers Cloudflare Pages adds to the app's files
 e2e/                     Playwright smoke tests
-scripts/                 use-node.ps1, gen-api-types.mjs
+scripts/                 use-node.ps1, gen-api-types.mjs, gen-icons.mjs, check-budget.mjs
+vite-plugins/            pwa.ts (manifest + service worker), pages-headers.ts
 ```
 
 ## Conventions (enforced by tooling)

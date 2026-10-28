@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
+import { pagesHeaders } from './vite-plugins/pages-headers.ts';
 import { pwa } from './vite-plugins/pwa.ts';
 
 // Build-time settings. Browser-visible values use the VITE_ prefix (see src/core/config/env.ts);
@@ -46,6 +47,8 @@ export default defineConfig(({ mode }) => {
       port: Number(env.PREVIEW_SERVER_PORT ?? 4173),
       strictPort: true,
       proxy: apiProxy,
+      // The live site's policy (public/_headers), so a preview breaks where the site would.
+      headers: pagesHeaders(fileURLToPath(new URL('./public/_headers', import.meta.url))),
     },
     build: {
       target: 'es2022',

@@ -1,0 +1,25 @@
+# Response headers Cloudflare Pages adds to the app's files (ADR-0019). The /api proxy's answers
+# keep the API's own headers. `vite preview` (and so the e2e tests) serves the same /* headers,
+# less what needs https (vite-plugins/pages-headers.ts).
+#
+# The policy allows only the app's own files, plus Google's sign-in button (script, frame,
+# style and calls under accounts.google.com/gsi/). Styles may be inline: index.html paints its
+# header with one, and dialogs add one while they lock scrolling. The microphone is the app's
+# own (dictation); a sign-in popup from Google may talk back to this window.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; worker-src 'self'; manifest-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(self), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# Named by their content: a new build gives new names, so these never change.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Always asked again, so an update is found at once (the browser also checks it daily).
+/sw.js
+  Cache-Control: no-cache

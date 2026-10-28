@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { expect, test, type Page } from '@playwright/test';
 
 // Smoke tests run the production build with the backend stubbed per test (page.route).
@@ -91,6 +93,10 @@ async function stubApi(
   );
   await page.route('**/api/v1/auth/login', (route) => route.fulfill({ json: token }));
   await page.route('**/api/v1/me', (route) => route.fulfill({ json: user }));
+  // A server without VAPID keys: the app asks once a session, and offers nothing to turn on.
+  await page.route('**/api/v1/push', (route) =>
+    route.fulfill({ json: { available: false, public_key: null, devices: 0 } }),
+  );
   await page.route('**/api/v1/modules?*', (route) =>
     route.fulfill({
       json: { items: modules, page: 1, page_size: 100, total: modules.length, has_next: false },
@@ -292,9 +298,13 @@ interface AxeResult {
   violations: { id: string; impact: string; nodes: { target: string[] }[] }[];
 }
 
+/** axe-core, evaluated in the page as a browser extension would be: the site's policy
+ *  (public/_headers) allows no script but its own, so it can't be added as a script tag. */
+const AXE = readFileSync('node_modules/axe-core/axe.min.js', 'utf8');
+
 /** WCAG 2.1 A and AA problems on the page as it is now (axe-core, as in a browser extension). */
 async function axeProblems(page: Page): Promise<string[]> {
-  await page.addScriptTag({ path: 'node_modules/axe-core/axe.min.js' });
+  await page.evaluate(AXE);
   const result = await page.evaluate<AxeResult>(
     "axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] })",
   );

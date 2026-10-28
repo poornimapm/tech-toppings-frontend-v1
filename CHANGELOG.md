@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 12: deployment + hardening
+
+- **The `/api` proxy** for Cloudflare Pages, `functions/api/[[path]].ts` (ADR-0019):
+  - forwards each call to `API_ORIGIN` with the API's secret (`API_PROXY_SECRET`) and the
+    caller's real address (Cloudflare's), dropping what the caller claimed;
+  - never leaves the API host whatever the path says, and points the API's redirects back
+    through itself;
+  - answers 503 `SERVICE_NOT_READY` when the API can't be reached, so the app shows "waking
+    up".
+- **Headers for the live site**, `public/_headers`:
+  - a Content-Security-Policy allowing the app's own files and Google's sign-in button;
+  - HSTS, no framing, and only the app's own microphone;
+  - `same-origin-allow-popups` for Google's sign-in popup;
+  - immutable caching for `/assets/*`, and `no-cache` for `sw.js`.
+- `npm run preview`, and so every e2e test, serves the same policy (less what needs https).
+  Tests check the policy against the page and the sign-in button.
+
+### Changed — Phase 12
+
+- The e2e axe sweep evaluates axe in the page instead of adding a script tag, which the policy
+  forbids.
+- The e2e stubs answer `GET /v1/push` (a server without push keys).
+
 ### Added — Phase 11: PWA, i18n, a11y, polish
 
 - **Installable and offline** (ADR-0018), with no PWA library:

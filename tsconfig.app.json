@@ -25,6 +25,6 @@
 
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src"],
+  "include": ["src", "functions"],
   "exclude": ["src/sw"]
 }
