@@ -79,7 +79,15 @@ export const testSessions: Schemas['Page_SessionOut_'] = {
 
 type ModuleView = Schemas['ModuleView'];
 
-function moduleView(key: string, position: number, changes: Partial<ModuleView> = {}): ModuleView {
+/**
+ * A module as the API lists it: upcoming unless `changes` say otherwise.
+ * @public for the tests of modules `poe new-module` makes (they add their own view).
+ */
+export function moduleView(
+  key: string,
+  position: number,
+  changes: Partial<ModuleView> = {},
+): ModuleView {
   return {
     key,
     slug: key.replaceAll('_', '-'),

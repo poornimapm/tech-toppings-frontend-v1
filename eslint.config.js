@@ -75,7 +75,13 @@ export default defineConfig(
   })),
   {
     // Node-side TypeScript (configs, build plugins, e2e).
-    files: ['vite.config.ts', 'vite-plugins/**/*.ts', 'playwright.config.ts', 'e2e/**/*.ts'],
+    files: [
+      'vite.config.ts',
+      'vite-plugins/**/*.ts',
+      'playwright.config.ts',
+      'e2e/**/*.ts',
+      'scripts/*.ts',
+    ],
     languageOptions: { globals: globals.node },
   },
   {

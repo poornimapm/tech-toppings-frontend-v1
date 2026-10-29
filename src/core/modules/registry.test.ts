@@ -5,7 +5,8 @@ import { SUPPORTED_LANGUAGES } from '@/core/i18n';
 import { buildRegistry, moduleRegistry, slugOf } from '@/core/modules/registry';
 import { defineModule, type ModuleDefinition } from '@/core/modules/types';
 
-// Must match the backend's app/modules folders (tech-toppings-backend-v1).
+// The backend's app/modules folders as shipped (tech-toppings-backend-v1); `poe new-module`
+// adds a module to both sides, so a made one joins these.
 const BACKEND_MODULE_KEYS = [
   'expenses',
   'medicine',
@@ -30,12 +31,9 @@ function file(definition: ModuleDefinition) {
 
 describe('module registry', () => {
   it('has a folder for every backend module', () => {
-    expect(
-      moduleRegistry
-        .all()
-        .map((definition) => definition.key)
-        .sort(),
-    ).toEqual([...BACKEND_MODULE_KEYS].sort());
+    expect(moduleRegistry.all().map((definition) => definition.key)).toEqual(
+      expect.arrayContaining(BACKEND_MODULE_KEYS),
+    );
   });
 
   it.each(moduleRegistry.all().map((definition) => [definition.key, definition] as const))(

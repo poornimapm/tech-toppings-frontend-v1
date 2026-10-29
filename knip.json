@@ -1,10 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["scripts/*.mjs", "src/sw/service-worker.ts", "functions/**/*.ts"],
+  "entry": ["scripts/*.{mjs,ts}", "src/sw/service-worker.ts", "functions/**/*.ts"],
   "project": [
     "src/**/*.{ts,tsx,css}",
     "e2e/**/*.ts",
-    "scripts/**/*.mjs",
+    "scripts/*.{mjs,ts}",
     "vite-plugins/**/*.ts",
     "functions/**/*.ts"
   ]

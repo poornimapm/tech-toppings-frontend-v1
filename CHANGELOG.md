@@ -6,6 +6,33 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 13: generator + future scaffolds
+
+- **`npm run new-module -- --spec <file.json>`** (`scripts/new-module.ts`, ADR-0020): a module's
+  frontend folder from a spec, as the backend's `poe new-module` runs it for both repositories.
+  - Its contents:
+    - the tile (manifest, with the page route);
+    - typed hooks;
+    - a page listing the items a page at a time (_Show more_, never while the list is being
+      fetched), with add, change and delete in place (a delete asks first, Cancel focused),
+      where focus follows for keyboard users: to the next row after a delete, to the first new
+      row after _Show more_;
+    - its texts in en/ta/hi, the generic words already translated;
+    - a test with an axe check.
+  - It checks the spec first, every problem at once: the key's shape, the design system's
+    colours, a real lucide-react icon that isn't deprecated and doesn't hide a JavaScript name
+    (`Map`), every text present, short enough and translated, keywords as a list. Texts are
+    tidied to one line. `--check` checks the spec alone and writes nothing (the backend runs
+    it before writing anything).
+  - It reads the spec as UTF-8, with or without a byte-order mark, and refuses UTF-16 with a
+    message. It formats what it writes, never writes over a folder, and removes a failed run.
+  - Node runs it as TypeScript, with no build step.
+
+### Changed — Phase 13
+
+- The registry test checks that the shipped modules are there, so a made one can join them.
+- `src/test/msw.ts` exports `moduleView`, for the tests of modules the generator makes.
+
 ### Added — Phase 12: deployment + hardening
 
 - **The `/api` proxy** for Cloudflare Pages, `functions/api/[[path]].ts` (ADR-0019):

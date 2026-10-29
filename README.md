@@ -307,6 +307,7 @@ server has no service worker.
 | `npm run e2e`                               | Playwright smoke tests against the production build (API stubbed)                                       |
 | `npm run knip`                              | Find unused files, exports and dependencies                                                             |
 | `npm run gen:api`                           | Regenerate `src/core/api/schema.d.ts` from the backend's `openapi.json` (run `poe openapi` there first) |
+| `npm run new-module -- --spec <file.json>`  | A module's folder from a spec; the backend's `poe new-module` runs it for both repositories             |
 | `npm run gen:icons`                         | Render the app icons (`public/icons/*.png`) from `public/favicon.svg`                                   |
 | `npm run i18n:check`                        | Every text in en, ta and hi: keys, placeholders, nothing left in English                                |
 | `npm run budget`                            | Each first page's JavaScript within `BUNDLE_BUDGET_KB` (200) gzipped; run after a build                 |

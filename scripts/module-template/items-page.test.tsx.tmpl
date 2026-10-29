@@ -1,0 +1,161 @@
+import { screen, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw/http';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { axe } from 'vitest-axe';
+
+import type { Item } from '@/modules/%%slug%%/api';
+import { moduleView, resetModuleState, server, testModules } from '@/test/msw';
+import { renderApp } from '@/test/render';
+
+const NAME = %%name%%;
+const FIELD = %%field%%;
+const ADD = %%add%%;
+const EMPTY = %%empty%%;
+/** As the API's own page (its default page size). */
+const PAGE_SIZE = 20;
+const AT = '2026-10-08T10:00:00Z';
+
+let items: Item[];
+let made: number;
+
+function item(text: string): Item {
+  made += 1;
+  return { id: `item-${String(made)}`, text, created_at: AT, updated_at: AT };
+}
+
+/** The module's routes, against a list kept here. */
+function fakeApi() {
+  server.use(
+    http.get('*/api/v1/%%slug%%/items', ({ request }) => {
+      const page = Number(new URL(request.url).searchParams.get('page') ?? '1');
+      const start = (page - 1) * PAGE_SIZE;
+      return HttpResponse.json({
+        items: items.slice(start, start + PAGE_SIZE),
+        page,
+        page_size: PAGE_SIZE,
+        total: items.length,
+        has_next: start + PAGE_SIZE < items.length,
+      });
+    }),
+    http.post('*/api/v1/%%slug%%/items', async ({ request }) => {
+      const { text } = (await request.json()) as { text: string };
+      const added = item(text);
+      items = [added, ...items];
+      return HttpResponse.json(added, { status: 201 });
+    }),
+    http.patch('*/api/v1/%%slug%%/items/:id', async ({ params, request }) => {
+      const { text } = (await request.json()) as { text: string };
+      items = items.map((one) => (one.id === params.id ? { ...one, text } : one));
+      return HttpResponse.json(items.find((one) => one.id === params.id));
+    }),
+    http.delete('*/api/v1/%%slug%%/items/:id', ({ params }) => {
+      items = items.filter((one) => one.id !== params.id);
+      return new HttpResponse(null, { status: 204 });
+    }),
+  );
+}
+
+beforeAll(async () => {
+  await import('@/modules/%%slug%%/items-page');
+}, 120_000);
+
+beforeEach(() => {
+  items = [];
+  made = 0;
+  fakeApi();
+  // In place of the fake API's own view of it, if it had one (as an upcoming module).
+  resetModuleState([
+    ...testModules.filter((view) => view.key !== '%%key%%'),
+    moduleView('%%key%%', testModules.length, { status: '%%status%%', available: true }),
+  ]);
+});
+
+async function open() {
+  const view = renderApp('/m/%%slug%%');
+  await screen.findByRole('heading', { level: 1, name: NAME });
+  return view;
+}
+
+describe('the %%key%% page', () => {
+  it('adds an item, changes it and deletes it', async () => {
+    const { user } = await open();
+    expect(await screen.findByText(EMPTY)).toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox', { name: FIELD }), 'First');
+    await user.click(screen.getByRole('button', { name: ADD }));
+    const list = await screen.findByRole('list', { name: NAME });
+    expect(within(list).getByText('First')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: FIELD })).toHaveValue('');
+
+    await user.click(within(list).getByRole('button', { name: 'Edit: First' }));
+    const field = within(list).getByRole('textbox', { name: FIELD });
+    expect(field).toHaveFocus();
+    await user.clear(field);
+    await user.type(field, 'Second');
+    await user.click(within(list).getByRole('button', { name: 'Save' }));
+    expect(await within(list).findByText('Second')).toBeInTheDocument();
+    expect(within(list).getByRole('button', { name: 'Edit: Second' })).toHaveFocus();
+
+    await user.click(within(list).getByRole('button', { name: 'Delete: Second' }));
+    await user.click(within(list).getByRole('button', { name: 'Delete' }));
+    expect(await screen.findByText(EMPTY)).toBeInTheDocument();
+    expect(await screen.findByText('Deleted “Second”')).toBeInTheDocument();
+    expect(items).toEqual([]);
+    // Nothing left to focus in the list: the form is next.
+    expect(screen.getByRole('textbox', { name: FIELD })).toHaveFocus();
+  });
+
+  it('asks before deleting, and keeps the focus in the list', async () => {
+    items = [item('One'), item('Two'), item('Three')];
+    const { user } = await open();
+    const list = await screen.findByRole('list', { name: NAME });
+
+    await user.click(within(list).getByRole('button', { name: 'Delete: One' }));
+    expect(within(list).getByRole('button', { name: 'Cancel' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(within(list).getByRole('button', { name: 'Delete: One' })).toHaveFocus();
+    expect(items).toHaveLength(3);
+
+    await user.click(within(list).getByRole('button', { name: 'Delete: Two' }));
+    await user.click(within(list).getByRole('button', { name: 'Delete' }));
+    await screen.findByText('Deleted “Two”');
+    expect(within(list).queryByText('Two')).not.toBeInTheDocument();
+    // The row now in its place.
+    expect(within(list).getByRole('button', { name: 'Edit: Three' })).toHaveFocus();
+  });
+
+  it('shows more, a page at a time', async () => {
+    items = Array.from({ length: PAGE_SIZE + 1 }, (_, index) => item(`Item ${String(index + 1)}`));
+    const { user } = await open();
+    const list = await screen.findByRole('list', { name: NAME });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(PAGE_SIZE);
+
+    await user.click(screen.getByRole('button', { name: 'Show more' }));
+
+    expect(await within(list).findByText(`Item ${String(PAGE_SIZE + 1)}`)).toBeInTheDocument();
+    expect(within(list).getAllByRole('listitem')).toHaveLength(PAGE_SIZE + 1);
+    expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
+    // The button has gone: the focus is on the first new row.
+    expect(
+      within(list).getByRole('button', { name: `Edit: Item ${String(PAGE_SIZE + 1)}` }),
+    ).toHaveFocus();
+  });
+
+  it('asks for some text before adding', async () => {
+    const { user } = await open();
+
+    await user.type(screen.getByRole('textbox', { name: FIELD }), '   ');
+    await user.click(screen.getByRole('button', { name: ADD }));
+
+    expect(screen.getByText('Write something first.')).toBeInTheDocument();
+    expect(items).toEqual([]);
+  });
+
+  it('has no detectable accessibility violations', async () => {
+    items = [item('First')];
+    const { container } = await open();
+    await screen.findByRole('list', { name: NAME });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});

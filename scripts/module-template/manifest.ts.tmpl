@@ -1,0 +1,20 @@
+import { %%icon%% } from 'lucide-react';
+
+import { defineModule } from '@/core/modules/types';
+
+// Made by `poe new-module` (backend docs/modules/new-module.md): grow it from here.
+export default defineModule({
+  key: '%%key%%',
+  icon: %%icon%%,
+  accent: '%%accent%%',
+  keywords: %%keywords%%,
+  routes: [
+    {
+      index: true,
+      lazy: async () => ({
+        Component: (await import('@/modules/%%slug%%/items-page')).ItemsPage,
+      }),
+    },
+  ],
+  strings: %%strings%%,
+});

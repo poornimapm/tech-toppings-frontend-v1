@@ -1,0 +1,57 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { ApiError } from '@/core/api/api-error';
+import { api, unwrap } from '@/core/api/client';
+import type { components } from '@/core/api/schema';
+import { usePages } from '@/core/api/use-pages';
+import { userKeys } from '@/core/auth/queries';
+import i18n, { errorKey } from '@/core/i18n';
+import { toast } from '@/design-system';
+
+export type Item = components['schemas']['%%Key%%ItemOut'];
+
+/** As long as the API lets an item's text be (TEXT_MAX in the backend module's schemas.py). */
+export const TEXT_MAX = 200;
+const itemsKey = [...userKeys.all, '%%key%%', 'items'] as const;
+
+/** The user's items, newest first, a page at a time ("show more"). */
+export function useItems() {
+  return usePages(itemsKey, (page) =>
+    unwrap(api.GET('/v1/%%slug%%/items', { params: { query: { page } } })),
+  );
+}
+
+/** A change: everything of the user's is refreshed (the tile's figure counts the items too), and
+ *  a failure is said in a toast. */
+function useChange<TInput, TResult>(run: (input: TInput) => Promise<TResult>) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: run,
+    onSuccess: () => client.invalidateQueries({ queryKey: userKeys.all }),
+    onError: (error) => {
+      const code = error instanceof ApiError ? error.code : 'UNKNOWN';
+      toast(i18n.t(errorKey(code), { ns: 'errors' }), { tone: 'danger' });
+    },
+  });
+}
+
+export function useAddItem() {
+  return useChange((text: string) => unwrap(api.POST('/v1/%%slug%%/items', { body: { text } })));
+}
+
+export function useChangeItem() {
+  return useChange(({ id, text }: { id: string; text: string }) =>
+    unwrap(
+      api.PATCH('/v1/%%slug%%/items/{item_id}', {
+        params: { path: { item_id: id } },
+        body: { text },
+      }),
+    ),
+  );
+}
+
+export function useDeleteItem() {
+  return useChange((id: string) =>
+    unwrap(api.DELETE('/v1/%%slug%%/items/{item_id}', { params: { path: { item_id: id } } })),
+  );
+}

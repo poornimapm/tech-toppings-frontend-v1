@@ -1,0 +1,286 @@
+import { Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState, type SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { Button, EmptyState, LoadError, Skeleton, TextField, toast } from '@/design-system';
+import {
+  TEXT_MAX,
+  useAddItem,
+  useChangeItem,
+  useDeleteItem,
+  useItems,
+  type Item,
+} from '@/modules/%%slug%%/api';
+import { NS } from '@/modules/%%slug%%/i18n';
+import manifest from '@/modules/%%slug%%/manifest';
+
+/** The module's page: its items, newest first and a page at a time, a form to add one, and each
+ *  one changed or deleted where it is. */
+export function ItemsPage() {
+  const { t } = useTranslation(NS);
+  const { t: tCommon } = useTranslation();
+  const items = useItems();
+  const add = useAddItem();
+  // Deleting is the page's: the row is gone by the time the delete is done.
+  const remove = useDeleteItem();
+  const page = useRef<HTMLDivElement>(null);
+  // Where the focus goes once the list has changed as expected (`ready`): the row at `row` (or
+  // the last one), or the form when the list is empty. So a keyboard user keeps their place when
+  // a row is deleted, or when Show more brings new rows (and goes once there are no more).
+  const focusAfter = useRef<{ row: number; ready: (list: Item[]) => boolean } | null>(null);
+
+  useEffect(() => {
+    const target = focusAfter.current;
+    if (!target || !items.data || !target.ready(items.data)) return;
+    focusAfter.current = null;
+    const rows = page.current?.querySelectorAll('li') ?? [];
+    const row = rows[Math.min(target.row, rows.length - 1)];
+    (row?.querySelector('button') ?? page.current?.querySelector('input'))?.focus();
+  }, [items.data]);
+
+  const deleteItem = (item: Item, index: number) => {
+    if (remove.isPending) return;
+    focusAfter.current = { row: index, ready: (list) => !list.some((one) => one.id === item.id) };
+    remove.mutate(item.id, {
+      onSuccess: () => {
+        toast(t('deleted', { text: item.text }), { tone: 'success' });
+      },
+      onError: () => {
+        focusAfter.current = null;
+      },
+    });
+  };
+
+  // Never while the list is being fetched: a next page added to a list about to change would
+  // show it wrong (TanStack's fetchNextPage cancels that refetch).
+  const showMore = () => {
+    if (items.isFetching || !items.data) return;
+    const shown = items.data.length;
+    focusAfter.current = { row: shown, ready: (list) => list.length > shown };
+    void items.fetchNextPage().then((result) => {
+      if (result.isError) focusAfter.current = null;
+    });
+  };
+
+  return (
+    <div ref={page} className="mx-auto max-w-2xl space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+      <ItemForm
+        label={t('field')}
+        submit={t('add')}
+        busy={add.isPending}
+        onSave={(text, done) => {
+          add.mutate(text, {
+            onSuccess: () => {
+              toast(t('added', { text }), { tone: 'success' });
+              done();
+            },
+          });
+        }}
+      />
+      {items.isPending ? (
+        <Skeleton className="h-40 rounded-3xl" />
+      ) : items.isError ? (
+        <LoadError onRetry={() => void items.refetch()}>{t('loadError')}</LoadError>
+      ) : items.data.length === 0 ? (
+        <EmptyState icon={manifest.icon} title={t('empty')} />
+      ) : (
+        <>
+          <ul role="list" aria-label={t('title')} className="space-y-2">
+            {items.data.map((item, index) => (
+              <ItemRow
+                key={item.id}
+                item={item}
+                deleting={remove.isPending}
+                onDelete={() => {
+                  deleteItem(item, index);
+                }}
+              />
+            ))}
+          </ul>
+          {items.hasNextPage && (
+            <Button
+              variant="secondary"
+              aria-disabled={items.isFetching || undefined}
+              onClick={showMore}
+            >
+              {tCommon('actions.showMore')}
+            </Button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+interface ItemFormProps {
+  label: string;
+  submit: string;
+  busy: boolean;
+  initial?: string;
+  /** Opened in place of a button: it takes the focus. */
+  focusOnOpen?: boolean;
+  /** `done` empties the form, once the change is saved. */
+  onSave: (text: string, done: () => void) => void;
+  onCancel?: () => void;
+}
+
+function ItemForm({ label, submit, busy, initial = '', focusOnOpen, onSave, onCancel }: ItemFormProps) {
+  const { t } = useTranslation(NS);
+  const { t: tCommon } = useTranslation();
+  const [text, setText] = useState(initial);
+  const [error, setError] = useState<string>();
+  const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focusOnOpen) input.current?.focus();
+  }, [focusOnOpen]);
+
+  const save = (event: SyntheticEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setError(t('required'));
+      input.current?.focus();
+      return;
+    }
+    setError(undefined);
+    onSave(trimmed, () => {
+      setText('');
+    });
+  };
+
+  return (
+    <form noValidate onSubmit={save} className="flex flex-wrap items-end gap-2">
+      <TextField
+        ref={input}
+        label={label}
+        value={text}
+        maxLength={TEXT_MAX}
+        error={error}
+        className="min-w-0 flex-1"
+        onChange={(event) => {
+          setText(event.target.value);
+        }}
+      />
+      {/* Busy, it stays focusable (aria-disabled): a disabled button would drop the focus. */}
+      <Button type="submit" aria-disabled={busy || undefined}>
+        {submit}
+      </Button>
+      {onCancel && (
+        <Button variant="secondary" onClick={onCancel}>
+          {tCommon('actions.cancel')}
+        </Button>
+      )}
+    </form>
+  );
+}
+
+type Mode = 'view' | 'edit' | 'delete';
+
+interface ItemRowProps {
+  item: Item;
+  /** A delete is on its way: the question's Delete waits for it. */
+  deleting: boolean;
+  onDelete: () => void;
+}
+
+/** One item: its text with Edit and Delete, a form while it's changed, or a question before
+ *  it's deleted. The focus follows, so a keyboard user never loses their place. */
+function ItemRow({ item, deleting, onDelete }: ItemRowProps) {
+  const { t } = useTranslation(NS);
+  const { t: tCommon } = useTranslation();
+  const [mode, setMode] = useState<Mode>('view');
+  const change = useChangeItem();
+  const row = useRef<HTMLLIElement>(null);
+  // Which of the row's buttons takes the focus once it has changed (null: none).
+  const focusNext = useRef<number | null>(null);
+  const go = (next: Mode, button: number | null) => {
+    focusNext.current = button;
+    setMode(next);
+  };
+
+  useEffect(() => {
+    if (focusNext.current === null) return;
+    row.current?.querySelectorAll('button')[focusNext.current]?.focus();
+    focusNext.current = null;
+  }, [mode]);
+
+  if (mode === 'edit') {
+    return (
+      <li ref={row} className="rounded-2xl border border-border bg-surface p-3">
+        <ItemForm
+          label={t('field')}
+          submit={t('save')}
+          busy={change.isPending}
+          initial={item.text}
+          focusOnOpen
+          onCancel={() => {
+            go('view', 0);
+          }}
+          onSave={(text) => {
+            change.mutate(
+              { id: item.id, text },
+              {
+                onSuccess: () => {
+                  toast(t('saved'), { tone: 'success' });
+                  go('view', 0);
+                },
+              },
+            );
+          }}
+        />
+      </li>
+    );
+  }
+
+  if (mode === 'delete') {
+    // Cancel first: the focus lands on it, so Enter alone never deletes.
+    return (
+      <li ref={row} className="rounded-2xl border border-border bg-surface p-3">
+        <div role="alert" className="flex flex-wrap items-center gap-2">
+          <p className="min-w-0 flex-1 text-sm">{t('confirmDelete', { text: item.text })}</p>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              go('view', 1);
+            }}
+          >
+            {tCommon('actions.cancel')}
+          </Button>
+          <Button aria-disabled={deleting || undefined} onClick={onDelete}>
+            {t('delete')}
+          </Button>
+        </div>
+      </li>
+    );
+  }
+
+  return (
+    <li
+      ref={row}
+      className="flex items-center gap-2 rounded-2xl border border-border bg-surface p-3"
+    >
+      <span className="min-w-0 flex-1 break-words">{item.text}</span>
+      <Button
+        variant="ghost"
+        aria-label={t('editLabel', { text: item.text })}
+        onClick={() => {
+          go('edit', null);
+        }}
+      >
+        <Pencil aria-hidden="true" className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        aria-label={t('deleteLabel', { text: item.text })}
+        onClick={() => {
+          go('delete', 0);
+        }}
+      >
+        <Trash2 aria-hidden="true" className="size-4" />
+      </Button>
+    </li>
+  );
+}

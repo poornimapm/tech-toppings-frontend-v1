@@ -31,6 +31,7 @@
     "e2e": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright test",
     "knip": "knip",
     "gen:api": "node scripts/gen-api-types.mjs",
+    "new-module": "node scripts/new-module.ts",
     "gen:icons": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 node scripts/gen-icons.mjs",
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run knip && vite build && npm run budget",
     "prepare": "husky"
