@@ -1,0 +1,68 @@
+{
+  "name": "செலவுகள்",
+  "tagline": "சொன்னாலே பதிவாகும்",
+  "description": "உங்கள் மொழியில் குரல் அல்லது உரை மூலம் செலவுகளைப் பதிவு செய்யுங்கள்; பட்ஜெட், வகைகள், எளிய பார்வைகளுடன்.",
+  "stats": {
+    "month_total": "இந்த மாதம்"
+  },
+  "widgets": {
+    "expenses_spent": "செலவு",
+    "expenses_received": "வரவு",
+    "expenses_spent_daily": "தினசரி செலவு"
+  },
+  "feed": {
+    "expenses.entry_added": "{{module}} இல் “{{title}}” சேர்க்கப்பட்டது",
+    "expenses.entry_updated": "{{module}} இல் “{{title}}” திருத்தப்பட்டது",
+    "expenses.entry_deleted": "{{module}} இலிருந்து “{{title}}” நீக்கப்பட்டது",
+    "expenses.entry_undeleted": "{{module}} இல் “{{title}}” மீட்டெடுக்கப்பட்டது",
+    "expenses.entries_changed": "{{module}} இல் {{count}} பதிவுகள் ஒரே நேரத்தில் மாற்றப்பட்டன",
+    "expenses.entries_deleted": "{{module}} இலிருந்து {{count}} பதிவுகள் நீக்கப்பட்டன",
+    "expenses.entries_undeleted": "{{module}} இல் {{count}} பதிவுகள் மீட்டெடுக்கப்பட்டன",
+    "expenses.entries_imported": "{{module}} இல் கோப்பிலிருந்து இறக்கிய பதிவுகள்: {{count}}",
+    "expenses.entry_restored": "“{{title}}” இன் முந்தைய பதிப்பு மீட்டமைக்கப்பட்டது",
+    "expenses.price_alert": "{{product}} விலை {{price}}/{{unit}}, நீங்கள் வைத்த {{limit}} ஐ விட அதிகம்",
+    "expenses.budget_near": "“{{name}}” பட்ஜெட்: {{pct}}% செலவாகிவிட்டது, {{limit}} இல் {{spent}}",
+    "expenses.budget_over": "“{{name}}” பட்ஜெட்டைத் தாண்டிவிட்டது: {{limit}} இல் {{spent}}",
+    "expenses.goal_reached": "உங்கள் “{{name}}” இலக்கை எட்டிவிட்டீர்கள்: {{target}} சேமிப்பு",
+    "expenses.bill_due": "“{{title}}” {{due}} அன்று செலுத்த வேண்டும்: {{amount}}",
+    "expenses.iou_due_lent": "{{person}} உங்களுக்கு {{due}} க்குள் {{outstanding}} திருப்பித் தர வேண்டும்",
+    "expenses.iou_due_borrowed": "நீங்கள் {{person}} க்கு {{due}} க்குள் {{outstanding}} திருப்பித் தர வேண்டும்"
+  },
+  "search": {
+    "saved_filter": "சேமித்த பார்வை",
+    "loan_lent": "உங்களுக்கு வர வேண்டியது",
+    "loan_borrowed": "நீங்கள் தர வேண்டியது",
+    "product": "விலைகள்",
+    "entry_expense": "செலவு",
+    "entry_income": "வரவு"
+  },
+  "replies": {
+    "ask-expenses.total.expense": "{{from}} முதல் {{to}} வரை நீங்கள் செலவழித்தது {{amount}}.",
+    "ask-expenses.total.income": "{{from}} முதல் {{to}} வரை உங்களுக்கு வந்தது {{amount}}.",
+    "ask-expenses.count.expense": "{{from}} முதல் {{to}} வரை {{count}} செலவுகள்.",
+    "ask-expenses.count.income": "{{from}} முதல் {{to}} வரை {{count}} முறை பணம் வந்தது.",
+    "ask-expenses.average.expense": "{{from}} முதல் {{to}} வரை ஒரு செலவுக்குச் சராசரி {{amount}} ({{count}} செலவுகள்).",
+    "ask-expenses.average.income": "{{from}} முதல் {{to}} வரை ஒவ்வொரு முறையும் சராசரியாக {{amount}} வந்தது ({{count}} முறை).",
+    "ask-expenses.largest.expense": "{{from}} முதல் {{to}} வரை பெரிய செலவு {{amount}}.",
+    "ask-expenses.largest.income": "{{from}} முதல் {{to}} வரை ஒரே முறையில் அதிகம் வந்தது {{amount}}.",
+    "ask-expenses.top.1": "{{from}} முதல் {{to}} வரை அனைத்தும் {{first_name}}: {{first}}.",
+    "ask-expenses.top.2": "{{from}} முதல் {{to}} வரை அதிகம் {{first_name}} ({{first}}), அடுத்து {{second_name}} ({{second}}).",
+    "ask-expenses.top.3": "{{from}} முதல் {{to}} வரை அதிகம் {{first_name}} ({{first}}), அடுத்து {{second_name}} ({{second}}), {{third_name}} ({{third}}).",
+    "ask-expenses.none": "{{from}} முதல் {{to}} வரை எதுவும் இல்லை.",
+    "track-expenses.ready.open": "இதோ உங்கள் செலவுகள்.",
+    "track-expenses.ready.draft": "நான் புரிந்துகொண்டது இதோ. செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.",
+    "track-expenses.ready.iou": "நான் புரிந்துகொண்டதைக் கடனாகக் காட்டுகிறேன். செலவுகளில் சரிபார்த்துச் சேமியுங்கள்.",
+    "tidy-products.ready.find": "உங்கள் சில பொருட்கள் ஒன்றே போலத் தெரிகின்றன. விலைகளில் சரிபாருங்கள்.",
+    "tidy-products.none": "ஒன்றே போலத் தெரியும் பொருட்கள் எதுவும் இல்லை.",
+    "explain-spending.month.empty": "மாதத்தில் செலவு எதுவும் இல்லை.",
+    "explain-spending.month.first": "மாதத்தில் {{spent}} செலவு. அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.month.more": "மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களை விட {{pct}}% அதிகம். அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.month.less": "மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களை விட {{pct}}% குறைவு. அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.month.same": "மாதத்தில் {{spent}} செலவு, முந்தைய மாதத்தின் அதே நாட்களைப் போலவே. அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.week.empty": "வாரத்தில் செலவு எதுவும் இல்லை.",
+    "explain-spending.week.first": "வாரத்தில் {{spent}} செலவு. அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.week.more": "வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களை விட {{pct}}% அதிகம். அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.week.less": "வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களை விட {{pct}}% குறைவு. அதிகம் {{category}} க்கு ({{category_amount}}).",
+    "explain-spending.week.same": "வாரத்தில் {{spent}} செலவு, முந்தைய வாரத்தின் அதே நாட்களைப் போலவே. அதிகம் {{category}} க்கு ({{category_amount}})."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "onDevice": "Read photos on this device only",
+  "toAi": "The photo goes to the free AI service to be read, as it is: nothing on it is masked. This app doesn't keep it; the AI service's own terms apply to what it receives.",
+  "local": "The photo is read on this device and never leaves it: only the text read from it is sent.",
+  "preparing": "Getting the reader ready (the first time takes a little longer)…",
+  "offline": "Scanning needs a connection. The photo wasn't kept.",
+  "cantOpen": "That photo couldn't be opened. Try a JPEG or PNG.",
+  "checking": "Checking how the photo can be read…",
+  "readerFailed": "The reader on this device couldn't start. Try again in a moment."
+}

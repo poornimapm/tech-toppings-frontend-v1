@@ -16,6 +16,7 @@ import { DRAFT_TOOL, useCapture, useReadBack } from '@/modules/expenses/capture'
 import { NS } from '@/modules/expenses/i18n';
 import { IOU_TOOL } from '@/modules/expenses/iou-capture';
 import { OUTBOX_CAPTURE, type CaptureLater } from '@/modules/expenses/outbox-kinds';
+import { ScanReceipt } from '@/modules/expenses/scan-receipt';
 
 const TOGGLE =
   'grid size-10 shrink-0 place-items-center rounded-full border border-border text-muted transition-colors ' +
@@ -24,14 +25,16 @@ const TOGGLE =
 const CHECKED = new Set([DRAFT_TOOL, IOU_TOOL]);
 
 /**
- * Say, type or paste what was spent or lent; it comes back as drafts to check. The microphone
- * shows only where the browser can listen, and what it hears can be corrected before it is read.
+ * Say, type or paste what was spent or lent, or scan a receipt; it comes back as drafts to
+ * check. The microphone shows only where the browser can listen, and what it hears can be
+ * corrected before it is read.
  */
 export function QuickAdd({
   onRead,
 }: {
-  /** Takes what the assistant handed over; false when there was nothing to check in it. */
-  onRead: (actions: ClientAction[]) => boolean;
+  /** Takes what the assistant handed over (from a scan: which receipt); false when there was
+   *  nothing to check in it. */
+  onRead: (actions: ClientAction[], receipt?: string) => boolean;
 }) {
   const { t, i18n } = useTranslation(NS);
   const { t: tCommon } = useTranslation();
@@ -172,6 +175,7 @@ export function QuickAdd({
       <p role="status" className="min-h-5 px-2 pt-2 text-sm text-muted">
         {status}
       </p>
+      <ScanReceipt onRead={onRead} />
     </section>
   );
 }

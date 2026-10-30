@@ -44,7 +44,11 @@ function demoView(available: boolean) {
 describe('module routes', () => {
   it('mounts only modules that ship pages', () => {
     expect(moduleRoutes(registry).map((route) => route.path)).toEqual(['m/demo-notes']);
-    expect(moduleRoutes().map((route) => route.path)).toEqual(['m/expenses']);
+    expect(moduleRoutes().map((route) => route.path)).toEqual([
+      'm/expenses',
+      'm/labor',
+      'm/receipts',
+    ]);
   });
 
   it('renders a module page while the module is available', async () => {

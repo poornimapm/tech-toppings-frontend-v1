@@ -50,10 +50,12 @@ export function AppLayout() {
             >
               {env.appName.charAt(0)}
             </span>
-            {/* Phones show just the logo; the name stays the link's accessible name. */}
-            <span className="sr-only sm:not-sr-only">{env.appName}</span>
+            {/* Phones and tablets show just the logo, leaving the room to the controls; the
+                name stays the link's accessible name. */}
+            <span className="sr-only xl:not-sr-only">{env.appName}</span>
           </Link>
-          <div className="flex items-center gap-1 sm:gap-2">
+          {/* Longer words (Tamil) wrap the controls onto a second row, never off screen. */}
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1 sm:gap-2">
             {ready && wide && <ShellNav />}
             {ready && <PaletteTrigger />}
             <InstallButton />

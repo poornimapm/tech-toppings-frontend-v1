@@ -92,6 +92,20 @@ export function useUserActions(id: string) {
       mutationFn: () => unwrap(api.POST('/v1/admin/users/{user_id}/reset-password', path)),
       onSettled: settled,
     }),
+    /** Give the account a module only some accounts may use, or take it back. */
+    setModule: useMutation({
+      mutationFn: ({ key, granted }: { key: string; granted: boolean }) =>
+        unwrap(
+          api.PUT('/v1/admin/users/{user_id}/modules/{key}', {
+            params: { path: { user_id: id, key } },
+            body: { granted },
+          }),
+        ),
+      onSettled: async () => {
+        await settled();
+        await queryClient.invalidateQueries({ queryKey: adminKeys.user(id) });
+      },
+    }),
   };
 }
 
@@ -149,5 +163,18 @@ export function useAuditLog(query: AuditQuery) {
     queryKey: adminKeys.audit(query),
     queryFn: () => unwrap(api.GET('/v1/admin/audit-logs', { params: { query } })),
     placeholderData: keepPreviousData,
+  });
+}
+
+/** A new account with a one-time password (shown once), maybe given modules only some may use:
+ *  how an owner of Labor Management is made. */
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Schemas['AdminUserIn']) => unwrap(api.POST('/v1/admin/users', { body })),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: adminKeys.users });
+      await queryClient.invalidateQueries({ queryKey: adminKeys.audits });
+    },
   });
 }

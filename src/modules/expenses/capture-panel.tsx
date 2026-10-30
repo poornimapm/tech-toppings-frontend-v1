@@ -24,10 +24,13 @@ export function CapturePanel() {
   const loans = loanDrafts.useList();
   const [taken, setTaken] = useState<ClientAction | null>(null);
 
-  /** Puts what the assistant handed over on the card; false when there was nothing to check. */
-  function take(actions: ClientAction[]): boolean {
+  /** Puts what the assistant handed over on the card (a scan's drafts marked as one receipt);
+   *  false when there was nothing to check. */
+  function take(actions: ClientAction[], receipt?: string): boolean {
     const today = todayIn(timezone);
-    const entries = actions.flatMap((action) => draftsFrom(action, today));
+    const entries = actions
+      .flatMap((action) => draftsFrom(action, today))
+      .map((draft) => (receipt ? { ...draft, receipt } : draft));
     const owed = actions.flatMap((action) => iouDraftsFrom(action, today));
     drafts.add(entries);
     loans.add(owed);
@@ -51,7 +54,15 @@ export function CapturePanel() {
   return (
     <>
       <QuickAdd onRead={take} />
-      <DraftsTray drafts={drafts.items} onRemove={drafts.remove} loans={loans} />
+      <DraftsTray
+        drafts={drafts.items}
+        onRemove={drafts.remove}
+        onCombine={(keys, one) => {
+          drafts.add([one]);
+          keys.forEach(drafts.remove);
+        }}
+        loans={loans}
+      />
     </>
   );
 }

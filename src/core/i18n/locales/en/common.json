@@ -397,7 +397,7 @@
       "no_static": "This needs AI, which is switched off."
     },
     "enable": "Turn on the AI assistant",
-    "enableHint": "Your request goes to a free AI service. Email addresses and long numbers are masked first, and nothing changes until you confirm it.",
+    "enableHint": "Your request goes to a free AI service. Email addresses and long numbers are masked first (a receipt photo can't be: you can keep photos to this device), and nothing changes until you confirm it.",
     "confirm": "Confirm",
     "rejectLabel": "Dismiss: {{change}}",
     "status": {
@@ -544,7 +544,10 @@
       "resetTitle": "Reset {{name}}'s password?",
       "resetBody": "You'll get a one-time password to give them. Their devices are signed out and two-step sign-in is turned off, so they can get back in.",
       "roleTitle": "Change {{name}}'s role to {{role}}?",
-      "roleBody": "Every device they're signed in on has to sign in again. The change is kept in the audit log."
+      "roleBody": "Every device they're signed in on has to sign in again. The change is kept in the audit log.",
+      "modules": "Modules only some accounts may use",
+      "granted": "{{name}} given.",
+      "revokedModule": "{{name}} taken back. Their records in it are kept."
     },
     "allowlist": {
       "mode": {
@@ -601,6 +604,18 @@
       "details": "Details",
       "ip": "IP address",
       "system": "System"
+    },
+    "create": {
+      "open": "Create an account",
+      "title": "New account",
+      "body": "They sign in with a one-time password and choose their own the first time. Give them the modules only some accounts may use.",
+      "name": "Name",
+      "nameError": "Write their name.",
+      "emailError": "Write a valid email address.",
+      "modules": "Give them",
+      "submit": "Create the account",
+      "made": "{{name}}'s account is ready.",
+      "done": "Done"
     }
   },
   "pwa": {

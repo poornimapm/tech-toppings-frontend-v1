@@ -5,10 +5,12 @@
 # The policy allows only the app's own files, plus Google's sign-in button (script, frame,
 # style and calls under accounts.google.com/gsi/). Styles may be inline: index.html paints its
 # header with one, and dialogs add one while they lock scrolling. The microphone is the app's
-# own (dictation); a sign-in popup from Google may talk back to this window.
+# own (dictation); a sign-in popup from Google may talk back to this window. WebAssembly may be
+# compiled ('wasm-unsafe-eval', not eval): the on-device receipt reader (ocr/) is WebAssembly.
+# A receipt photo is chosen through the file picker, which needs no camera permission.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; worker-src 'self'; manifest-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; worker-src 'self'; manifest-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -19,6 +21,12 @@
 # Named by their content: a new build gives new names, so these never change.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The receipt reader's files, in a folder named for a hash of their bytes. Kept a day, then
+# checked (an unchanged file answers 304): a folder a later build dropped would otherwise be
+# answered with the app's page, and that answer kept for a year.
+/ocr/*
+  Cache-Control: public, max-age=86400
 
 # Always asked again, so an update is found at once (the browser also checks it daily).
 /sw.js

@@ -112,11 +112,19 @@ describe('the module generator', () => {
         'items-page.test.tsx',
         'items-page.tsx',
         'manifest.ts',
+        'strings/hi.json',
+        'strings/ta.json',
       ]);
       const manifest = await read('manifest.ts');
       expect(manifest).toContain("key: 'house_plants'");
       expect(manifest).toContain("import { Sprout } from 'lucide-react';");
-      expect(manifest).toContain("stats: { items: 'செடிகள்' }");
+      // English in the manifest; Tamil and Hindi beside it, loaded with the language.
+      expect(manifest).toContain("stats: { items: 'plants' }");
+      expect(manifest).not.toContain('செடிகள்');
+      expect(JSON.parse(await read('strings/ta.json'))).toMatchObject({
+        name: 'செடிகள்',
+        stats: { items: 'செடிகள்' },
+      });
       expect(await read('api.ts')).toContain("components['schemas']['HousePlantsItemOut']");
       const texts = await Promise.all(
         ['en', 'ta', 'hi'].map(

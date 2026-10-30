@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
+import i18n from '@/core/i18n';
 import { matchesSearch, textFor } from '@/core/modules/module-text';
 import { moduleRegistry } from '@/core/modules/registry';
 import type { ModuleTile } from '@/core/modules/types';
@@ -13,6 +14,9 @@ function tile(key: string, language: string): ModuleTile {
 }
 
 describe('module text', () => {
+  // A module's Tamil and Hindi strings arrive with the language (strings/<language>.json).
+  beforeAll(() => i18n.loadLanguages(['ta', 'hi']));
+
   it('uses the UI language and falls back to English', () => {
     const definition = moduleRegistry.definitionFor('expenses');
 

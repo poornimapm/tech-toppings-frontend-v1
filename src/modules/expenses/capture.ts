@@ -30,6 +30,8 @@ export interface Draft {
   for_whom: string;
   /** Fields that were guessed rather than heard. */
   uncertain: string[];
+  /** The scan it came from: a receipt's drafts can be combined into one entry. */
+  receipt?: string;
 }
 
 // What an assistant hands over comes from an AI model or a parser, so nothing about its shape

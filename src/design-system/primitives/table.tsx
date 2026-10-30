@@ -19,12 +19,15 @@ export interface TableProps<Row> {
   empty?: ReactNode;
 }
 
-/** A plain data table that scrolls sideways on narrow screens instead of squeezing. */
+/** A plain data table that scrolls sideways on narrow screens instead of squeezing. On paper it
+ *  shows whole, its caption as its title. */
 export function Table<Row>({ caption, columns, rows, rowKey, empty }: TableProps<Row>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-xl border border-border print:break-inside-avoid print:overflow-visible print:border-black/20">
       <table className="w-full text-start text-sm">
-        <caption className="sr-only">{caption}</caption>
+        <caption className="sr-only print:not-sr-only print:p-2 print:text-start print:font-semibold">
+          {caption}
+        </caption>
         <thead className="bg-bg text-xs text-muted">
           <tr>
             {columns.map((column) => (

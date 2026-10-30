@@ -3,8 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { relativeTime } from '@/core/utils/relative-time';
-import { LoadError, Pager, SearchField, SelectField, Skeleton, Table } from '@/design-system';
+import {
+  Button,
+  LoadError,
+  Pager,
+  SearchField,
+  SelectField,
+  Skeleton,
+  Table,
+} from '@/design-system';
 import { FILTER_LIMITS, useUsers, type UsersQuery } from '@/platform/admin/admin-api';
+import { CreateAccount } from '@/platform/admin/create-account';
 import { UserBadges } from '@/platform/admin/user-badges';
 import { describeError } from '@/platform/auth/describe-error';
 
@@ -24,9 +33,26 @@ export function UsersPage() {
   const [page, setPage] = useState(1);
   const q = useDeferredValue(words.trim());
   const users = useUsers({ q: q || null, role: role || null, state, page });
+  const [creating, setCreating] = useState(false);
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button
+          onClick={() => {
+            setCreating(true);
+          }}
+        >
+          {t('admin.create.open')}
+        </Button>
+      </div>
+      {creating && (
+        <CreateAccount
+          onClose={() => {
+            setCreating(false);
+          }}
+        />
+      )}
       <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
         <SearchField
           label={t('admin.users.search')}

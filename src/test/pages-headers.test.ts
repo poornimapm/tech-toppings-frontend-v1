@@ -19,7 +19,9 @@ describe('the live site’s headers (public/_headers)', () => {
     const button = readFileSync('src/platform/auth/google-sign-in-button.tsx', 'utf8');
     const script = /GIS_SCRIPT = '([^']+)'/.exec(button)?.[1];
 
-    expect(policy['script-src']).toEqual(["'self'", script]);
+    // 'wasm-unsafe-eval' lets the receipt reader compile its WebAssembly; `eval` stays refused.
+    expect(policy['script-src']).toEqual(["'self'", "'wasm-unsafe-eval'", script]);
+    expect(policy['script-src']).not.toContain("'unsafe-eval'");
     expect(policy['default-src']).toEqual(["'self'"]);
     expect(policy['object-src']).toEqual(["'none'"]);
     expect(policy['frame-ancestors']).toEqual(["'none'"]);

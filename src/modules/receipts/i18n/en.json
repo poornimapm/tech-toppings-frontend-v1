@@ -1,0 +1,73 @@
+{
+  "title": "Receipts & warranty",
+  "add": "Add a receipt",
+  "search": "Find a receipt",
+  "loadError": "Your receipts couldn't be loaded.",
+  "empty": "No receipts yet. Add the first one: a bill you want to keep, or one with a warranty.",
+  "emptyFound": "No receipts match.",
+  "filter": {
+    "label": "Show",
+    "all": "All",
+    "ending": "Ending soon",
+    "active": "Under warranty",
+    "ended": "Warranty over",
+    "none": "No warranty"
+  },
+  "warranty": {
+    "none": "No warranty",
+    "active": "Warranty till {{date}}",
+    "ending_one": "Warranty ends {{date}}: {{count}} day left",
+    "ending_other": "Warranty ends {{date}}: {{count}} days left",
+    "endsToday": "Warranty ends today",
+    "ended": "Warranty ended {{date}}"
+  },
+  "form": {
+    "back": "All receipts",
+    "newTitle": "New receipt",
+    "editTitle": "Receipt",
+    "loadError": "This receipt couldn't be loaded.",
+    "text": "What you bought",
+    "textHint": "For example: Samsung fridge",
+    "textError": "Say what you bought.",
+    "shop": "Shop",
+    "bought": "Date bought",
+    "boughtError": "Choose a day up to today.",
+    "amount": "Amount paid ({{currency}})",
+    "amountError": "Enter an amount above zero, or leave it empty.",
+    "warranty": "Warranty",
+    "lengths": {
+      "none": "None",
+      "other": "Another date",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years"
+    },
+    "endsOn": "Warranty ends on",
+    "endsError": "Choose a day from the day bought, up to {{years}} years after it.",
+    "remind": "Remind me this many days before it ends",
+    "remindHint": "0 reminds you on its last day.",
+    "remindError": "Enter a number from 0 to {{max}}.",
+    "billNumber": "Bill number",
+    "serialNumber": "Serial number or IMEI",
+    "note": "Note",
+    "save": "Save",
+    "saved": "Saved “{{text}}”.",
+    "added": "Kept “{{text}}”. You'll be reminded before its warranty ends.",
+    "addedPlain": "Kept “{{text}}”.",
+    "delete": "Delete",
+    "deleteTitle": "Delete this receipt?",
+    "deleteBody": "“{{text}}” and its reminder will be removed.",
+    "deleted": "Deleted “{{text}}”.",
+    "check": "Read from the bill: check it."
+  },
+  "scan": {
+    "button": "Scan the bill",
+    "pick": "Bill photo",
+    "sending": "Reading the bill…",
+    "reading": "Reading the bill on this device…",
+    "progress": "Reading the bill",
+    "unreadable": "I couldn't read a bill in that photo. Try again closer, in good light, with the bill flat.",
+    "filled": "Filled in from the bill. Check each field, then save."
+  }
+}

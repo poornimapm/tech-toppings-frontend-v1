@@ -36,12 +36,37 @@ export function toLanguage(value: string | undefined): Language {
  */
 export const languageFiles = import.meta.glob<{ default: ResourceKey }>('./locales/{ta,hi}/*.json');
 
+/** What each module shows outside its pages (tile, feed, assistant) in Tamil and Hindi, beside
+ *  its manifest (`strings/<language>.json`); English is in the manifest itself. Loaded with the
+ *  language as one namespace, by module key: `MODULE_STRINGS`. */
+const moduleStrings = import.meta.glob<{ default: ResourceKey }>(
+  '/src/modules/*/strings/{ta,hi}.json',
+);
+export const MODULE_STRINGS = 'modules';
+const MODULE_FOLDER = /^\/src\/modules\/([^/]+)\/strings\/[^/]+\.json$/;
+
+async function readModuleStrings(language: string): Promise<ResourceKey> {
+  const files = Object.entries(moduleStrings).filter(([path]) =>
+    path.endsWith(`/${language}.json`),
+  );
+  const read = await Promise.all(
+    files.map(async ([path, load]) => {
+      const folder = MODULE_FOLDER.exec(path)?.[1] ?? path;
+      return [folder.replaceAll('-', '_'), (await load()).default] as const;
+    }),
+  );
+  return Object.fromEntries(read);
+}
+
 const otherLanguages: BackendModule = {
   type: 'backend',
   init: () => undefined,
   read: (language, namespace, callback) => {
-    const load = languageFiles[`./locales/${language}/${namespace}.json`];
-    if (!load) {
+    const load =
+      namespace === MODULE_STRINGS
+        ? () => readModuleStrings(language).then((strings) => ({ default: strings }))
+        : languageFiles[`./locales/${language}/${namespace}.json`];
+    if (!load || language === 'en') {
       callback(null, {}); // a module namespace, or English: already there
       return;
     }
@@ -87,7 +112,7 @@ export const i18nReady = i18n
     fallbackLng: 'en',
     supportedLngs: SUPPORTED_LANGUAGES,
     load: 'languageOnly',
-    ns: ['common', 'errors'],
+    ns: ['common', 'errors', MODULE_STRINGS],
     defaultNS: 'common',
     interpolation: { escapeValue: false }, // React already escapes output
     react: { useSuspense: false }, // a language being fetched shows English, then its own

@@ -1,0 +1,25 @@
+{
+  "name": "रसीदें और वारंटी",
+  "tagline": "हर बिल, सेकंडों में",
+  "description": "हर बिल आसानी से ढूँढने लायक रखें, स्कैन करके भरें, और वारंटी ख़त्म होने से पहले याद पाएँ।",
+  "stats": {
+    "items": "रसीदें"
+  },
+  "widgets": {
+    "receipts_warranties_ending": "जल्द ख़त्म होती वारंटी"
+  },
+  "feed": {
+    "receipts.item_added": "{{module}} में “{{title}}” रखा",
+    "receipts.item_updated": "{{module}} में “{{title}}” बदला",
+    "receipts.item_deleted": "{{module}} से “{{title}}” हटाया",
+    "receipts.warranty_ends": "“{{title}}” की वारंटी {{due}} को ख़त्म हो रही है"
+  },
+  "search": {
+    "receipt": "रसीद"
+  },
+  "replies": {
+    "scan-bill.ready": "बिल पढ़ लिया। रसीद जाँचकर सहेजें।",
+    "scan-bill.unreadable": "उसमें बिल नहीं पढ़ा जा सका।",
+    "scan-bill.on_device": "फ़ोटो इसी डिवाइस पर पढ़ी जाती है।"
+  }
+}

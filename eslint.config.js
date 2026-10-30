@@ -85,6 +85,11 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
   {
+    // Node runs scripts as they are, and knows no @/ alias: they reach the app's code by path.
+    files: ['scripts/*.ts'],
+    rules: { 'no-restricted-imports': 'off' },
+  },
+  {
     // The service worker runs in its own global scope, without the DOM.
     files: ['src/sw/**/*.ts'],
     languageOptions: { globals: globals.serviceworker },

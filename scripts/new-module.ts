@@ -201,12 +201,8 @@ const folderOf = (spec: Spec, out: string) => join(out, 'src', 'modules', slugOf
 /** What the templates' `%%name%%` tokens stand for; texts go in as string literals. */
 function tokensOf(spec: Spec): Record<string, string> {
   const english = spec.strings.en;
-  const manifestStrings = Object.fromEntries(
-    LANGUAGES.map((language) => {
-      const { name, tagline, description, items } = spec.strings[language];
-      return [language, { name, tagline, description, stats: { items } }];
-    }),
-  );
+  // English in the manifest (the first page has it); the others beside it, in strings/.
+  const manifestStrings = { en: shellStrings(spec, 'en') };
   return {
     key: spec.key,
     slug: slugOf(spec),
@@ -244,8 +240,19 @@ async function filesOf(spec: Spec): Promise<Record<string, string>> {
     const { name, add, field, empty } = spec.strings[language];
     const page = { title: name, add, field, empty, ...GENERIC[language] };
     files[`i18n/${language}.json`] = `${JSON.stringify(page, null, 2)}\n`;
+    if (language !== 'en') {
+      const shell = shellStrings(spec, language);
+      files[`strings/${language}.json`] = `${JSON.stringify(shell, null, 2)}\n`;
+    }
   }
   return files;
+}
+
+/** What the module shows outside its pages (its tile and its figure) in one language; Tamil
+ *  and Hindi are loaded with the language (core/i18n), English is in the manifest. */
+function shellStrings(spec: Spec, language: Language) {
+  const { name, tagline, description, items } = spec.strings[language];
+  return { name, tagline, description, stats: { items } };
 }
 
 async function write(spec: Spec, out: string): Promise<string[]> {

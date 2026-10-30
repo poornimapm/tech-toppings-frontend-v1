@@ -6,6 +6,126 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 17: Labor's extras
+
+- **Attendance with no network**: each tap waits on the phone (the outbox, `labor.marks`) with
+  the mark it saw, shows as pressed with _Waiting to send_, and goes when back; a tap saved
+  online drops older waiting ones; a day never opened says so instead of loading forever.
+- **Say the marks**: a box on the attendance page (the phone's speech, or typing) reads "Ravi
+  full day, Meena half day, the rest absent" into marks to check worker by worker (a name not
+  recognised is asked about), saved only with _Save_; a draft the assistant read opens there.
+- **Reports print or download**: _Print or save as PDF_ (only the report prints, titled) and
+  _Download CSV_; the admin downloads a project's file too.
+- **The admin opens a project**: its workers (and whether an ID picture is kept), its last 30
+  days, a CSV; projects found by name and state; every change from and to; more pages.
+- Tests: offline marks (kept, sent, refused when changed elsewhere), marks said (checked, saved
+  only with Save; handed over by the assistant), report print and download, every worker past
+  the first page, the audit naming workers, the admin's view (axe).
+
+### Changed — Phase 17
+
+- Payments shows what each worker earned and was paid to date, so it adds up to what is owed.
+- Payments and Wages list every worker (not only the first 20); reports name workers themselves.
+- The audit says a payment's worker by name and a choice by its word ("Cash", "UPI").
+- Buttons repeated on every row are named with their worker ("Pay Meena").
+- The header's controls wrap onto a second row instead of scrolling the page sideways (Tamil);
+  the app's name shows beside its logo from 1280 px. Printed tables show whole, titled.
+- First-load JavaScript: 199.6 KB of 200.
+
+### Added — Phase 16: Labor Management
+
+- **Labor Management** pages (`src/modules/labor`), shown only to the accounts given it: a
+  frame with the project picker and tabs (Overview, Projects, Attendance, Workers, Wages,
+  Payments, Reports, History, and All owners for admins). Attendance is photo cards with large
+  Full day / Half day / Absent marks that save on a tap, and "the workers left: full day".
+  Workers' photos and ID pictures are taken with the phone's camera and shrunk before sending
+  (`shrinkTo`), and shown from memory, never cached. Each worker's _days and payments_ shows
+  their last month. English, Tamil and Hindi; Kannada needs only a `kn` file beside each.
+- Admin console: **Create an account** (a one-time password shown once, and the modules only
+  some accounts may use), and a switch per such module on each account.
+
+### Changed — Phase 16
+
+- **A module's Tamil and Hindi words for the shell load with the language**
+  (`strings/{ta,hi}.json` beside its manifest, the `modules` namespace); English stays in the
+  manifest. First-load JavaScript went from 198.8 KB to 194.8 KB before Labor (198.3 KB with
+  it). The module generator writes the same layout.
+
+### Added — Phase 15: Receipts & warranty
+
+- **Receipts & warranty** pages (`src/modules/receipts`): the list (latest bought first, a search
+  box, filters by where the warranty stands, each warranty said in words with an icon) and a form
+  to add or change a receipt, with the warranty in one tap (none, 6 months to 5 years, another
+  date) and how many days before it ends to be reminded. Unsaved input is guarded.
+- **Scan the bill** on a new receipt: the shared scan fills the form; whatever was read with
+  doubt asks to be checked until it is changed. A bill the assistant read opens a new receipt,
+  filled in, taken once.
+- Tests: the receipts pages (list, filters, form, scan, a handed-over bill, edit, delete, axe),
+  the shared reader (`photo-reader.test.ts`: its files, settings, time limit and failures), and
+  an e2e flow (a receipt kept with its warranty, opened and deleted); the receipts pages joined
+  the e2e accessibility sweep in both themes.
+
+### Changed — Phase 15
+
+- **The scan is shared** (`src/core/scan`): the on-device reader, the photo's preparation and
+  its worker moved from Expenses, with the scan's flow (`usePhotoScan(skill)`) and its button
+  (`ScanPhoto`, worded by each module). The device switch is one for every scan
+  (`tt-scan-on-device`); the scan's words that name no kind of paper are in `common.json`.
+
+### Fixed — Phase 15
+
+- The reader's language data is kept under its folder's name without a double slash.
+- The admin console's e2e test answers the console's figures itself, so an API running locally
+  can't sign it out.
+- The headers test expects the reader's `'wasm-unsafe-eval'` (and still refuses `eval`).
+
+### Added — Phase 14: receipt scan preview
+
+- **Scan a receipt** under the quick-add bar on Expenses: a photo from the system's picker
+  (camera or gallery, so no camera permission). Its lines land on the same confirm card,
+  marked as one receipt, which **Combine into one** turns into a single entry.
+  - With AI on, the photo is shrunk to a JPEG (`VITE_SCAN_PHOTO_PX`, its location and camera
+    details dropped) and read by AI; the scan says the photo goes as it is. **Read photos on
+    this device only** (remembered per device) keeps it local.
+  - Otherwise, or when AI can't take it after all, the photo is **read on the device** by
+    Tesseract.js (English, Tamil, Hindi) and only its text is sent.
+  - The photo is never kept on the device (tested); offline, a scan says it needs a connection.
+- **Self-hosted reader**: `vite-plugins/ocr-files.ts` publishes Tesseract.js's worker, engine
+  (with and without SIMD) and language data in `ocr/<hash>/` (a hash of their bytes; about
+  12 MB), serves them in development, and keeps them out of the service worker's offline copy.
+  `VITE_OCR_PATH` can move them within the site only (a worker loads only from the same site).
+- **Photo preparation** (`receipt-image.ts`, run in a worker): grey, cropped to the paper,
+  the table round it whitened (a shadow on the paper kept), straightened, evenly lit, and the
+  paper's own shadow cleared before reading.
+- **`npm run receipt-samples render|ocr`**: draws the backend's 20 sample receipts as photos and
+  reads them as the app does, for `poe eval-receipts`.
+- An e2e test reads a sample receipt photo in the production build, under the site's content
+  policy, with AI off.
+
+### Changed
+
+- The content policy allows `'wasm-unsafe-eval'` (WebAssembly, not `eval`), and `/ocr/*` is
+  cached a day, then revalidated.
+
+### Fixed (Phase 14 review)
+
+- The scan never waits forever: a reader that can't load or read in `VITE_SCAN_READ_TIMEOUT_MS`
+  says so, and its worker is ended.
+- Where a photo goes is decided by what the page said when it was picked: while it doesn't
+  know yet (the scan skill's `photo_mode`), Scan waits and makes no promise; a scan whose AI
+  stopped before drafting is read on the device.
+- The note before a photo goes to AI says this app doesn't keep it and the AI service's own
+  terms apply (not "isn't kept anywhere"); the Hindi on-device note says टेक्स्ट.
+- Combine is off while saving (no double saves), keeps every line's "check" flags, takes the
+  shop from any line, moves focus to the combined entry and says so.
+- Preparation: a faint or blank photo stays straight (was tilted 5 degrees); faded print on a
+  dark table and lines under a shadow are kept.
+- The reading's progress is a bar, not dozens of live announcements.
+- The AI consent hint says a receipt photo can't be masked.
+- `agentsQuery` is shared, so a scan picked before the page knew whether AI is on asks first.
+- New dependency: `tesseract.js` (loaded only by a scan without AI); its engine and language
+  data are build-time dependencies.
+
 ### Added — Phase 13: generator + future scaffolds
 
 - **`npm run new-module -- --spec <file.json>`** (`scripts/new-module.ts`, ADR-0020): a module's

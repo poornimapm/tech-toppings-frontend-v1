@@ -1,9 +1,13 @@
-import { toLanguage } from '@/core/i18n';
+import i18n, { MODULE_STRINGS, toLanguage } from '@/core/i18n';
 import type { ModuleDefinition, ModuleStrings, ModuleTile } from '@/core/modules/types';
 
-/** The module's strings in `language`, falling back to English. */
+/** The module's strings in `language`: loaded with that language (its `strings/<language>.json`)
+ *  or in its manifest, falling back to English (always in the manifest). */
 export function textFor(definition: ModuleDefinition, language: string): ModuleStrings {
-  return definition.strings[toLanguage(language)] ?? definition.strings.en;
+  const chosen = toLanguage(language);
+  const loaded = i18n.getResource(chosen, MODULE_STRINGS, definition.key) as
+    ModuleStrings | undefined;
+  return loaded ?? definition.strings[chosen] ?? definition.strings.en;
 }
 
 function normalise(value: string): string {

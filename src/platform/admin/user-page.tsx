@@ -4,9 +4,25 @@ import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
 import { useSession } from '@/core/auth/session-store';
+import { textFor } from '@/core/modules/module-text';
+import { useModuleRegistry } from '@/core/modules/registry';
 import { relativeTime } from '@/core/utils/relative-time';
-import { Alert, Button, Card, LoadError, SelectField, Skeleton, toast } from '@/design-system';
-import { useAdminUser, useUserActions, type AdminUserDetail } from '@/platform/admin/admin-api';
+import {
+  Alert,
+  Button,
+  Card,
+  LoadError,
+  SelectField,
+  Skeleton,
+  Switch,
+  toast,
+} from '@/design-system';
+import {
+  useAdminModules,
+  useAdminUser,
+  useUserActions,
+  type AdminUserDetail,
+} from '@/platform/admin/admin-api';
 import { ConfirmDialog } from '@/platform/admin/confirm-dialog';
 import { UserBadges } from '@/platform/admin/user-badges';
 import { describeError } from '@/platform/auth/describe-error';
@@ -177,6 +193,8 @@ export function UserPage() {
         </Alert>
       )}
 
+      <ModuleGrants account={account} />
+
       <Card title={t('admin.user.actions')}>
         {self ? (
           <p className="text-sm text-muted">{t('admin.user.self')}</p>
@@ -242,5 +260,48 @@ export function UserPage() {
         onClose={close}
       />
     </div>
+  );
+}
+
+/** The modules only some accounts may use: given to this account, or not (each change audited). */
+function ModuleGrants({ account }: { account: AdminUserDetail }) {
+  const { t, i18n } = useTranslation();
+  const registry = useModuleRegistry();
+  const modules = useAdminModules();
+  const { setModule } = useUserActions(account.id);
+  const grantable = (modules.data ?? []).filter((module) => module.audience === 'granted');
+  if (grantable.length === 0) return null;
+
+  return (
+    <Card title={t('admin.user.modules')}>
+      <div className="space-y-2">
+        {grantable.map((module) => {
+          const name = textFor(registry.definitionFor(module.key), i18n.language).name;
+          return (
+            <Switch
+              key={module.key}
+              label={name}
+              checked={account.modules.includes(module.key)}
+              disabled={setModule.isPending}
+              onCheckedChange={(granted) => {
+                setModule.mutate(
+                  { key: module.key, granted },
+                  {
+                    onSuccess: () => {
+                      toast(
+                        t(granted ? 'admin.user.granted' : 'admin.user.revokedModule', { name }),
+                        {
+                          tone: 'success',
+                        },
+                      );
+                    },
+                  },
+                );
+              }}
+            />
+          );
+        })}
+      </div>
+    </Card>
   );
 }

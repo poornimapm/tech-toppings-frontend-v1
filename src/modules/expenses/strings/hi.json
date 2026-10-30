@@ -1,0 +1,68 @@
+{
+  "name": "खर्च",
+  "tagline": "बोलिए, और दर्ज हो गया",
+  "description": "अपनी भाषा में आवाज़ या टेक्स्ट से खर्च दर्ज करें, बजट, श्रेणियों और आसान जानकारियों के साथ।",
+  "stats": {
+    "month_total": "इस महीने"
+  },
+  "widgets": {
+    "expenses_spent": "खर्च",
+    "expenses_received": "आमदनी",
+    "expenses_spent_daily": "रोज़ का खर्च"
+  },
+  "feed": {
+    "expenses.entry_added": "{{module}} में “{{title}}” जोड़ा",
+    "expenses.entry_updated": "{{module}} में “{{title}}” बदला",
+    "expenses.entry_deleted": "{{module}} से “{{title}}” हटाया",
+    "expenses.entry_undeleted": "{{module}} में “{{title}}” वापस लाया",
+    "expenses.entries_changed": "{{module}} में {{count}} प्रविष्टियाँ एक साथ बदलीं",
+    "expenses.entries_deleted": "{{module}} से {{count}} प्रविष्टियाँ हटाईं",
+    "expenses.entries_undeleted": "{{module}} में {{count}} प्रविष्टियाँ वापस लाईं",
+    "expenses.entries_imported": "{{module}} में फ़ाइल से आयात की गई प्रविष्टियाँ: {{count}}",
+    "expenses.entry_restored": "“{{title}}” का पुराना संस्करण वापस लाया",
+    "expenses.price_alert": "{{product}} की कीमत {{price}}/{{unit}} रही, आपकी तय {{limit}} से ज़्यादा",
+    "expenses.budget_near": "“{{name}}” बजट: {{pct}}% खर्च हो गया, {{limit}} में से {{spent}}",
+    "expenses.budget_over": "“{{name}}” बजट से ज़्यादा खर्च हो गया: {{limit}} में से {{spent}}",
+    "expenses.goal_reached": "आपने अपना लक्ष्य “{{name}}” पूरा कर लिया: {{target}} जमा",
+    "expenses.bill_due": "“{{title}}” {{due}} को भरना है: {{amount}}",
+    "expenses.iou_due_lent": "{{person}} को {{due}} तक आपको {{outstanding}} लौटाने हैं",
+    "expenses.iou_due_borrowed": "आपको {{due}} तक {{person}} को {{outstanding}} लौटाने हैं"
+  },
+  "search": {
+    "saved_filter": "सहेजा गया व्यू",
+    "loan_lent": "आपको मिलने हैं",
+    "loan_borrowed": "आपको देने हैं",
+    "product": "कीमतें",
+    "entry_expense": "खर्च",
+    "entry_income": "आमदनी"
+  },
+  "replies": {
+    "ask-expenses.total.expense": "{{from}} से {{to}} तक आपने {{amount}} खर्च किए।",
+    "ask-expenses.total.income": "{{from}} से {{to}} तक आपको {{amount}} मिले।",
+    "ask-expenses.count.expense": "{{from}} से {{to}} तक {{count}} खर्च।",
+    "ask-expenses.count.income": "{{from}} से {{to}} तक {{count}} बार पैसा आया।",
+    "ask-expenses.average.expense": "{{from}} से {{to}} तक एक खर्च औसतन {{amount}} ({{count}} खर्च)।",
+    "ask-expenses.average.income": "{{from}} से {{to}} तक हर बार औसतन {{amount}} आए ({{count}} बार)।",
+    "ask-expenses.largest.expense": "{{from}} से {{to}} तक सबसे बड़ा खर्च {{amount}} था।",
+    "ask-expenses.largest.income": "{{from}} से {{to}} तक एक बार में सबसे ज़्यादा {{amount}} आए।",
+    "ask-expenses.top.1": "{{from}} से {{to}} तक सब {{first_name}} पर: {{first}}।",
+    "ask-expenses.top.2": "{{from}} से {{to}} तक सबसे ज़्यादा {{first_name}} ({{first}}), फिर {{second_name}} ({{second}})।",
+    "ask-expenses.top.3": "{{from}} से {{to}} तक सबसे ज़्यादा {{first_name}} ({{first}}), फिर {{second_name}} ({{second}}) और {{third_name}} ({{third}})।",
+    "ask-expenses.none": "{{from}} से {{to}} तक कुछ नहीं मिला।",
+    "track-expenses.ready.open": "ये रहे आपके खर्च।",
+    "track-expenses.ready.draft": "मैंने यह समझा है। खर्च में जाँचकर सहेजें।",
+    "track-expenses.ready.iou": "मैंने इसे उधार समझा है। खर्च में जाँचकर सहेजें।",
+    "tidy-products.ready.find": "आपकी कुछ चीज़ें एक ही लगती हैं। कीमतों में जाँच लें।",
+    "tidy-products.none": "कोई भी चीज़ एक जैसी नहीं लगती।",
+    "explain-spending.month.empty": "महीने में कोई खर्च नहीं।",
+    "explain-spending.month.first": "महीने में {{spent}} खर्च हुए। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.month.more": "महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों से {{pct}}% ज़्यादा। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.month.less": "महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों से {{pct}}% कम। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.month.same": "महीने में {{spent}} खर्च हुए, पिछले महीने के इन्हीं दिनों जितने ही। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.week.empty": "हफ़्ते में कोई खर्च नहीं।",
+    "explain-spending.week.first": "हफ़्ते में {{spent}} खर्च हुए। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.week.more": "हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों से {{pct}}% ज़्यादा। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.week.less": "हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों से {{pct}}% कम। सबसे ज़्यादा {{category}} पर ({{category_amount}})।",
+    "explain-spending.week.same": "हफ़्ते में {{spent}} खर्च हुए, पिछले हफ़्ते के इन्हीं दिनों जितने ही। सबसे ज़्यादा {{category}} पर ({{category_amount}})।"
+  }
+}

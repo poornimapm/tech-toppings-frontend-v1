@@ -444,7 +444,26 @@
         "done": "Done"
       }
     },
-    "kept": "Kept on this device: it's read when you're back online, and waits here to be checked."
+    "kept": "Kept on this device: it's read when you're back online, and waits here to be checked.",
+    "scan": {
+      "button": "Scan a receipt",
+      "pick": "Receipt photo",
+      "sending": "Reading the receipt…",
+      "reading": "Reading the receipt on this device…",
+      "read_one": "Read {{count}} line from the receipt. Check it below, then save.",
+      "read_other": "Read {{count}} lines from the receipt. Check them below, then save.",
+      "readWithTotal_one": "Read {{count}} line from the receipt, {{total}} in all. Check it below, then save.",
+      "readWithTotal_other": "Read {{count}} lines from the receipt, {{total}} in all. Check them below, then save.",
+      "unreadable": "I couldn't read a receipt in that photo. Try again closer, in good light, with the receipt flat.",
+      "progress": "Reading the receipt"
+    },
+    "receipt": {
+      "summary": "Receipt from {{shop}}: {{count}} lines, {{total}}",
+      "shop": "a shop",
+      "combine": "Combine into one",
+      "title": "Receipt",
+      "combined": "Combined into one entry: {{title}}"
+    }
   },
   "duplicates": {
     "note": "You may have saved this already: {{entry}}",

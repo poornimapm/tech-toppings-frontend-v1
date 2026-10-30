@@ -29,6 +29,19 @@ function shellBundles(namespace: string): Record<'en', unknown> & Record<string,
 const manifests = import.meta.glob<{ default: ModuleDefinition }>('/src/modules/*/manifest.ts', {
   eager: true,
 });
+// What a module shows outside its pages in Tamil and Hindi: beside its manifest, loaded with the
+// language (English is in the manifest).
+const shellStrings = import.meta.glob<{ default: unknown }>('/src/modules/*/strings/*.json', {
+  eager: true,
+});
+
+/** A module's shell strings in every language: the manifest's English, and its files. */
+function shellStringsOf(folder: string, definition: ModuleDefinition): Record<string, unknown> {
+  const own = Object.entries(shellStrings)
+    .filter(([path]) => path.startsWith(`/src/modules/${folder}/strings/`))
+    .map(([path, file]) => [/([a-z]+)\.json$/.exec(path)?.[1] ?? path, file.default] as const);
+  return { ...definition.strings, ...Object.fromEntries(own) };
+}
 
 const folderOf = (path: string) => /\/src\/modules\/([^/]+)\//.exec(path)?.[1] ?? path;
 
@@ -81,8 +94,8 @@ describe('every text in every language', () => {
 
   it.each(Object.entries(manifests).map(([path, file]) => [folderOf(path), file.default] as const))(
     'what the %s module shows outside it (tile, feed, assistant)',
-    (_module, definition) => {
-      const strings = definition.strings as Record<string, unknown>;
+    (module, definition) => {
+      const strings = shellStringsOf(module, definition);
       expect(Object.keys(strings).sort()).toEqual([...SUPPORTED_LANGUAGES].sort());
       expectSameKeysAndPlaceholders({ en: strings.en, ...strings });
       expect(untranslated(strings)).toEqual([]);

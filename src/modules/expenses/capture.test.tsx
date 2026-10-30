@@ -502,6 +502,8 @@ describe('capturing an entry', () => {
     expect(await screen.findByText(/AI is off for your account\./)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Turn on the AI assistant' }));
 
+    // Read again once AI is on (and the page has heard so): the card then appears.
+    await screen.findByRole('region', { name: 'Check before saving' });
     expect(await tray().findByText('Vegetables')).toBeInTheDocument();
     expect(screen.getByText('Read in AI.')).toBeInTheDocument();
   });

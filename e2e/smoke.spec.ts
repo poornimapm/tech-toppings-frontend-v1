@@ -46,9 +46,20 @@ const modules = [
     stat: { value: 4320, format: 'currency', currency: 'INR', label: 'month_total' },
   }),
   moduleView('medicine', 1),
-  moduleView('receipts', 2),
+  moduleView('receipts', 2, {
+    status: 'beta',
+    available: true,
+    stat: { value: 0, format: 'number', currency: null, label: 'items' },
+  }),
   moduleView('journal', 3),
 ];
+
+const receiptOptions = {
+  remind_days_before: 30,
+  max_remind_days: 365,
+  max_months: 120,
+  quick_months: [6, 12, 24, 36, 60],
+};
 
 const config = {
   registration_mode: 'open',
@@ -116,6 +127,10 @@ async function stubApi(
   });
   await page.route('**/api/v1/reminders?*', (route) => route.fulfill({ json: listOf([]) }));
   await page.route('**/api/v1/dashboard?*', (route) => route.fulfill({ json: dashboard }));
+  await page.route('**/api/v1/receipts/options', (route) =>
+    route.fulfill({ json: receiptOptions }),
+  );
+  await page.route('**/api/v1/receipts/items?*', (route) => route.fulfill({ json: listOf([]) }));
   await page.route('**/api/v1/auth/totp', (route) =>
     route.fulfill({
       json: { available: true, enabled: false, enabled_at: null, recovery_codes_left: 0 },
@@ -294,6 +309,136 @@ async function stubExpenses(page: Page): Promise<string[]> {
   return keys;
 }
 
+const AT = '2026-10-01T10:00:00Z';
+const laborProject = {
+  id: 'farm',
+  name: 'North farm',
+  kind: 'farm',
+  description: null,
+  icon: '🌱',
+  started_on: '2026-10-01',
+  notes: null,
+  status: 'open',
+  closed_at: null,
+  currency: 'INR',
+  rates: { by_gender: false, default_minor: 45000, female_minor: 0, male_minor: 0 },
+  created_at: AT,
+  updated_at: AT,
+};
+const laborWorker = {
+  id: 'w1',
+  project_id: 'farm',
+  name: 'Lakshmi',
+  code: 'W001',
+  gender: 'female',
+  phone: null,
+  daily_wage_minor: 45000,
+  active: true,
+  notes: null,
+  has_photo: false,
+  has_id_card: false,
+  created_at: AT,
+  updated_at: AT,
+};
+const laborTotals = {
+  full: 1,
+  half: 0,
+  absent: 0,
+  days: 1,
+  earned_minor: 45000,
+  paid_minor: 0,
+  owed_minor: 45000,
+};
+
+/** Labor Management, given to this account: one project, one worker, marked for the day. */
+async function stubLabor(page: Page) {
+  const labor = moduleView('labor', modules.length, { status: 'beta', available: true });
+  await page.route('**/api/v1/modules?*', (route) =>
+    route.fulfill({ json: listOf([...modules, labor]) }),
+  );
+  const counts = { full: 1, half: 0, absent: 0, unmarked: 0 };
+  const mark = {
+    worker_id: 'w1',
+    status: 'full',
+    units: 1,
+    rate_minor: 45000,
+    amount_minor: 45000,
+    note: null,
+  };
+  const answers: Record<string, unknown> = {
+    '/api/v1/labor/options': {
+      kinds: ['farm', 'household', 'other'],
+      genders: ['female', 'male', 'other'],
+      methods: ['cash', 'upi', 'bank', 'other'],
+      units: { full: 1, half: 0.5, absent: 0 },
+      max_daily_minor: 10_000_000,
+      photo_max_bytes: 200_000,
+      id_max_bytes: 600_000,
+      photo_side_px: 480,
+      id_side_px: 1400,
+      max_report_days: 400,
+    },
+    '/api/v1/labor/overview': {
+      day: today,
+      open_projects: 1,
+      workers: 1,
+      today_minor: 45000,
+      owed_minor: 45000,
+      projects: [
+        {
+          id: 'farm',
+          name: 'North farm',
+          icon: '🌱',
+          workers: 1,
+          counts,
+          today_minor: 45000,
+          owed_minor: 45000,
+        },
+      ],
+      recent: [],
+    },
+    '/api/v1/labor/projects': listOf([laborProject]),
+    '/api/v1/labor/projects/farm': laborProject,
+    '/api/v1/labor/projects/farm/workers': listOf([laborWorker]),
+    '/api/v1/labor/projects/farm/payments': listOf([]),
+    '/api/v1/labor/audit': listOf([]),
+  };
+  await page.route('**/api/v1/labor/**', (route) => {
+    const url = new URL(route.request().url());
+    const asked = (name: string) => url.searchParams.get(name) ?? today;
+    if (url.pathname.endsWith('/attendance')) {
+      const day = { day: asked('day'), workers: [laborWorker], marks: [mark], counts };
+      return route.fulfill({ json: { ...day, total_minor: 45000 } });
+    }
+    if (url.pathname.endsWith('/report')) {
+      return route.fulfill({
+        json: {
+          start: asked('from'),
+          end: asked('to'),
+          grouping: url.searchParams.get('group') ?? 'day',
+          periods: [{ start: today, ...laborTotals }],
+          workers: [
+            {
+              ...laborTotals,
+              worker_id: 'w1',
+              code: laborWorker.code,
+              name: laborWorker.name,
+              earned_to_date_minor: 45000,
+              paid_to_date_minor: 0,
+              owed_to_date_minor: 45000,
+            },
+          ],
+          total: laborTotals,
+        },
+      });
+    }
+    const answer = answers[url.pathname];
+    return answer
+      ? route.fulfill({ json: answer })
+      : route.fulfill({ status: 404, json: { code: 'NOT_FOUND', message: 'stub' } });
+  });
+}
+
 interface AxeResult {
   violations: { id: string; impact: string; nodes: { target: string[] }[] }[];
 }
@@ -323,6 +468,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await stubExpenses(page);
     await stubPlan(page);
     await stubLoans(page);
+    await stubLabor(page);
     const problems: Record<string, string[]> = {};
     for (const path of [
       '/',
@@ -337,6 +483,16 @@ for (const colorScheme of ['light', 'dark'] as const) {
       '/m/expenses/prices',
       '/m/expenses/report',
       '/m/expenses/import',
+      '/m/receipts',
+      '/m/receipts/new',
+      '/m/labor',
+      '/m/labor/projects',
+      '/m/labor/attendance?project=farm',
+      '/m/labor/workers?project=farm',
+      '/m/labor/wages?project=farm',
+      '/m/labor/payments?project=farm',
+      '/m/labor/reports?project=farm',
+      '/m/labor/audit',
       '/no-such-page',
     ]) {
       await page.goto(path);
@@ -380,8 +536,8 @@ test('a module is favourited and an upcoming one can notify me', async ({ page }
   await page.route('**/api/v1/modules/journal/preferences', async (route) =>
     route.fulfill({ json: { ...modules[3], ...(route.request().postDataJSON() as object) } }),
   );
-  await page.route('**/api/v1/modules/receipts/interest', (route) =>
-    route.fulfill({ json: { ...modules[2], notify_requested: true } }),
+  await page.route('**/api/v1/modules/medicine/interest', (route) =>
+    route.fulfill({ json: { ...modules[1], notify_requested: true } }),
   );
   await page.goto('/');
 
@@ -391,13 +547,11 @@ test('a module is favourited and an upcoming one can notify me', async ({ page }
   await expect(page.getByText('Journal added to favourites')).toBeVisible();
 
   await page.keyboard.press('/');
-  await page.keyboard.type('bills');
-  await page.getByRole('button', { name: 'Receipts & warranty', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Receipts & warranty' });
+  await page.keyboard.type('dose');
+  await page.getByRole('button', { name: 'Medicine', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Medicine' });
   await dialog.getByRole('switch', { name: 'Notify me when it launches' }).click();
-  await expect(
-    page.getByText("We'll let you know when Receipts & warranty launches."),
-  ).toBeVisible();
+  await expect(page.getByText("We'll let you know when Medicine launches.")).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
 });
@@ -447,6 +601,14 @@ test('an admin reaches the console; it lists accounts', async ({ page }) => {
   const admin = { ...user, role: 'admin' };
   await page.route('**/api/v1/auth/refresh', (route) =>
     route.fulfill({ json: { ...token, user: admin } }),
+  );
+  // The console's figures aren't this test's: answered here, so an API left running locally
+  // (which would refuse the test's token and sign it out) never decides the result.
+  await page.route('**/api/v1/admin/analytics/**', (route) =>
+    route.fulfill({
+      status: 503,
+      json: { code: 'DB_UNAVAILABLE', message: 'stub', details: null, request_id: 'r' },
+    }),
   );
   await page.route('**/api/v1/admin/users?*', (route) =>
     route.fulfill({
@@ -689,6 +851,83 @@ test('what is typed is read into a draft, checked and saved', async ({ page }) =
   await expect(page.getByText('Added Vegetables')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Today' }).getByText('−₹250.50')).toBeVisible();
   await expect(tray).toBeHidden();
+});
+
+test('with AI off, a receipt photo is read on the device into drafts', async ({
+  page,
+  baseURL,
+}) => {
+  // The first scan fetches the reader (its engine and English data, some 6 MB) from the app.
+  test.setTimeout(150_000);
+  await stubApi(page);
+  await stubExpenses(page);
+  const elsewhere: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).origin !== new URL(baseURL ?? '').origin) {
+      elsewhere.push(request.url());
+    }
+  });
+  const photoRuns: string[] = [];
+  await page.route('**/api/v1/agents/assistant/photo-runs**', (route) => {
+    photoRuns.push(route.request().url());
+    return route.abort();
+  });
+  let asked: { input?: string; skill?: string; context?: unknown } = {};
+  await page.route('**/api/v1/agents/assistant/runs', (route) => {
+    asked = route.request().postDataJSON() as typeof asked;
+    const line = (title: string, amount: number) => ({
+      kind: 'expense',
+      title,
+      amount,
+      category_id: 'groceries',
+      date: '2026-10-12',
+      merchant: 'Sri Murugan Stores',
+      uncertain: [],
+    });
+    return route.fulfill({
+      status: 201,
+      json: {
+        id: 'run-scan',
+        agent: 'assistant',
+        skill: 'scan-receipt',
+        status: 'completed',
+        mode: 'static',
+        reason: 'consent',
+        message: null,
+        message_code: 'scan-receipt.ready',
+        message_params: { count: 2, total: 225 },
+        proposals: [],
+        client_actions: [
+          {
+            tool: 'expenses_draft',
+            arguments: { drafts: [line('Tomato 1kg', 80), line('Toor Dal 1kg', 145)] },
+          },
+        ],
+        created_at: '2026-10-29T10:00:00Z',
+      },
+    });
+  });
+  await page.goto('/m/expenses');
+  await expect(
+    page.getByText('The photo is read on this device and never leaves it'),
+  ).toBeVisible();
+
+  // A photo of a receipt (one of the 20 samples the accuracy report is measured on).
+  await page.getByLabel('Receipt photo').setInputFiles('e2e/fixtures/receipt.jpg');
+
+  await expect(page.getByText('Read 2 lines from the receipt, ₹225 in all.')).toBeVisible({
+    timeout: 120_000,
+  });
+  // What the reader read on this page under the live site's content policy, sent as text.
+  expect(asked).toMatchObject({ skill: 'scan-receipt', context: { input_type: 'ocr' } });
+  expect(asked.input).toMatch(/SRI MURUGAN STORES/);
+  expect(asked.input).toMatch(/GRAND TOTAL\s+1012\.00/);
+  expect(photoRuns).toEqual([]);
+  expect(elsewhere).toEqual([]);
+  const tray = page.getByRole('region', { name: 'Check before saving' });
+  await expect(tray.getByText('Receipt from Sri Murugan Stores: 2 lines, ₹225')).toBeVisible();
+  await tray.getByRole('button', { name: 'Combine into one' }).click();
+  await expect(tray.getByRole('button', { name: 'Save Sri Murugan Stores' })).toBeVisible();
 });
 
 /** True when the page is no wider than the screen, so nothing scrolls sideways. */
@@ -1202,6 +1441,60 @@ async function stubLoans(page: Page) {
   });
   return sent;
 }
+
+test('a receipt is kept with its warranty, opened and deleted', async ({ page }) => {
+  await stubApi(page);
+  let kept: Record<string, unknown>[] = [];
+  await page.route('**/api/v1/receipts/items?*', (route) => route.fulfill({ json: listOf(kept) }));
+  await page.route('**/api/v1/receipts/items', async (route) => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    const at = new Date().toISOString();
+    const item = {
+      ...body,
+      id: 'receipt-1',
+      currency: 'INR',
+      warranty: body.warranty_ends_on ? 'active' : 'none',
+      created_at: at,
+      updated_at: at,
+    };
+    kept = [item];
+    await route.fulfill({ status: 201, json: item });
+  });
+  await page.route('**/api/v1/receipts/items/receipt-1', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      kept = [];
+      await route.fulfill({ status: 204 });
+      return;
+    }
+    const [found] = kept;
+    await (found
+      ? route.fulfill({ json: found })
+      : route.fulfill({
+          status: 404,
+          json: { code: 'NOT_FOUND', message: 'gone', details: null, request_id: 'r' },
+        }));
+  });
+  await page.goto('/m/receipts');
+  await expect(page.getByText(/No receipts yet/)).toBeVisible();
+
+  await page.getByRole('link', { name: 'Add a receipt' }).click();
+  await page.getByRole('textbox', { name: /What you bought/ }).fill('Fridge');
+  await page.getByRole('textbox', { name: 'Amount paid (INR)' }).fill('28490');
+  await page.getByText('2 years', { exact: true }).click();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(
+    page.getByText("Kept “Fridge”. You'll be reminded before its warranty ends."),
+  ).toBeVisible();
+  await expect(page.getByText(/^Warranty till /)).toBeVisible();
+
+  await page.getByRole('link', { name: /Fridge/ }).click();
+  await page.getByRole('button', { name: 'Delete' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Delete this receipt?' });
+  await dialog.getByRole('button', { name: 'Delete' }).click();
+  // Back on the list: the deleted receipt's own page never shows its failed reload.
+  await expect(page).toHaveURL(/\/m\/receipts$/);
+  await expect(page.getByText(/No receipts yet/)).toBeVisible();
+});
 
 test('an expense is added, opened, deleted and brought back', async ({ page }) => {
   await stubApi(page);

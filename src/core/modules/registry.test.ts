@@ -18,6 +18,10 @@ const BACKEND_MODULE_KEYS = [
   'journal',
 ];
 
+const shellStrings = import.meta.glob<{ default: unknown }>('/src/modules/*/strings/*.json', {
+  eager: true,
+});
+
 const demo = defineModule({
   key: 'demo_notes',
   icon: Box,
@@ -40,7 +44,12 @@ describe('module registry', () => {
     '%s is described in every language',
     (_key, definition) => {
       for (const language of SUPPORTED_LANGUAGES) {
-        const strings = definition.strings[language];
+        // English in the manifest; the others beside it, loaded with the language.
+        const strings =
+          language === 'en'
+            ? definition.strings.en
+            : (shellStrings[`/src/modules/${slugOf(definition.key)}/strings/${language}.json`]
+                ?.default as ModuleDefinition['strings']['en'] | undefined);
         expect(strings?.name, language).toBeTruthy();
         expect(strings?.tagline, language).toBeTruthy();
         expect(strings?.description, language).toBeTruthy();

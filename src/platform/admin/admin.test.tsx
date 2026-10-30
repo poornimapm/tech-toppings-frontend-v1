@@ -32,6 +32,7 @@ const bob: Schemas['AdminUserDetail'] = {
   two_factor: true,
   locked: false,
   providers: [],
+  modules: [],
   live_sessions: 2,
 };
 
@@ -123,6 +124,52 @@ describe('the admin console', () => {
     expect(resets).toBe(1);
   });
 
+  it('creates an owner with Labor and a one-time password shown once', async () => {
+    asAdmin();
+    let sent: unknown = null;
+    const labor: Schemas['AdminModuleOut'] = {
+      key: 'labor',
+      manifest_status: 'beta',
+      manifest_order: 20,
+      status: 'beta',
+      global_enabled: true,
+      order: 20,
+      overridden: [],
+      audience: 'granted',
+    };
+    server.use(
+      http.get('*/api/v1/admin/modules', () => HttpResponse.json([labor])),
+      http.post('*/api/v1/admin/users', async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json(
+          {
+            user: {
+              ...bob,
+              id: 'user-9',
+              name: 'Meena',
+              email: 'meena@example.com',
+              modules: ['labor'],
+            },
+            one_time_password: 'Wxyz-Abcd-Efgh-Jkmn',
+          },
+          { status: 201 },
+        );
+      }),
+    );
+    const { user } = renderApp('/admin/users');
+
+    await user.click(await screen.findByRole('button', { name: 'Create an account' }));
+    const dialog = within(await screen.findByRole('dialog', { name: 'New account' }));
+    await user.type(dialog.getByRole('textbox', { name: 'Email' }), 'meena@example.com');
+    await user.type(dialog.getByRole('textbox', { name: 'Name' }), 'Meena');
+    await user.click(await dialog.findByRole('checkbox', { name: 'Labor Management' }));
+    await user.click(dialog.getByRole('button', { name: 'Create the account' }));
+
+    expect(await screen.findByText('Wxyz-Abcd-Efgh-Jkmn')).toBeInTheDocument();
+    expect(screen.getByText("Meena's account is ready.")).toBeInTheDocument();
+    expect(sent).toEqual({ email: 'meena@example.com', name: 'Meena', modules: ['labor'] });
+  });
+
   it('changes a role only once confirmed, and shows a refusal in the dialog', async () => {
     asAdmin();
     const sent: unknown[] = [];
@@ -185,6 +232,7 @@ describe('the admin console', () => {
       global_enabled: true,
       order: 1,
       overridden: ['status'],
+      audience: 'everyone',
     };
     server.use(
       http.get('*/api/v1/admin/modules', () => HttpResponse.json([expenses])),

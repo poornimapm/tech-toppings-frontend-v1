@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
+import { ocr } from './vite-plugins/ocr-files.ts';
 import { pagesHeaders } from './vite-plugins/pages-headers.ts';
 import { pwa } from './vite-plugins/pwa.ts';
 
@@ -25,6 +26,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+      ocr(),
       pwa({
         entry: fileURLToPath(new URL('./src/sw/service-worker.ts', import.meta.url)),
         name: appName,
@@ -33,6 +35,8 @@ export default defineConfig(({ mode }) => {
         themeColor: '#4f46e5', // --tt-primary, as in the icon
         backgroundColor: '#f8fafc', // --tt-bg (light): the splash screen while the app opens
         apiBase: env.VITE_API_BASE_URL ?? '/api',
+        // The receipt reader's files (some 12 MB) are fetched on the first scan without AI.
+        notKept: ['ocr/'],
       }),
     ],
     resolve: {

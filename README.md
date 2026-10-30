@@ -295,23 +295,24 @@ server has no service worker.
 
 ## Scripts
 
-| Command                                     | What it does                                                                                            |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                               | Dev server with HMR and the `/api` proxy                                                                |
-| `npm run build`                             | Typecheck, then production build to `dist/`                                                             |
-| `npm run preview`                           | Serve the production build (with the same `/api` proxy)                                                 |
-| `npm run lint`                              | ESLint, zero warnings allowed                                                                           |
-| `npm run format` / `format:check`           | Prettier write / check                                                                                  |
-| `npm run typecheck`                         | `tsc -b` (app + node configs)                                                                           |
-| `npm test` / `test:watch` / `test:coverage` | Vitest (coverage gate: 70% for lines, branches, functions and statements)                               |
-| `npm run e2e`                               | Playwright smoke tests against the production build (API stubbed)                                       |
-| `npm run knip`                              | Find unused files, exports and dependencies                                                             |
-| `npm run gen:api`                           | Regenerate `src/core/api/schema.d.ts` from the backend's `openapi.json` (run `poe openapi` there first) |
-| `npm run new-module -- --spec <file.json>`  | A module's folder from a spec; the backend's `poe new-module` runs it for both repositories             |
-| `npm run gen:icons`                         | Render the app icons (`public/icons/*.png`) from `public/favicon.svg`                                   |
-| `npm run i18n:check`                        | Every text in en, ta and hi: keys, placeholders, nothing left in English                                |
-| `npm run budget`                            | Each first page's JavaScript within `BUNDLE_BUDGET_KB` (200) gzipped; run after a build                 |
-| `npm run check`                             | **Everything CI's quality job runs**, locally                                                           |
+| Command                                     | What it does                                                                                                |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                               | Dev server with HMR and the `/api` proxy                                                                    |
+| `npm run build`                             | Typecheck, then production build to `dist/`                                                                 |
+| `npm run preview`                           | Serve the production build (with the same `/api` proxy)                                                     |
+| `npm run lint`                              | ESLint, zero warnings allowed                                                                               |
+| `npm run format` / `format:check`           | Prettier write / check                                                                                      |
+| `npm run typecheck`                         | `tsc -b` (app + node configs)                                                                               |
+| `npm test` / `test:watch` / `test:coverage` | Vitest (coverage gate: 70% for lines, branches, functions and statements)                                   |
+| `npm run e2e`                               | Playwright smoke tests against the production build (API stubbed)                                           |
+| `npm run knip`                              | Find unused files, exports and dependencies                                                                 |
+| `npm run gen:api`                           | Regenerate `src/core/api/schema.d.ts` from the backend's `openapi.json` (run `poe openapi` there first)     |
+| `npm run new-module -- --spec <file.json>`  | A module's folder from a spec; the backend's `poe new-module` runs it for both repositories                 |
+| `npm run gen:icons`                         | Render the app icons (`public/icons/*.png`) from `public/favicon.svg`                                       |
+| `npm run receipt-samples -- render\|ocr`    | Draw the backend's sample receipts as photos, or read them as the app does without AI (`poe eval-receipts`) |
+| `npm run i18n:check`                        | Every text in en, ta and hi: keys, placeholders, nothing left in English                                    |
+| `npm run budget`                            | Each first page's JavaScript within `BUNDLE_BUDGET_KB` (200) gzipped; run after a build                     |
+| `npm run check`                             | **Everything CI's quality job runs**, locally                                                               |
 
 ## Configuration
 
@@ -346,6 +347,7 @@ src/
     config/env.ts        validated VITE_* configuration
     i18n/                i18next setup, locales/{en,ta,hi}/{common,errors}.json
     speech/              dictation and read-back (Web Speech API), when the browser has them
+    scan/                a photo read by AI or on the device (Tesseract.js), the scan button
     theme/               design tokens (tokens.css), theme store
     utils/
   platform/              shell features shared by all modules
@@ -370,7 +372,10 @@ src/
     expenses/            entries with history, add/edit form, categories, quick add and the
                          confirm card, prices (products, price chart, matches), overview
                          (analytics charts, insight card), i18n/{en,ta,hi}.json
-    medicine/ ...        the other seven: manifest only, coming soon
+    receipts/            receipts list with warranty filters, the receipt form (scan the bill)
+    labor/               Labor Management: projects, attendance by photo card, workers, wages,
+                         payments, reports, history (only for accounts given it)
+    medicine/ ...        the other six: manifest only, coming soon
   test/                  test setup, MSW server, render helpers, naming-convention test, and the
                          tests of the Pages Function and the headers file
   sw/                    the service worker (built by vite-plugins/pwa.ts)

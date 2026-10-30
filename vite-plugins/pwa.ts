@@ -14,6 +14,8 @@ export interface PwaOptions {
   backgroundColor: string;
   /** Same-origin path of the API (`VITE_API_BASE_URL`): never answered from the cache. */
   apiBase: string;
+  /** Folders of the build (`ocr/`) fetched only when used, so not kept for offline use. */
+  notKept?: string[];
 }
 
 const SERVICE_WORKER = 'sw.js';
@@ -48,13 +50,15 @@ async function filesIn(dir: string): Promise<string[]> {
 }
 
 /** What the worker keeps for offline use: not source maps, the worker itself, hidden build
- *  data (`.vite/manifest.json`) or the host's configuration, none of which a page loads. */
-function kept(file: string): boolean {
+ *  data (`.vite/manifest.json`), the host's configuration, none of which a page loads, nor
+ *  the folders a page loads only when used (`notKept`). */
+function kept(file: string, notKept: string[]): boolean {
   return (
     !file.endsWith('.map') &&
     file !== SERVICE_WORKER &&
     !HOST_FILES.has(file) &&
-    !file.split('/').some((part) => part.startsWith('.'))
+    !file.split('/').some((part) => part.startsWith('.')) &&
+    !notKept.some((folder) => file.startsWith(folder))
   );
 }
 
@@ -83,7 +87,9 @@ export function pwa(options: PwaOptions): Plugin {
     },
     async closeBundle() {
       const outDir = config.build.outDir;
-      const files = (await filesIn(outDir)).filter(kept).sort();
+      const files = (await filesIn(outDir))
+        .filter((file) => kept(file, options.notKept ?? []))
+        .sort();
       const hash = createHash('sha256');
       for (const file of files) hash.update(file).update(await readFile(join(outDir, file)));
       const url = (file: string) => (file === 'index.html' ? config.base : config.base + file);
