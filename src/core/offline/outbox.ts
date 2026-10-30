@@ -1,3 +1,4 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { create } from 'zustand';
 
 import { ApiError } from '@/core/api/api-error';
@@ -7,8 +8,9 @@ import { forgetKeptLists } from '@/core/offline/kept-lists';
 import { deviceStorage, type OutboxItem, type OutboxStorage } from '@/core/offline/outbox-storage';
 
 /** Sends one item; throws an `ApiError` when it couldn't. Modules declare theirs by kind
- *  (`ModuleDefinition.outbox`). */
-export type OutboxSender = (item: OutboxItem) => Promise<void>;
+ *  (`ModuleDefinition.outbox`). Given the app's query cache, a sender may put what the server
+ *  answered in it at once (the page then shows it before any refetch). */
+export type OutboxSender = (item: OutboxItem, queries?: QueryClient) => Promise<void>;
 export type SenderLookup = (kind: string) => Promise<OutboxSender | undefined>;
 
 /** What waits on this device, for the screen (every account's: filter by `owner`). */
@@ -113,17 +115,22 @@ async function sendWaiting(
   const waiting = (await storage.all())
     .filter((each) => each.owner === owner && !each.failure)
     .sort(oldestFirst);
+  // Still waiting, as read now: one the user discarded meanwhile (or another flush settled) is
+  // neither sent nor, once refused, put back.
+  const stillWaiting = async (id: string) =>
+    (await storage.all()).some((each) => each.id === id && !each.failure);
   let sent = 0;
   for (const item of waiting) {
     if (!goOn()) break;
     const send = await senderFor(item.kind);
     if (!send) continue; // a kind this build no longer knows: kept, untouched
+    if (!(await stillWaiting(item.id))) continue;
     try {
       await send(item);
     } catch (error) {
       const failure = refusal(error);
       if (!failure) break;
-      await storage.put({ ...item, failure });
+      if (await stillWaiting(item.id)) await storage.put({ ...item, failure });
       continue;
     }
     await storage.remove(item.id);

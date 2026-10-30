@@ -444,6 +444,11 @@ describe('marks said', () => {
     expect(screen.getByText('Who is “suresh”?')).toBeVisible();
     expect(screen.getByText('1 worker not named')).toBeVisible(); // Ravi Kumar, by "the rest"
     expect(sent).toHaveLength(0); // read, not saved
+    // Who "suresh" is: anyone but Lakshmi, who has a row of her own.
+    const who = screen.getByRole('combobox', { name: 'Worker' });
+    expect(who).toHaveAccessibleDescription('Who is “suresh”?');
+    expect(within(who).queryByRole('option', { name: 'Lakshmi (W001)' })).toBeNull();
+    expect(within(who).getByRole('option', { name: 'Ravi Kumar (W002)' })).toBeInTheDocument();
 
     // Nobody here is Suresh: left out. Lakshmi full day, and the rest (Ravi Kumar) absent.
     await user.click(screen.getByRole('button', { name: 'Save 2 marks' }));
@@ -654,6 +659,11 @@ describe('every worker', () => {
     const table = await screen.findByRole('table', { name: 'By worker' });
 
     expect(within(table).getByText('Ravi Kumar (W002)')).toBeInTheDocument();
+    // What is owed runs to the report's last day: said so, the total matching the workers'.
+    expect(
+      within(table).getByRole('columnheader', { name: 'Owed up to Oct 30, 2026' }),
+    ).toBeVisible();
+    expect(screen.getByText('₹2,700')).toBeVisible(); // ₹1,350 each
   });
 });
 
@@ -714,8 +724,22 @@ describe('a report', () => {
 
 describe('the history', () => {
   it('says whom a payment paid by name, not by an id', async () => {
-    server.use(http.get('*/api/v1/labor/audit', () => HttpResponse.json(pageOf([PAID_ENTRY]))));
+    const stopped = {
+      ...PAID_ENTRY,
+      id: 'a2',
+      entity: 'worker',
+      entity_id: 'w2',
+      action: 'deactivated',
+      changes: [{ field: 'active', before: true, after: false }],
+      note: null,
+      labels: { w2: 'Ravi Kumar (W002)' },
+    };
+    server.use(
+      http.get('*/api/v1/labor/audit', () => HttpResponse.json(pageOf([PAID_ENTRY, stopped]))),
+    );
     renderApp('/m/labor/audit?project=farm');
+    // An entry about a worker says whom.
+    expect(await screen.findByText(/· Ravi Kumar \(W002\)$/)).toBeVisible();
 
     expect(await screen.findByText('Worker: nothing → Lakshmi (W001)')).toBeInTheDocument();
     expect(screen.getByText('Amount: nothing → ₹100')).toBeInTheDocument();

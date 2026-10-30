@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router';
 import { useSession } from '@/core/auth/session-store';
 import { errorKey } from '@/core/i18n';
 import { addDays, displayDate, todayIn } from '@/core/utils/dates';
-import { Button, FilterChips, LoadError, Skeleton, TextField, toast } from '@/design-system';
+import { Alert, Button, FilterChips, LoadError, Skeleton, TextField, toast } from '@/design-system';
 import { failureCode, useReport, useSaveReportFile, type ReportFilters } from '@/modules/labor/api';
 import { NS } from '@/modules/labor/i18n';
 import { useLabor } from '@/modules/labor/labor-context';
@@ -72,6 +72,7 @@ export function ReportsPage() {
           type="date"
           label={t('reports.to')}
           value={filters.to}
+          min={filters.from}
           max={today}
           onChange={(event) => {
             if (event.target.value) set('to', event.target.value);
@@ -120,6 +121,9 @@ export function ReportsPage() {
       </div>
       {report.isPending ? (
         <Skeleton className="h-64 rounded-3xl" />
+      ) : report.isError && !report.data && failureCode(report.error) === 'LABOR_PERIOD_INVALID' ? (
+        // Days that run backwards, or too many: said in words, as trying again can't help.
+        <Alert tone="info">{tError(errorKey('LABOR_PERIOD_INVALID'))}</Alert>
       ) : report.isError && !report.data ? (
         <LoadError onRetry={() => void report.refetch()}>{t('reports.loadError')}</LoadError>
       ) : (

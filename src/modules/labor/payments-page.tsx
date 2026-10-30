@@ -67,11 +67,20 @@ export function PaymentsPage() {
         <p className="text-sm text-muted">{t('payments.balancesHint')}</p>
         {workers.isPending || report.isPending ? (
           <Skeleton className="h-40 rounded-3xl" />
-        ) : report.isError && !report.data ? (
-          <LoadError onRetry={() => void report.refetch()}>{t('payments.loadError')}</LoadError>
+        ) : (report.isError && !report.data) || (workers.isError && !workers.data) ? (
+          <LoadError
+            onRetry={() => {
+              void report.refetch();
+              void workers.refetch();
+            }}
+          >
+            {t('payments.loadError')}
+          </LoadError>
+        ) : workers.data.length === 0 ? (
+          <p className="text-sm text-muted">{t('day.noWorkers')}</p>
         ) : (
           <ul role="list" aria-label={t('payments.balances')} className="space-y-2">
-            {(workers.data ?? []).map((worker) => {
+            {workers.data.map((worker) => {
               const row = byWorker.get(worker.id);
               const owed = row?.owed_to_date_minor ?? 0;
               return (

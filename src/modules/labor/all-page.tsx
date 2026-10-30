@@ -40,6 +40,8 @@ type State = (typeof STATES)[number];
 /** How far back a project's report goes when the admin opens it. */
 const LAST_DAYS = 30;
 const adminKey = [...laborKeys.all, 'admin'] as const;
+/** The id of the button that opens a project's details (focus returns to it). */
+const openerId = (project: string) => `labor-admin-open-${project}`;
 
 /**
  * The platform admin's view across every owner (read only): the owners given Labor with their
@@ -162,6 +164,7 @@ function AdminView() {
                 // Opens the project's workers and report below, read only.
                 cell: (row) => (
                   <button
+                    id={openerId(row.id)}
                     type="button"
                     aria-expanded={opened?.id === row.id}
                     className="min-h-11 text-start font-semibold text-primary underline underline-offset-4"
@@ -198,7 +201,10 @@ function AdminView() {
           key={opened.id}
           project={opened}
           onClose={() => {
+            const opener = openerId(opened.id);
             setOpened(null);
+            // Back where the admin was: the project's name that opened it.
+            requestAnimationFrame(() => document.getElementById(opener)?.focus());
           }}
         />
       )}

@@ -1,5 +1,5 @@
 import { CircleAlert, Mic, X } from 'lucide-react';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { errorKey, toLanguage } from '@/core/i18n';
@@ -19,6 +19,8 @@ import { NS } from '@/modules/labor/i18n';
 import type { MarksDraft } from '@/modules/labor/marks-draft';
 
 const STATUSES: MarkStatus[] = ['full', 'half', 'absent'];
+/** The microphone refused (asked again, the browser says no again). */
+const BLOCKED = new Set(['not-allowed', 'service-not-allowed']);
 
 interface Props {
   project: string;
@@ -42,6 +44,7 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
   const { t: tError } = useTranslation('errors');
   const online = useOnline();
   const wordsId = useId();
+  const openId = useId();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [spoken, setSpoken] = useState(false);
@@ -49,7 +52,16 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
   const [draft, setDraft] = useState<{ value: MarksDraft; key: number } | null>(null);
   const [taken, setTaken] = useState<MarksDraft | null>(null);
   const read = useReadMarks(project, day);
+  /** Open, as the latest render knows it: speech heard after closing is let go. */
+  const isOpen = useRef(false);
+  /** Each read, numbered: one answered after closing (or after a newer read) is let go. */
+  const reads = useRef(0);
+  /** The last draft whose day the page went to: followed once, not held to. */
+  const followed = useRef(0);
+  /** The owner opened or closed the box: focus goes with it. */
+  const toggled = useRef(false);
   const dictation = useDictation(toLanguage(i18n.language), (heard) => {
+    if (!isOpen.current) return;
     setText(heard);
     setSpoken(true);
   });
@@ -57,16 +69,26 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
   if (handed && handed !== taken) {
     // Taken once, in this render: each one handed starts the check afresh.
     setTaken(handed);
-    setDraft({ value: handed, key: (draft?.key ?? 0) + 1 });
+    setDraft((previous) => ({ value: handed, key: (previous?.key ?? 0) + 1 }));
     setOpen(true);
   }
-  const draftDay = draft?.value.day;
   useEffect(() => {
-    if (draftDay && draftDay !== day) onDay(draftDay);
-  }, [day, draftDay, onDay]);
+    isOpen.current = open;
+    if (!toggled.current) return;
+    toggled.current = false;
+    document.getElementById(open ? wordsId : openId)?.focus();
+  }, [open, openId, wordsId]);
+  useEffect(() => {
+    if (!draft || followed.current === draft.key) return;
+    followed.current = draft.key;
+    if (draft.value.day && draft.value.day !== day) onDay(draft.value.day);
+  }, [day, draft, onDay]);
 
   const close = () => {
+    reads.current += 1; // a read still under way is let go
+    read.reset();
     dictation.stop();
+    toggled.current = true;
     setOpen(false);
     setDraft(null);
     setSaid(null);
@@ -78,6 +100,8 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
     const words = text.trim();
     if (!words || !online || read.isPending) return;
     dictation.stop();
+    reads.current += 1;
+    const mine = reads.current;
     const out = await read
       .mutateAsync({
         text: words,
@@ -85,7 +109,7 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
         locale: toLanguage(i18n.language),
       })
       .catch(() => null);
-    if (!out) return;
+    if (!out || reads.current !== mine) return;
     const count = Number(out.message_params.count ?? 0);
     setSaid(
       out.status === 'unavailable'
@@ -95,15 +119,19 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
               ? t(`voice.codes.${out.message_code}`, { count, defaultValue: '' })
               : null)),
     );
-    setDraft(out.draft ? { value: out.draft, key: (draft?.key ?? 0) + 1 } : null);
+    setDraft((previous) =>
+      out.draft ? { value: out.draft, key: (previous?.key ?? 0) + 1 } : null,
+    );
   };
 
   if (!open) {
     return (
       <Button
+        id={openId}
         variant="secondary"
         className="min-h-12 w-full text-base"
         onClick={() => {
+          toggled.current = true;
           setOpen(true);
         }}
       >
@@ -118,7 +146,11 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
   if (read.isPending) status = t('voice.reading');
   else if (dictation.listening) status = t('voice.listening');
   else if (failure) status = tError(errorKey(failure));
-  const ready = draft && sheet && (!draft.value.day || draft.value.day === day);
+  else if (dictation.error)
+    status = t(BLOCKED.has(dictation.error) ? 'voice.speechBlocked' : 'voice.speechError');
+  // A draft is checked on its own project and day (the page goes there), never another's.
+  const forHere = !draft?.value.project_id || draft.value.project_id === project;
+  const ready = draft && sheet && forHere && (!draft.value.day || draft.value.day === day);
 
   return (
     <section
@@ -182,9 +214,10 @@ export function VoiceMarks({ project, day, sheet, handed, onDay }: Props) {
       <p role="status" className="text-sm font-medium">
         {status}
       </p>
+      {draft && !forHere && <p className="text-sm">{t('voice.otherProject')}</p>}
       {ready && (
         <Review
-          key={draft.key}
+          key={`${String(draft.key)}:${project}:${day}`}
           draft={draft.value}
           sheet={sheet}
           project={project}
@@ -240,12 +273,17 @@ function Review({
   const others = sheet.workers.filter(
     (worker) => worker.active && !named.has(worker.id) && shown(worker.id) === null,
   );
+  // One mark a worker (each worker can be chosen in one row only; this keeps it so).
   const taps = [
-    ...rows.flatMap((row) => {
-      const worker = byId.get(row.worker);
-      return worker && row.status ? [tap(worker, row.status)] : [];
-    }),
-    ...(rest ? others.map((worker) => tap(worker, rest)) : []),
+    ...new Map(
+      [
+        ...rows.flatMap((row) => {
+          const worker = byId.get(row.worker);
+          return worker && row.status ? [tap(worker, row.status)] : [];
+        }),
+        ...(rest ? others.map((worker) => tap(worker, rest)) : []),
+      ].map((each) => [each.worker_id, each]),
+    ).values(),
   ];
   const change = (index: number, patch: Partial<Row>) => {
     setRows((all) => all.map((row, at) => (at === index ? { ...row, ...patch } : row)));
@@ -260,7 +298,10 @@ function Review({
             key={`${row.heard}-${String(index)}`}
             row={row}
             name={byId.get(row.worker)?.name ?? null}
-            workers={sheet.workers}
+            // The workers not chosen in another row: one row a worker.
+            workers={sheet.workers.filter(
+              (worker) => worker.id === row.worker || !named.has(worker.id),
+            )}
             onChange={(patch) => {
               change(index, patch);
             }}
@@ -323,6 +364,8 @@ function ReviewRow({
       {row.check && (
         <SelectField
           label={t('voice.pick')}
+          // Which heard name it settles, for a screen reader moving from picker to picker.
+          aria-describedby={nameId}
           value={row.worker}
           options={[
             { value: '', label: t('voice.nobody') },

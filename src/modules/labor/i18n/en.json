@@ -215,16 +215,15 @@
     "days": "Days worked",
     "earned": "Earned",
     "paid": "Paid",
-    "owed": "Owed",
     "periods": "By period",
     "workers": "By worker",
     "worker": "Worker",
-    "owedToDate": "Owed to date",
     "empty": "Nothing recorded in these days.",
     "print": "Print or save as PDF",
     "csv": "Download CSV",
     "downloaded": "Downloaded {{name}}.",
-    "printTitle": "{{project}}: {{from}} to {{to}}"
+    "printTitle": "{{project}}: {{from}} to {{to}}",
+    "owedBy": "Owed up to {{date}}"
   },
   "audit": {
     "what": "What",
@@ -370,6 +369,9 @@
         "unsure_other": "{{count}} to check: who they are, or which mark.",
         "nothing": "No marks heard. Say a name, then Full day, Half day or Absent."
       }
-    }
+    },
+    "speechBlocked": "The microphone is blocked. Allow it in the browser, or type the marks.",
+    "speechError": "Nothing was heard. Try again, or type the marks.",
+    "otherProject": "These marks are for another project: choose it above to check them."
   }
 }

@@ -11,8 +11,18 @@ const CHOICES: Record<string, string> = { method: 'methods', kind: 'kinds', gend
 /** One change in the audit trail: what was done to which record, by whom and when, and each
  *  field from and to in words (money as money, a worker by name, a choice by its word). The
  *  owner's History and the admin's view. */
-export function AuditEntryRow({ entry, currency }: { entry: AuditEntry; currency: string }) {
+export function AuditEntryRow({
+  entry,
+  currency: fallback,
+}: {
+  entry: AuditEntry;
+  currency: string;
+}) {
   const { t, i18n } = useTranslation(NS);
+  // Amounts in the entry's own project's currency (the page's only when it has none).
+  const currency = entry.currency ?? fallback;
+  // Whom the entry is about: a worker, or a payment's worker.
+  const about = entry.labels?.[entry.entity_id];
   const when = new Date(entry.at).toLocaleString(i18n.language, {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -39,6 +49,7 @@ export function AuditEntryRow({ entry, currency }: { entry: AuditEntry; currency
       <p className="font-semibold">
         {t(`audit.actions.${entry.action}`, { defaultValue: entry.action })} ·{' '}
         {t(`audit.entities.${entry.entity}`, { defaultValue: entry.entity })}
+        {about && ` · ${about}`}
       </p>
       <p className="text-sm text-muted">{t('audit.by', { name: entry.actor_name, when })}</p>
       {entry.changes.length > 0 && (

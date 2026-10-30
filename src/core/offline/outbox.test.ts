@@ -63,6 +63,27 @@ describe('the outbox', () => {
     expect(useOutbox.getState().items).toEqual([]);
   });
 
+  it('never sends, nor puts back, one discarded while a flush is under way', async () => {
+    await queue('first');
+    await queue('overtaken');
+    await queue('refused');
+    await queue('discarded');
+    const sent: string[] = [];
+    const send = vi.fn<OutboxSender>(async (item) => {
+      if (item.id === 'first') await Promise.all([discard('overtaken'), discard('discarded')]);
+      if (item.id === 'refused') {
+        await discard('refused'); // gone while its answer was on the way
+        throw refused('LABOR_MARK_CHANGED', 409);
+      }
+      sent.push(item.id);
+    });
+
+    await flush('asha', (kind) => Promise.resolve(kind === 'm.x' ? send : undefined));
+
+    expect(sent).toEqual(['first']);
+    expect(ids()).toEqual([]); // not put back as refused
+  });
+
   it('stops at the first the network can’t take, keeping the rest in order', async () => {
     await queue('first');
     await queue('second');

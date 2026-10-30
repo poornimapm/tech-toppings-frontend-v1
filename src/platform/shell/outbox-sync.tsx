@@ -34,7 +34,9 @@ export function OutboxSync() {
     const stop = new AbortController();
     const senderFor: SenderLookup = async (kind) => {
       const load = registry.all().find((module) => module.outbox?.[kind])?.outbox?.[kind];
-      return load ? await load() : undefined;
+      const sender = load ? await load() : undefined;
+      // With the query cache: a sender may show what the server answered at once.
+      return sender && ((item) => sender(item, client));
     };
     const send = () =>
       void flush(owner, senderFor, stop.signal)

@@ -4576,11 +4576,16 @@ export interface components {
             note: string | null;
             /**
              * Labels
-             * @description Words for the record ids a change holds (a worker's name and number)
+             * @description Words for the record ids the entry holds: the worker a change names, the worker an entry is about, a payment's worker (by the payment's id)
              */
             labels?: {
                 [key: string]: string;
             };
+            /**
+             * Currency
+             * @description The project's: its amounts are in it
+             */
+            currency?: string | null;
         };
         /** LaborChangeOut */
         LaborChangeOut: {

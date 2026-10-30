@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
-import { ApiError } from '@/core/api/api-error';
+import { ApiError, isTransient } from '@/core/api/api-error';
 import { api, unwrap } from '@/core/api/client';
 import { saveFile } from '@/core/api/save-file';
 import type { components } from '@/core/api/schema';
@@ -9,7 +9,7 @@ import { usePages } from '@/core/api/use-pages';
 import { userKeys } from '@/core/auth/queries';
 import { useSession } from '@/core/auth/session-store';
 import i18n, { errorKey } from '@/core/i18n';
-import { discard, enqueue, isOffline, useOutbox } from '@/core/offline/outbox';
+import { discard, enqueue, useOutbox } from '@/core/offline/outbox';
 import { displayDate } from '@/core/utils/dates';
 import { toast } from '@/design-system';
 import { NS } from '@/modules/labor/i18n';
@@ -344,15 +344,17 @@ export function useTaps(project: string, day: string, sheet: Day) {
 }
 
 /** Marks for a day, saved as they are tapped; the day's sheet comes back whole. With no
- *  network each tap waits on the device, one by one (one refused never holds back the rest),
- *  and goes when the network is back; the answer is then null. */
+ *  network (or the server out of reach) each tap waits on the device, one by one (one refused
+ *  never holds back the rest), and goes when it can; the answer is then null. */
 export function useMark(project: string, day: string) {
   const client = useQueryClient();
   const owner = useSession((state) => state.user?.id);
   return useMutation({
     // Tried even with no network, so the tap is kept at once rather than paused unseen.
     networkMode: 'always',
-    mutationFn: async (taps: Tap[]) => {
+    mutationFn: async (tapped: Tap[]) => {
+      // One mark a worker: the last one tapped (two for one worker would refuse each other).
+      const taps = [...new Map(tapped.map((tap) => [tap.worker_id, tap])).values()];
       try {
         return await unwrap(
           api.PUT('/v1/labor/projects/{project_id}/attendance', {
@@ -361,7 +363,9 @@ export function useMark(project: string, day: string) {
           }),
         );
       } catch (error) {
-        if (!isOffline(error) || !owner) throw error;
+        // No network, or the server out of reach (a gateway's 502-504): kept on the device. The
+        // mark is safe to send again: it says the mark it saw.
+        if (!isTransient(error) || !owner) throw error;
         for (const { worker_id, status, expected, label } of taps) {
           const payload: MarksLater = {
             project_id: project,
@@ -373,7 +377,9 @@ export function useMark(project: string, day: string) {
         return null;
       }
     },
-    onSuccess: async (sheet, taps) => {
+    // When it was sent: only taps kept before it are overtaken by it.
+    onMutate: () => ({ sentAt: new Date().toISOString() }),
+    onSuccess: async (sheet, taps, context) => {
       if (!sheet) return;
       client.setQueryData(laborKeys.day(project, day), sheet);
       void client.invalidateQueries({ queryKey: laborKeys.all });
@@ -384,6 +390,7 @@ export function useMark(project: string, day: string) {
         return (
           item.owner === owner &&
           item.kind === OUTBOX_MARKS &&
+          item.queuedAt < context.sentAt &&
           later.project_id === project &&
           later.day === day &&
           later.marks.every((mark) => tapped.has(mark.worker_id))
@@ -391,7 +398,15 @@ export function useMark(project: string, day: string) {
       });
       for (const item of overtaken) await discard(item.id);
     },
-    onError: sayWhyNot,
+    onError: (error) => {
+      sayWhyNot(error);
+      // Refused (a worker stopped, the project closed elsewhere): the day as it is now, so the
+      // same marks aren't sent again in vain.
+      if (error instanceof ApiError && !isTransient(error)) {
+        void client.invalidateQueries({ queryKey: laborKeys.day(project, day) });
+        void client.invalidateQueries({ queryKey: laborKeys.project(project) });
+      }
+    },
   });
 }
 
