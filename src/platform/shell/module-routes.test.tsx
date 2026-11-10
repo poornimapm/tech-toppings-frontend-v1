@@ -48,6 +48,7 @@ describe('module routes', () => {
       'm/expenses',
       'm/labor',
       'm/receipts',
+      'm/travel',
     ]);
   });
 

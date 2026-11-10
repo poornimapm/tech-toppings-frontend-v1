@@ -2546,6 +2546,363 @@ export interface paths {
         patch: operations["change_item_v1_receipts_items__item_id__patch"];
         trace?: never;
     };
+    "/v1/travel/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What the forms offer and check */
+        get: operations["travel_options_v1_travel_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My trips: all, or upcoming, active or past */
+        get: operations["list_trips_v1_travel_trips_get"];
+        put?: never;
+        /** Start a trip (once per Idempotency-Key) */
+        post: operations["add_trip_v1_travel_trips_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Trip */
+        get: operations["read_trip_v1_travel_trips__trip_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a trip (it can be brought back) */
+        delete: operations["delete_trip_v1_travel_trips__trip_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change a trip (only what is sent), as of the revision edited */
+        patch: operations["change_trip_v1_travel_trips__trip_id__patch"];
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/undelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bring a deleted trip back, with everything in it, while there is room for it */
+        post: operations["undelete_trip_v1_travel_trips__trip_id__undelete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A trip at a glance: countdown, what's next and open, readiness and the next action */
+        get: operations["trip_overview_v1_travel_trips__trip_id__overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/activities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A trip's activities in timeline order, or one day's */
+        get: operations["list_activities_v1_travel_trips__trip_id__activities_get"];
+        put?: never;
+        /** Add an activity, last in its day (once per Idempotency-Key) */
+        post: operations["add_activity_v1_travel_trips__trip_id__activities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/activities/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * A new order for one day: every activity of that day, each once
+         * @description The day as it now stands, each activity with the reorder's event (none: nothing
+         *     moved).
+         */
+        post: operations["reorder_activities_v1_travel_trips__trip_id__activities_reorder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A trip's checklist and packing items, or those of a day, a bag or an activity */
+        get: operations["list_checklist_v1_travel_trips__trip_id__checklist_get"];
+        put?: never;
+        /** Add a checklist or packing item (once per Idempotency-Key) */
+        post: operations["add_checklist_item_v1_travel_trips__trip_id__checklist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/checklist/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suggest items from the trip's activities and length: a preview until apply is true */
+        post: operations["suggest_checklist_v1_travel_trips__trip_id__checklist_suggest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A trip's bookings: those with no time first, then as they start */
+        get: operations["list_bookings_v1_travel_trips__trip_id__bookings_get"];
+        put?: never;
+        /** Add a booking as I have it (once per Idempotency-Key) */
+        post: operations["add_booking_v1_travel_trips__trip_id__bookings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A trip's estimates and actual costs, by day */
+        get: operations["list_expenses_v1_travel_trips__trip_id__expenses_get"];
+        put?: never;
+        /** Add an estimate or an actual cost (once per Idempotency-Key) */
+        post: operations["add_expense_v1_travel_trips__trip_id__expenses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Estimated against actual by category in the trip's currency, and who owes whom */
+        get: operations["trip_budget_v1_travel_trips__trip_id__budget_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One day's plan: its activities, checklist, bookings and transport */
+        get: operations["prepare_day_v1_travel_trips__trip_id__prepare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What changed on a trip, newest first */
+        get: operations["list_events_v1_travel_trips__trip_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/activities/{activity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Activity */
+        get: operations["read_activity_v1_travel_activities__activity_id__get"];
+        put?: never;
+        post?: never;
+        /** Remove an activity (undone from the trip's history, by the event answered) */
+        delete: operations["delete_activity_v1_travel_activities__activity_id__delete"];
+        options?: never;
+        head?: never;
+        /** Edit an activity (only what is sent), as of the revision edited */
+        patch: operations["change_activity_v1_travel_activities__activity_id__patch"];
+        trace?: never;
+    };
+    "/v1/travel/activities/{activity_id}/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark it done, skip, replace or reschedule it: a preview until apply is true */
+        post: operations["apply_change_v1_travel_activities__activity_id__change_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/checklist/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an item: a suggestion removed isn't suggested again */
+        delete: operations["delete_checklist_item_v1_travel_checklist__item_id__delete"];
+        options?: never;
+        head?: never;
+        /** Change or tick an item (only what is sent) */
+        patch: operations["change_checklist_item_v1_travel_checklist__item_id__patch"];
+        trace?: never;
+    };
+    "/v1/travel/bookings/{booking_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Booking */
+        get: operations["read_booking_v1_travel_bookings__booking_id__get"];
+        put?: never;
+        post?: never;
+        /** Remove a booking no activity links to (undone from the trip's history) */
+        delete: operations["delete_booking_v1_travel_bookings__booking_id__delete"];
+        options?: never;
+        head?: never;
+        /** Edit a booking (only what is sent), as of the revision edited */
+        patch: operations["change_booking_v1_travel_bookings__booking_id__patch"];
+        trace?: never;
+    };
+    "/v1/travel/expenses/{expense_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an expense (undone from the trip's history) */
+        delete: operations["delete_expense_v1_travel_expenses__expense_id__delete"];
+        options?: never;
+        head?: never;
+        /** Edit an expense (only what is sent), as of the revision edited */
+        patch: operations["change_expense_v1_travel_expenses__expense_id__patch"];
+        trace?: never;
+    };
+    "/v1/travel/events/{event_id}/undo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Take one change back, if nothing it touched has changed since */
+        post: operations["undo_event_v1_travel_events__event_id__undo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2573,6 +2930,36 @@ export interface components {
             /** Note */
             note?: string | null;
         };
+        /** ActivityFields */
+        ActivityFields: {
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Start Time */
+            start_time?: string | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            /** Location */
+            location?: string | null;
+            /** Transport */
+            transport?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor?: number | null;
+            /**
+             * Confirmed
+             * @description False: its details are an estimate
+             * @default false
+             */
+            confirmed: boolean;
+            /**
+             * Booking Id
+             * @description A booking of the same trip
+             */
+            booking_id?: string | null;
+        };
         /** ActivityOut */
         ActivityOut: {
             /** Id */
@@ -2589,6 +2976,11 @@ export interface components {
              */
             at: string;
         };
+        /**
+         * ActivityStatus
+         * @enum {string}
+         */
+        ActivityStatus: "planned" | "done" | "skipped" | "replaced";
         /** AdminEntryOut */
         AdminEntryOut: {
             /** @default expense */
@@ -3018,6 +3410,16 @@ export interface components {
          * @enum {string}
          */
         Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        /**
+         * BookingKind
+         * @enum {string}
+         */
+        BookingKind: "flight" | "hotel" | "tour" | "transfer" | "insurance" | "visa" | "other";
+        /**
+         * BookingStatus
+         * @enum {string}
+         */
+        BookingStatus: "entered" | "extracted" | "confirmed" | "verified";
         /** BudgetIn */
         BudgetIn: {
             /** Name */
@@ -3344,6 +3746,21 @@ export interface components {
             /** Category Id */
             category_id: string;
         };
+        /**
+         * ChangeAction
+         * @enum {string}
+         */
+        ChangeAction: "done" | "skip" | "replace" | "reschedule";
+        /**
+         * ChecklistSource
+         * @enum {string}
+         */
+        ChecklistSource: "rule" | "user" | "assistant";
+        /**
+         * ChecklistState
+         * @enum {string}
+         */
+        ChecklistState: "not_started" | "in_progress" | "completed" | "not_applicable";
         /** ClientAction */
         ClientAction: {
             /** Tool */
@@ -3596,6 +4013,27 @@ export interface components {
             used_pct: number;
             /** Collections */
             collections: components["schemas"]["CollectionSize"][];
+        };
+        /** Destination */
+        Destination: {
+            /** Name */
+            name: string;
+            /** Country */
+            country: string;
+            /** Timezone */
+            timezone?: string | null;
+        };
+        /** DestinationIn */
+        DestinationIn: {
+            /** Name */
+            name: string;
+            /** Country */
+            country: string;
+            /**
+             * Timezone
+             * @description An IANA time zone, for the trip's today
+             */
+            timezone?: string | null;
         };
         /** DismissIn */
         DismissIn: {
@@ -3917,6 +4355,11 @@ export interface components {
              */
             request_id?: string | null;
         };
+        /**
+         * ExpenseKind
+         * @enum {string}
+         */
+        ExpenseKind: "estimate" | "actual";
         /**
          * ExpenseQuery
          * @description A question about the user's entries, as data: what to work out, of which entries, by
@@ -5232,6 +5675,12 @@ export interface components {
             /** Savings Rate Pct */
             savings_rate_pct: number | null;
         };
+        /**
+         * NextAction
+         * @description What a trip's overview can say to do next (overview.py: when each applies).
+         * @enum {string}
+         */
+        NextAction: "trip_ended" | "add_activities" | "prepare_today" | "prepare_tomorrow" | "confirm_bookings" | "finish_packing" | "start_packing" | "finish_checklist" | "add_tasks" | "all_set";
         /** NotificationOut */
         NotificationOut: {
             /** Id */
@@ -5310,6 +5759,16 @@ export interface components {
             /** Owed Minor */
             owed_minor: number;
         };
+        /**
+         * Pace
+         * @enum {string}
+         */
+        Pace: "relaxed" | "balanced" | "packed";
+        /**
+         * PackingBag
+         * @enum {string}
+         */
+        PackingBag: "check_in" | "cabin" | "handbag" | "day_bag" | "toiletry" | "electronics";
         /** Page[ActivityOut] */
         Page_ActivityOut_: {
             /** Items */
@@ -5600,6 +6059,32 @@ export interface components {
         Page_SessionOut_: {
             /** Items */
             items: components["schemas"]["SessionOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[TravelEventOut] */
+        Page_TravelEventOut_: {
+            /** Items */
+            items: components["schemas"]["TravelEventOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Has Next */
+            has_next: boolean;
+        };
+        /** Page[TravelTripOut] */
+        Page_TravelTripOut_: {
+            /** Items */
+            items: components["schemas"]["TravelTripOut"][];
             /** Page */
             page: number;
             /** Page Size */
@@ -6185,6 +6670,25 @@ export interface components {
             quick_months: number[];
         };
         /**
+         * RecordChange
+         * @description One record a change reached, as the page shows it under "What changed?".
+         */
+        RecordChange: {
+            /** Entity */
+            entity: string;
+            op: components["schemas"]["StepOp"];
+            /** Record Id */
+            record_id?: string | null;
+            /** Title */
+            title: string;
+            /** Day */
+            day?: string | null;
+            /** Fields */
+            fields?: components["schemas"]["FieldChange"][];
+            /** Suggestion Key */
+            suggestion_key?: string | null;
+        };
+        /**
          * RecoveryCodesOut
          * @description Shown this once: each works one time in place of a code.
          */
@@ -6679,6 +7183,11 @@ export interface components {
             note?: string | null;
         };
         /**
+         * StepOp
+         * @enum {string}
+         */
+        StepOp: "set" | "add" | "remove" | "revive";
+        /**
          * SubscriptionIn
          * @description As the browser's `PushSubscription.toJSON()` gives it (``expirationTime`` is ignored).
          */
@@ -6897,6 +7406,1289 @@ export interface components {
             /** Name */
             name?: string | null;
         };
+        /** TravelActivityIn */
+        TravelActivityIn: {
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Start Time */
+            start_time?: string | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            /** Location */
+            location?: string | null;
+            /** Transport */
+            transport?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor?: number | null;
+            /**
+             * Confirmed
+             * @description False: its details are an estimate
+             * @default false
+             */
+            confirmed: boolean;
+            /**
+             * Booking Id
+             * @description A booking of the same trip
+             */
+            booking_id?: string | null;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+        };
+        /** TravelActivityOut */
+        TravelActivityOut: {
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Start Time */
+            start_time: string | null;
+            /** Duration Minutes */
+            duration_minutes: number | null;
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Location */
+            location: string | null;
+            /** Transport */
+            transport: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor: number | null;
+            /** Confirmed */
+            confirmed: boolean;
+            /** Booking Id */
+            booking_id: string | null;
+            /** Position */
+            position: number;
+            status: components["schemas"]["ActivityStatus"];
+            /** Actual Note */
+            actual_note: string | null;
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelActivityPatch
+         * @description Only what is sent changes, as of the revision edited. The day isn't here: a reschedule
+         *     (``/change``) moves it, with what depends on it.
+         */
+        TravelActivityPatch: {
+            /** Title */
+            title?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            /** Location */
+            location?: string | null;
+            /** Transport */
+            transport?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor?: number | null;
+            /** Confirmed */
+            confirmed?: boolean | null;
+            /** Booking Id */
+            booking_id?: string | null;
+            /** Actual Note */
+            actual_note?: string | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * TravelActivityRecorded
+         * @description An activity as a write left it, and the event that write recorded: in a reorder's answer,
+         *     every activity of the day carries the reorder's.
+         */
+        TravelActivityRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Start Time */
+            start_time: string | null;
+            /** Duration Minutes */
+            duration_minutes: number | null;
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Location */
+            location: string | null;
+            /** Transport */
+            transport: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor: number | null;
+            /** Confirmed */
+            confirmed: boolean;
+            /** Booking Id */
+            booking_id: string | null;
+            /** Position */
+            position: number;
+            status: components["schemas"]["ActivityStatus"];
+            /** Actual Note */
+            actual_note: string | null;
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** TravelBalanceOut */
+        TravelBalanceOut: {
+            /** Traveller Id */
+            traveller_id: string;
+            /**
+             * Paid Minor
+             * @description What they really paid, of what is shared
+             */
+            paid_minor: number;
+            /**
+             * Share Minor
+             * @description Their part of it
+             */
+            share_minor: number;
+            /**
+             * Balance Minor
+             * @description Paid less their part: above 0, they are owed
+             */
+            balance_minor: number;
+        };
+        /** TravelBookingIn */
+        TravelBookingIn: {
+            kind: components["schemas"]["BookingKind"];
+            /** Title */
+            title: string;
+            /**
+             * Reference
+             * @description A PNR, a confirmation or policy number
+             */
+            reference?: string | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Link
+             * @description An http or https address
+             */
+            link?: string | null;
+            /**
+             * Status
+             * @description confirmed: I checked it with whoever it is with
+             * @default entered
+             * @enum {string}
+             */
+            status: "entered" | "confirmed";
+        };
+        /** TravelBookingOut */
+        TravelBookingOut: {
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            kind: components["schemas"]["BookingKind"];
+            /** Title */
+            title: string;
+            /** Reference */
+            reference: string | null;
+            /**
+             * Starts At
+             * @description YYYY-MM-DDTHH:MM, local where it happens
+             */
+            starts_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+            /** Location */
+            location: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Link */
+            link: string | null;
+            /** @description extracted and verified are only ever the app's */
+            status: components["schemas"]["BookingStatus"];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelBookingPatch
+         * @description Only what is sent changes, as of the revision edited: moved on since, the answer is 409.
+         */
+        TravelBookingPatch: {
+            kind?: components["schemas"]["BookingKind"] | null;
+            /** Title */
+            title?: string | null;
+            /** Reference */
+            reference?: string | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Link */
+            link?: string | null;
+            /** Status */
+            status?: ("entered" | "confirmed") | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * TravelBookingRecorded
+         * @description A booking as a write left it, and the event that write recorded.
+         */
+        TravelBookingRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            kind: components["schemas"]["BookingKind"];
+            /** Title */
+            title: string;
+            /** Reference */
+            reference: string | null;
+            /**
+             * Starts At
+             * @description YYYY-MM-DDTHH:MM, local where it happens
+             */
+            starts_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+            /** Location */
+            location: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Link */
+            link: string | null;
+            /** @description extracted and verified are only ever the app's */
+            status: components["schemas"]["BookingStatus"];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelBudgetOut
+         * @description All in the trip's currency, from its expenses alone: an activity's own estimated cost stays
+         *     on the activity, so nothing is counted twice.
+         */
+        TravelBudgetOut: {
+            /** Currency */
+            currency: string;
+            /** Budget Minor */
+            budget_minor: number | null;
+            /** Estimated Minor */
+            estimated_minor: number;
+            /** Actual Minor */
+            actual_minor: number;
+            /**
+             * Remaining Minor
+             * @description The budget less what was really spent
+             */
+            remaining_minor: number | null;
+            /** Categories */
+            categories: components["schemas"]["TravelCategoryOut"][];
+            /** Unconverted */
+            unconverted: components["schemas"]["TravelUnconvertedOut"][];
+            /**
+             * Balances
+             * @description Every traveller, in the trip's order
+             */
+            balances: components["schemas"]["TravelBalanceOut"][];
+            /**
+             * Settlements
+             * @description Who pays whom to even it all up
+             */
+            settlements: components["schemas"]["TravelTransferOut"][];
+        };
+        /** TravelCategoryOut */
+        TravelCategoryOut: {
+            /** Category */
+            category: string;
+            /** Estimated Minor */
+            estimated_minor: number;
+            /** Actual Minor */
+            actual_minor: number;
+        };
+        /** TravelChangeIn */
+        TravelChangeIn: {
+            action: components["schemas"]["ChangeAction"];
+            /**
+             * Actual Note
+             * @description What really happened, or why
+             */
+            actual_note?: string | null;
+            /** @description Replace: what takes its place, on the same day */
+            new_activity?: components["schemas"]["ActivityFields"] | null;
+            /**
+             * New Day
+             * @description Reschedule: the day it moves to
+             */
+            new_day?: string | null;
+            /**
+             * New Start Time
+             * @description Reschedule: the time it moves to
+             */
+            new_start_time?: string | null;
+            /**
+             * Apply
+             * @description False: nothing is written, only the preview
+             * @default false
+             */
+            apply: boolean;
+            /**
+             * Revision No
+             * @description The revision previewed: moved on since, the answer is 409
+             */
+            revision_no?: number | null;
+        };
+        /** TravelChangeOut */
+        TravelChangeOut: {
+            /** What Changed */
+            what_changed: components["schemas"]["RecordChange"][];
+            /**
+             * Needs Review
+             * @description Listed, and never changed
+             */
+            needs_review: components["schemas"]["TravelFlag"][];
+            /**
+             * Kept
+             * @description Left as they are: the person's own work
+             */
+            kept: components["schemas"]["TravelFlag"][];
+            /**
+             * Days
+             * @description Every day the change reaches
+             */
+            days: string[];
+            /**
+             * Event Id
+             * @description None in a preview
+             */
+            event_id: string | null;
+        };
+        /** TravelChecklistIn */
+        TravelChecklistIn: {
+            /** Title */
+            title: string;
+            /**
+             * Day
+             * @description Tied to an activity: that activity's
+             */
+            day?: string | null;
+            /**
+             * Activity Id
+             * @description An activity of the same trip
+             */
+            activity_id?: string | null;
+            /**
+             * Traveller Id
+             * @description A traveller of the same trip
+             */
+            traveller_id?: string | null;
+            /** @default not_started */
+            state: components["schemas"]["ChecklistState"];
+            /** @description With a bag, it is a packing item */
+            bag?: components["schemas"]["PackingBag"] | null;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+        };
+        /** TravelChecklistOut */
+        TravelChecklistOut: {
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /** Day */
+            day: string | null;
+            /** Activity Id */
+            activity_id: string | null;
+            /** Traveller Id */
+            traveller_id: string | null;
+            /** Title */
+            title: string;
+            state: components["schemas"]["ChecklistState"];
+            /** @description rule: a suggestion, and to be shown as one */
+            source: components["schemas"]["ChecklistSource"];
+            /**
+             * Edited
+             * @description The person has changed it: from now on it is their own work
+             */
+            edited: boolean;
+            /**
+             * As Suggested
+             * @description Still the suggestion as its rule words it (not renamed): shown in the app's own words for its key, as a suggestion. A tick or a new quantity keeps it so
+             */
+            as_suggested: boolean;
+            bag: components["schemas"]["PackingBag"] | null;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Suggestion Key
+             * @description What suggested it; the words for it on the app are by its last part
+             */
+            suggestion_key: string | null;
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelChecklistPatch
+         * @description Only what is sent changes. A revision sent is checked (moved on since, the answer is 409);
+         *     a tick, which may be replayed from a phone that was offline, can leave it out.
+         */
+        TravelChecklistPatch: {
+            /** Title */
+            title?: string | null;
+            /** Day */
+            day?: string | null;
+            /** Activity Id */
+            activity_id?: string | null;
+            /** Traveller Id */
+            traveller_id?: string | null;
+            state?: components["schemas"]["ChecklistState"] | null;
+            bag?: components["schemas"]["PackingBag"] | null;
+            /** Quantity */
+            quantity?: number | null;
+            /** Revision No */
+            revision_no?: number | null;
+        };
+        /**
+         * TravelChecklistRecorded
+         * @description An item as a write left it, and the event that write recorded (none for a tick).
+         */
+        TravelChecklistRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /** Day */
+            day: string | null;
+            /** Activity Id */
+            activity_id: string | null;
+            /** Traveller Id */
+            traveller_id: string | null;
+            /** Title */
+            title: string;
+            state: components["schemas"]["ChecklistState"];
+            /** @description rule: a suggestion, and to be shown as one */
+            source: components["schemas"]["ChecklistSource"];
+            /**
+             * Edited
+             * @description The person has changed it: from now on it is their own work
+             */
+            edited: boolean;
+            /**
+             * As Suggested
+             * @description Still the suggestion as its rule words it (not renamed): shown in the app's own words for its key, as a suggestion. A tick or a new quantity keeps it so
+             */
+            as_suggested: boolean;
+            bag: components["schemas"]["PackingBag"] | null;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Suggestion Key
+             * @description What suggested it; the words for it on the app are by its last part
+             */
+            suggestion_key: string | null;
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** TravelEventOut */
+        TravelEventOut: {
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Summary
+             * @description The words for its summary, by name
+             */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Changes */
+            changes: components["schemas"]["RecordChange"][];
+            /**
+             * Undoable
+             * @description It can be tried: nothing it touched may have changed since
+             */
+            undoable: boolean;
+            /** Undone At */
+            undone_at: string | null;
+        };
+        /** TravelExpenseIn */
+        TravelExpenseIn: {
+            kind: components["schemas"]["ExpenseKind"];
+            /** Category */
+            category: string;
+            /** Title */
+            title: string;
+            /**
+             * Amount Minor
+             * @description In the currency's minor unit
+             */
+            amount_minor: number;
+            /**
+             * Currency
+             * @description Default: the trip's currency
+             */
+            currency?: string | null;
+            /**
+             * Day
+             * @description When it was paid or is for: converted at that day's rate (today's for a day still to come, or none)
+             */
+            day?: string | null;
+            /**
+             * Activity Id
+             * @description An activity of the same trip
+             */
+            activity_id?: string | null;
+            /**
+             * Paid By
+             * @description A traveller of the same trip
+             */
+            paid_by?: string | null;
+            /**
+             * Shared With
+             * @description Travellers of the same trip, sharing it evenly; none: it is the payer's own
+             */
+            shared_with?: string[];
+        };
+        /** TravelExpenseOut */
+        TravelExpenseOut: {
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /** Activity Id */
+            activity_id: string | null;
+            kind: components["schemas"]["ExpenseKind"];
+            /** Category */
+            category: string;
+            /** Title */
+            title: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /** Day */
+            day: string | null;
+            /** Paid By */
+            paid_by: string | null;
+            /** Shared With */
+            shared_with: string[];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelExpensePatch
+         * @description Only what is sent changes, as of the revision edited: moved on since, the answer is 409.
+         */
+        TravelExpensePatch: {
+            kind?: components["schemas"]["ExpenseKind"] | null;
+            /** Category */
+            category?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Amount Minor */
+            amount_minor?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Day */
+            day?: string | null;
+            /** Activity Id */
+            activity_id?: string | null;
+            /** Paid By */
+            paid_by?: string | null;
+            /** Shared With */
+            shared_with?: string[] | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * TravelExpenseRecorded
+         * @description An expense as a write left it, and the event that write recorded.
+         */
+        TravelExpenseRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+            /** Id */
+            id: string;
+            /** Trip Id */
+            trip_id: string;
+            /** Activity Id */
+            activity_id: string | null;
+            kind: components["schemas"]["ExpenseKind"];
+            /** Category */
+            category: string;
+            /** Title */
+            title: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /** Day */
+            day: string | null;
+            /** Paid By */
+            paid_by: string | null;
+            /** Shared With */
+            shared_with: string[];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelFlag
+         * @description A record a change doesn't touch but the person should know about.
+         */
+        TravelFlag: {
+            /** Entity */
+            entity: string;
+            /** Record Id */
+            record_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Reason
+             * @description Why it is listed, worded on the app by key: estimate, linked (a booking for it), completed, edited
+             */
+            reason: string;
+            /**
+             * Suggestion Key
+             * @description A checklist item still the suggestion its rule words (a tick keeps it so): the page words its title by this key, as in what_changed
+             */
+            suggestion_key?: string | null;
+        };
+        /** TravelNextAction */
+        TravelNextAction: {
+            action: components["schemas"]["NextAction"];
+            /**
+             * Reason
+             * @description Why, worded on the app by key: open_tomorrow ...
+             */
+            reason: string;
+            /**
+             * Params
+             * @description The figures the reason is worded with. prepare_today, prepare_tomorrow and finish_checklist also carry the day to open (prepare?when=day): finish_checklist's is the first day holding a checklist item still to do, null when only the whole trip's are
+             */
+            params: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * TravelOptions
+         * @description What the forms offer and check (data/travel.yaml).
+         */
+        TravelOptions: {
+            /** Activity Kinds */
+            activity_kinds: string[];
+            /** Max Trip Days */
+            max_trip_days: number;
+            /** Max Destinations */
+            max_destinations: number;
+            /** Max Travellers */
+            max_travellers: number;
+            /** Max Interests */
+            max_interests: number;
+            /**
+             * Premium Available
+             * @description Whether I may save a trip in Premium mode
+             */
+            premium_available: boolean;
+            /** Bags */
+            bags: components["schemas"]["PackingBag"][];
+            /** Max Item Quantity */
+            max_item_quantity: number;
+            /** Expense Categories */
+            expense_categories: string[];
+        };
+        /** TravelOverviewOut */
+        TravelOverviewOut: {
+            /** Trip Id */
+            trip_id: string;
+            /**
+             * Today
+             * Format: date
+             * @description The trip's own today
+             */
+            today: string;
+            phase: components["schemas"]["TripPhase"];
+            /**
+             * Days To Start
+             * @description From today to its first day: 0 on it, below once on
+             */
+            days_to_start: number;
+            /**
+             * Day Number
+             * @description Which day of the trip today is, while it is on
+             */
+            day_number: number | null;
+            /** Trip Days */
+            trip_days: number;
+            /** Next Activities */
+            next_activities: components["schemas"]["TravelActivityOut"][];
+            pending: components["schemas"]["TravelPendingOut"];
+            /** @description None: no tasks yet, so no figure */
+            readiness: components["schemas"]["TravelReadiness"] | null;
+            next_action: components["schemas"]["TravelNextAction"];
+        };
+        /** TravelPendingOut */
+        TravelPendingOut: {
+            /**
+             * Checklist
+             * @description Checklist items still to do
+             */
+            checklist: number;
+            /**
+             * Packing
+             * @description Packing items still to do
+             */
+            packing: number;
+            /**
+             * Bookings
+             * @description Bookings not yet confirmed
+             */
+            bookings: number;
+        };
+        /** TravelPrepareOut */
+        TravelPrepareOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Within Trip
+             * @description False: before or after the trip's dates
+             */
+            within_trip: boolean;
+            /** Activities */
+            activities: components["schemas"]["TravelActivityOut"][];
+            /** Checklist */
+            checklist: components["schemas"]["TravelChecklistOut"][];
+            /**
+             * Bookings
+             * @description Those starting or ending that day, and those its planned activities link to
+             */
+            bookings: components["schemas"]["TravelBookingOut"][];
+            /** Transport */
+            transport: components["schemas"]["TravelTransportOut"][];
+            /**
+             * Open Days
+             * @description Every day of the trip still holding an item to do (not started or in progress, packing ones too), in order: where the day plans are still open
+             */
+            open_days?: string[];
+        };
+        /** TravelReadiness */
+        TravelReadiness: {
+            /** Completed */
+            completed: number;
+            /**
+             * Applicable
+             * @description Every item but those no longer applicable
+             */
+            applicable: number;
+            /**
+             * Ratio
+             * @description completed ÷ applicable, from 0 to 1
+             */
+            ratio: number;
+        };
+        /**
+         * TravelRecorded
+         * @description What a write answers besides: the event of the trip's history it recorded, so the page can
+         *     undo exactly that one (while it can be undone).
+         */
+        TravelRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+        };
+        /** TravelReorderIn */
+        TravelReorderIn: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Activity Ids
+             * @description Every activity of that day, each once, in the new order
+             */
+            activity_ids: string[];
+        };
+        /** TravelSuggestIn */
+        TravelSuggestIn: {
+            /**
+             * Day
+             * @description Only for that day's activities
+             */
+            day?: string | null;
+            /**
+             * Packing
+             * @description What to pack: what goes in a bag for its activities and, with no day, the list for the whole trip by its length. False: all that its activities suggest
+             * @default false
+             */
+            packing: boolean;
+            /**
+             * Apply
+             * @description False: nothing is written, only the preview
+             * @default false
+             */
+            apply: boolean;
+        };
+        /** TravelSuggestOut */
+        TravelSuggestOut: {
+            /** What Changed */
+            what_changed: components["schemas"]["RecordChange"][];
+            /**
+             * Needs Review
+             * @description Listed, and never changed
+             */
+            needs_review: components["schemas"]["TravelFlag"][];
+            /**
+             * Kept
+             * @description Left as they are: the person's own work
+             */
+            kept: components["schemas"]["TravelFlag"][];
+            /**
+             * Days
+             * @description Every day the change reaches
+             */
+            days: string[];
+            /**
+             * Event Id
+             * @description None in a preview
+             */
+            event_id: string | null;
+            /**
+             * More
+             * @description More are waiting: asking again adds the next ones
+             */
+            more: boolean;
+        };
+        /** TravelTransferOut */
+        TravelTransferOut: {
+            /** From Traveller Id */
+            from_traveller_id: string;
+            /** To Traveller Id */
+            to_traveller_id: string;
+            /** Amount Minor */
+            amount_minor: number;
+        };
+        /**
+         * TravelTransportOut
+         * @description How the day gets around, as the person wrote it: nothing here is looked up.
+         */
+        TravelTransportOut: {
+            /** Activity Id */
+            activity_id: string;
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Start Time */
+            start_time: string | null;
+            /** Location */
+            location: string | null;
+            /** Transport */
+            transport: string | null;
+        };
+        /** TravelTripOut */
+        TravelTripOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Destinations */
+            destinations: components["schemas"]["Destination"][];
+            /** Departure City */
+            departure_city: string | null;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            trip_type: components["schemas"]["TripType"];
+            pace: components["schemas"]["Pace"];
+            /** Budget Minor */
+            budget_minor: number | null;
+            /** Currency */
+            currency: string;
+            mode: components["schemas"]["TripMode"];
+            /** Interests */
+            interests: string[];
+            /** Notes */
+            notes: string | null;
+            /** Remind Prepare */
+            remind_prepare: boolean;
+            /** Travellers */
+            travellers: components["schemas"]["Traveller"][];
+            /** @description Where the trip stands on its own today */
+            phase: components["schemas"]["TripPhase"];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelTripRecorded
+         * @description A trip as a write left it, and the event that write recorded.
+         */
+        TravelTripRecorded: {
+            /**
+             * Event Id
+             * @description The event this write recorded. None: it recorded none, as it changed nothing (a tick records none either: only the item's own revisions keep it)
+             */
+            event_id: string | null;
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Destinations */
+            destinations: components["schemas"]["Destination"][];
+            /** Departure City */
+            departure_city: string | null;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            trip_type: components["schemas"]["TripType"];
+            pace: components["schemas"]["Pace"];
+            /** Budget Minor */
+            budget_minor: number | null;
+            /** Currency */
+            currency: string;
+            mode: components["schemas"]["TripMode"];
+            /** Interests */
+            interests: string[];
+            /** Notes */
+            notes: string | null;
+            /** Remind Prepare */
+            remind_prepare: boolean;
+            /** Travellers */
+            travellers: components["schemas"]["Traveller"][];
+            /** @description Where the trip stands on its own today */
+            phase: components["schemas"]["TripPhase"];
+            /** Revision No */
+            revision_no: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TravelUnconvertedOut
+         * @description An expense with no rate to the trip's currency: counted nowhere, never at a guess.
+         */
+        TravelUnconvertedOut: {
+            /** Expense Id */
+            expense_id: string;
+            /** Title */
+            title: string;
+            kind: components["schemas"]["ExpenseKind"];
+            /** Category */
+            category: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Reason
+             * @description unavailable: no rate could be had now; unsupported: none for that currency
+             * @enum {string}
+             */
+            reason: "unavailable" | "unsupported";
+        };
+        /**
+         * Traveller
+         * @description One person on the trip. Each has their own passport country, and nothing is inferred.
+         */
+        Traveller: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Passport Country */
+            passport_country?: string | null;
+            /** Residence Country */
+            residence_country?: string | null;
+            /** Passport Expiry */
+            passport_expiry?: string | null;
+            /** Dietary */
+            dietary?: string | null;
+            /** Accessibility */
+            accessibility?: string | null;
+        };
+        /** TravellerIn */
+        TravellerIn: {
+            /**
+             * Id
+             * @description An existing traveller of this trip; left out for a new one
+             */
+            id?: string | null;
+            /** Name */
+            name: string;
+            /** Passport Country */
+            passport_country?: string | null;
+            /** Residence Country */
+            residence_country?: string | null;
+            /** Passport Expiry */
+            passport_expiry?: string | null;
+            /** Dietary */
+            dietary?: string | null;
+            /** Accessibility */
+            accessibility?: string | null;
+        };
+        /** TripIn */
+        TripIn: {
+            /** Title */
+            title: string;
+            /** Destinations */
+            destinations: components["schemas"]["DestinationIn"][];
+            /** Departure City */
+            departure_city?: string | null;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** @default other */
+            trip_type: components["schemas"]["TripType"];
+            /** @default balanced */
+            pace: components["schemas"]["Pace"];
+            /** Budget Minor */
+            budget_minor?: number | null;
+            /**
+             * Currency
+             * @description Default: my base currency
+             */
+            currency?: string | null;
+            /** @default static */
+            mode: components["schemas"]["TripMode"];
+            /** Interests */
+            interests?: string[];
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Remind Prepare
+             * @default false
+             */
+            remind_prepare: boolean;
+            /** Travellers */
+            travellers?: components["schemas"]["TravellerIn"][];
+        };
+        /**
+         * TripMode
+         * @enum {string}
+         */
+        TripMode: "static" | "basic" | "premium";
+        /**
+         * TripPatch
+         * @description Only what is sent changes, as of the revision edited: moved on since, the answer is 409.
+         */
+        TripPatch: {
+            /** Title */
+            title?: string | null;
+            /** Destinations */
+            destinations?: components["schemas"]["DestinationIn"][] | null;
+            /** Departure City */
+            departure_city?: string | null;
+            /** Start Date */
+            start_date?: string | null;
+            /** End Date */
+            end_date?: string | null;
+            trip_type?: components["schemas"]["TripType"] | null;
+            pace?: components["schemas"]["Pace"] | null;
+            /** Budget Minor */
+            budget_minor?: number | null;
+            /** Currency */
+            currency?: string | null;
+            mode?: components["schemas"]["TripMode"] | null;
+            /** Interests */
+            interests?: string[] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Remind Prepare */
+            remind_prepare?: boolean | null;
+            /** Travellers */
+            travellers?: components["schemas"]["TravellerIn"][] | null;
+            /** Revision No */
+            revision_no: number;
+        };
+        /**
+         * TripPhase
+         * @enum {string}
+         */
+        TripPhase: "upcoming" | "active" | "past";
+        /**
+         * TripType
+         * @enum {string}
+         */
+        TripType: "honeymoon" | "solo" | "friends" | "family" | "business" | "adventure" | "other";
         /**
          * TwoFactorChallengeOut
          * @description Sign-in needs a code too: send it with this token to ``/v1/auth/login/totp``.
@@ -19806,6 +21598,2442 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    travel_options_v1_travel_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelOptions"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_trips_v1_travel_trips_get: {
+        parameters: {
+            query?: {
+                phase?: components["schemas"]["TripPhase"] | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_TravelTripOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_trip_v1_travel_trips_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TripIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelTripRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_trip_v1_travel_trips__trip_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelTripOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_trip_v1_travel_trips__trip_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_trip_v1_travel_trips__trip_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TripPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelTripRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undelete_trip_v1_travel_trips__trip_id__undelete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelTripRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    trip_overview_v1_travel_trips__trip_id__overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelOverviewOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_activities_v1_travel_trips__trip_id__activities_get: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM-DD */
+                day?: string | null;
+            };
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelActivityOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_activity_v1_travel_trips__trip_id__activities_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelActivityIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelActivityRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reorder_activities_v1_travel_trips__trip_id__activities_reorder_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelReorderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelActivityRecorded"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_checklist_v1_travel_trips__trip_id__checklist_get: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM-DD */
+                day?: string | null;
+                bag?: components["schemas"]["PackingBag"] | null;
+                activity_id?: string | null;
+            };
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelChecklistOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_checklist_item_v1_travel_trips__trip_id__checklist_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelChecklistIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelChecklistRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    suggest_checklist_v1_travel_trips__trip_id__checklist_suggest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelSuggestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelSuggestOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_bookings_v1_travel_trips__trip_id__bookings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelBookingOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_booking_v1_travel_trips__trip_id__bookings_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelBookingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelBookingRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_expenses_v1_travel_trips__trip_id__expenses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelExpenseOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_expense_v1_travel_trips__trip_id__expenses_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description A unique value per new record (e.g. a UUID); repeat it when retrying. */
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelExpenseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelExpenseRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    trip_budget_v1_travel_trips__trip_id__budget_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelBudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    prepare_day_v1_travel_trips__trip_id__prepare_get: {
+        parameters: {
+            query?: {
+                /** @description today or tomorrow on the trip's own calendar, or YYYY-MM-DD */
+                when?: ("today" | "tomorrow") | string;
+            };
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelPrepareOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_events_v1_travel_trips__trip_id__events_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_TravelEventOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_activity_v1_travel_activities__activity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelActivityOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_activity_v1_travel_activities__activity_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_activity_v1_travel_activities__activity_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelActivityPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelActivityRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    apply_change_v1_travel_activities__activity_id__change_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelChangeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_checklist_item_v1_travel_checklist__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_checklist_item_v1_travel_checklist__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelChecklistPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelChecklistRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_booking_v1_travel_bookings__booking_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelBookingOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_booking_v1_travel_bookings__booking_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_booking_v1_travel_bookings__booking_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelBookingPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelBookingRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_expense_v1_travel_expenses__expense_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expense_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_expense_v1_travel_expenses__expense_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expense_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelExpensePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelExpenseRecorded"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    undo_event_v1_travel_events__event_id__undo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelEventOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

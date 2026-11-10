@@ -1,0 +1,25 @@
+{
+  "name": "यात्रा",
+  "tagline": "अपनी यात्राओं की दिन-ब-दिन योजना बनाइए",
+  "description": "हर यात्रा की दिन-ब-दिन योजना बनाइए, हालात के अनुसार योजना बदलिए, और साफ़ देखिए कि हर बदलाव से क्या-क्या बदला।",
+  "stats": {
+    "items": "आगे की यात्राएँ"
+  },
+  "widgets": {
+    "travel_next_trip": "अगली यात्रा"
+  },
+  "feed": {
+    "travel.trip_added": "{{module}} में “{{title}}” की योजना बनाई",
+    "travel.trip_updated": "{{module}} में “{{title}}” बदली",
+    "travel.trip_deleted": "{{module}} से “{{title}}” हटाई",
+    "travel.trip_restored": "“{{title}}” को {{module}} में वापस लाया",
+    "travel.booking_added": "“{{trip}}” में बुकिंग “{{title}}” जोड़ी",
+    "travel.expense_added": "“{{trip}}” में ख़र्च “{{title}}” जोड़ा",
+    "travel.trip_active": "“{{title}}” यात्रा चल रही है",
+    "travel.trip_upcoming": "आगे: “{{title}}”",
+    "travel.prepare_due": "“{{title}}” {{due}} को शुरू होगी: तैयारी का समय"
+  },
+  "search": {
+    "trip": "यात्रा"
+  }
+}

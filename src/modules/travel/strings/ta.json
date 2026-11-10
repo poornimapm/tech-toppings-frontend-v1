@@ -1,0 +1,25 @@
+{
+  "name": "பயணம்",
+  "tagline": "உங்கள் பயணங்களை நாள்தோறும் திட்டமிடுங்கள்",
+  "description": "ஒவ்வொரு பயணத்தையும் நாள் வாரியாகத் திட்டமிடுங்கள், நடப்பதற்கேற்பத் திட்டத்தை மாற்றுங்கள், ஒவ்வொரு மாற்றமும் எதையெல்லாம் தொட்டது என்று தெளிவாகப் பாருங்கள்.",
+  "stats": {
+    "items": "வரவிருக்கும் பயணங்கள்"
+  },
+  "widgets": {
+    "travel_next_trip": "அடுத்த பயணம்"
+  },
+  "feed": {
+    "travel.trip_added": "{{module}} இல் “{{title}}” திட்டமிடப்பட்டது",
+    "travel.trip_updated": "{{module}} இல் “{{title}}” திருத்தப்பட்டது",
+    "travel.trip_deleted": "{{module}} இலிருந்து “{{title}}” நீக்கப்பட்டது",
+    "travel.trip_restored": "“{{title}}” மீண்டும் {{module}} இல் கொண்டுவரப்பட்டது",
+    "travel.booking_added": "“{{trip}}” பயணத்தில் “{{title}}” முன்பதிவு சேர்க்கப்பட்டது",
+    "travel.expense_added": "“{{trip}}” பயணத்தில் “{{title}}” செலவு சேர்க்கப்பட்டது",
+    "travel.trip_active": "“{{title}}” பயணம் நடந்துகொண்டிருக்கிறது",
+    "travel.trip_upcoming": "வரவிருப்பது: “{{title}}”",
+    "travel.prepare_due": "“{{title}}” {{due}} அன்று தொடங்குகிறது: தயாராகும் நேரம்"
+  },
+  "search": {
+    "trip": "பயணம்"
+  }
+}

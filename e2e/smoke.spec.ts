@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, type Route } from '@playwright/test';
 
 // Smoke tests run the production build with the backend stubbed per test (page.route).
 
@@ -350,12 +350,19 @@ const laborTotals = {
   owed_minor: 45000,
 };
 
+const laborModule = moduleView('labor', modules.length, { status: 'beta', available: true });
+const travelModule = moduleView('travel', modules.length + 1, { status: 'beta', available: true });
+
+/** These modules given to this account, besides those every test has. */
+function grant(page: Page, ...more: unknown[]) {
+  return page.route('**/api/v1/modules?*', (route) =>
+    route.fulfill({ json: listOf([...modules, ...more]) }),
+  );
+}
+
 /** Labor Management, given to this account: one project, one worker, marked for the day. */
 async function stubLabor(page: Page) {
-  const labor = moduleView('labor', modules.length, { status: 'beta', available: true });
-  await page.route('**/api/v1/modules?*', (route) =>
-    route.fulfill({ json: listOf([...modules, labor]) }),
-  );
+  await grant(page, laborModule);
   const counts = { full: 1, half: 0, absent: 0, unmarked: 0 };
   const mark = {
     worker_id: 'w1',
@@ -439,6 +446,224 @@ async function stubLabor(page: Page) {
   });
 }
 
+/** The day `days` after today, as the API writes days. */
+function dayAfter(days: number) {
+  const day = new Date(`${today}T12:00:00Z`);
+  day.setUTCDate(day.getUTCDate() + days);
+  return day.toISOString().slice(0, 10);
+}
+
+const travelTrip = {
+  id: 'goa',
+  title: 'Goa with friends',
+  destinations: [{ name: 'Goa', country: 'India', timezone: 'Asia/Kolkata' }],
+  departure_city: null,
+  start_date: today,
+  end_date: dayAfter(3),
+  trip_type: 'friends',
+  pace: 'balanced',
+  budget_minor: 2500000,
+  currency: 'INR',
+  mode: 'static',
+  interests: [],
+  notes: null,
+  remind_prepare: false,
+  travellers: [
+    { id: 'asha', name: 'Asha' },
+    { id: 'ravi', name: 'Ravi' },
+  ],
+  phase: 'active',
+  revision_no: 1,
+  created_at: AT,
+  updated_at: AT,
+};
+const travelRecord = { trip_id: 'goa', revision_no: 1, created_at: AT, updated_at: AT };
+const travelActivity = {
+  ...travelRecord,
+  id: 'beach',
+  day: today,
+  start_time: '09:00',
+  duration_minutes: 120,
+  title: 'Morning at the beach',
+  kind: 'beach',
+  location: null,
+  transport: 'Scooter',
+  notes: null,
+  estimated_cost_minor: null,
+  confirmed: false,
+  booking_id: 'stay',
+  position: 0,
+  status: 'planned',
+  actual_note: null,
+};
+const travelItem = (id: string, title: string, changes: Record<string, unknown>) => ({
+  ...travelRecord,
+  id,
+  title,
+  day: null,
+  activity_id: null,
+  traveller_id: null,
+  state: 'not_started',
+  source: 'user',
+  edited: false,
+  as_suggested: false,
+  bag: null,
+  quantity: 1,
+  suggestion_key: null,
+  ...changes,
+});
+const travelItems = [
+  travelItem('cream', 'Sunscreen', { day: today, activity_id: 'beach' }),
+  travelItem('tops', 'Tops', { bag: 'check_in', quantity: 3, state: 'completed' }),
+];
+const travelBooking = {
+  ...travelRecord,
+  id: 'stay',
+  kind: 'hotel',
+  title: 'Beach hotel',
+  reference: 'HX-2041',
+  starts_at: `${today}T14:00`,
+  ends_at: `${dayAfter(3)}T11:00`,
+  location: null,
+  notes: null,
+  link: null,
+  status: 'entered',
+};
+const travelExpense = (id: string, changes: Record<string, unknown>) => ({
+  ...travelRecord,
+  id,
+  activity_id: null,
+  kind: 'actual',
+  category: 'transport',
+  title: 'Taxi from the airport',
+  amount_minor: 150000,
+  currency: 'INR',
+  day: today,
+  paid_by: null,
+  shared_with: [],
+  ...changes,
+});
+
+/** Travel, given to this account: one trip under way, with a day planned, a booking, costs (one
+ *  in a currency with no rate) shared by two, and a short history. */
+async function stubTravel(page: Page) {
+  await grant(page, travelModule);
+  const answers: Record<string, unknown> = {
+    '/api/v1/travel/options': {
+      activity_kinds: ['sightseeing', 'beach', 'food', 'other'],
+      max_trip_days: 120,
+      max_destinations: 20,
+      max_travellers: 20,
+      max_interests: 20,
+      premium_available: false,
+      bags: ['check_in', 'cabin', 'handbag', 'day_bag', 'toiletry', 'electronics'],
+      max_item_quantity: 99,
+      expense_categories: ['transport', 'stay', 'food', 'activities', 'shopping', 'fees', 'other'],
+    },
+    '/api/v1/travel/trips/goa': travelTrip,
+    '/api/v1/travel/trips/goa/overview': {
+      trip_id: 'goa',
+      today,
+      phase: 'active',
+      days_to_start: 0,
+      day_number: 1,
+      trip_days: 4,
+      next_activities: [travelActivity],
+      pending: { checklist: 1, packing: 0, bookings: 1 },
+      readiness: { completed: 1, applicable: 2, ratio: 0.5 },
+      next_action: { action: 'prepare_today', reason: 'open_today', params: { open: 1 } },
+    },
+    '/api/v1/travel/trips/goa/activities': [travelActivity],
+    '/api/v1/travel/trips/goa/checklist': travelItems,
+    '/api/v1/travel/trips/goa/bookings': [travelBooking],
+    '/api/v1/travel/trips/goa/expenses': [
+      travelExpense('taxi', { paid_by: 'asha', shared_with: ['asha', 'ravi'] }),
+      travelExpense('deposit', {
+        kind: 'estimate',
+        category: 'activities',
+        title: 'Diving deposit',
+        amount_minor: 5000,
+        currency: 'USD',
+        day: null,
+      }),
+    ],
+    '/api/v1/travel/trips/goa/budget': {
+      currency: 'INR',
+      budget_minor: 2500000,
+      estimated_minor: 0,
+      actual_minor: 150000,
+      remaining_minor: 2350000,
+      categories: [{ category: 'transport', estimated_minor: 0, actual_minor: 150000 }],
+      unconverted: [
+        {
+          expense_id: 'deposit',
+          title: 'Diving deposit',
+          kind: 'estimate',
+          category: 'activities',
+          amount_minor: 5000,
+          currency: 'USD',
+          reason: 'unavailable',
+        },
+      ],
+      balances: [
+        { traveller_id: 'asha', paid_minor: 150000, share_minor: 75000, balance_minor: 75000 },
+        { traveller_id: 'ravi', paid_minor: 0, share_minor: 75000, balance_minor: -75000 },
+      ],
+      settlements: [{ from_traveller_id: 'ravi', to_traveller_id: 'asha', amount_minor: 75000 }],
+    },
+    '/api/v1/travel/trips/goa/events': listOf([
+      {
+        id: 'event-2',
+        trip_id: 'goa',
+        at: AT,
+        kind: 'booking_added',
+        summary: { title: 'Beach hotel' },
+        changes: [{ entity: 'booking', op: 'add', record_id: 'stay', title: 'Beach hotel' }],
+        undoable: true,
+        undone_at: null,
+      },
+      {
+        id: 'event-1',
+        trip_id: 'goa',
+        at: AT,
+        kind: 'trip_created',
+        summary: { title: 'Goa with friends' },
+        changes: [],
+        undoable: false,
+        undone_at: null,
+      },
+    ]),
+  };
+  await page.route('**/api/v1/travel/**', (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname === '/api/v1/travel/trips') {
+      const phase = url.searchParams.get('phase');
+      return route.fulfill({ json: listOf(!phase || phase === 'active' ? [travelTrip] : []) });
+    }
+    if (url.pathname === '/api/v1/travel/trips/goa/prepare') {
+      // Today is the trip's first day, with its plan; tomorrow has nothing planned yet.
+      const tomorrow = url.searchParams.get('when') === 'tomorrow';
+      const { id, title, kind, start_time, location, transport } = travelActivity;
+      return route.fulfill({
+        json: {
+          day: tomorrow ? dayAfter(1) : today,
+          within_trip: true,
+          activities: tomorrow ? [] : [travelActivity],
+          checklist: tomorrow ? [] : travelItems.slice(0, 1),
+          bookings: tomorrow ? [] : [travelBooking],
+          transport: tomorrow
+            ? []
+            : [{ activity_id: id, title, kind, start_time, location, transport }],
+        },
+      });
+    }
+    const answer = answers[url.pathname];
+    return answer
+      ? route.fulfill({ json: answer })
+      : route.fulfill({ status: 404, json: { code: 'NOT_FOUND', message: 'stub' } });
+  });
+}
+
 interface AxeResult {
   violations: { id: string; impact: string; nodes: { target: string[] }[] }[];
 }
@@ -469,6 +694,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await stubPlan(page);
     await stubLoans(page);
     await stubLabor(page);
+    await stubTravel(page);
+    await grant(page, laborModule, travelModule);
     const problems: Record<string, string[]> = {};
     for (const path of [
       '/',
@@ -493,6 +720,16 @@ for (const colorScheme of ['light', 'dark'] as const) {
       '/m/labor/payments?project=farm',
       '/m/labor/reports?project=farm',
       '/m/labor/audit',
+      '/m/travel',
+      '/m/travel/trips',
+      '/m/travel/new',
+      '/m/travel/trips/goa',
+      '/m/travel/trips/goa/itinerary',
+      '/m/travel/trips/goa/prepare',
+      '/m/travel/trips/goa/packing',
+      '/m/travel/trips/goa/budget',
+      '/m/travel/trips/goa/bookings',
+      '/m/travel/trips/goa/history',
       '/no-such-page',
     ]) {
       await page.goto(path);
@@ -1528,6 +1765,50 @@ test('an expense is added, opened, deleted and brought back', async ({ page }) =
   expect(today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 });
 
+test('a trip deleted from its page leaves for My Trips, which stays usable, and comes back', async ({
+  page,
+}) => {
+  await stubApi(page);
+  await stubTravel(page);
+  const asked: string[] = [];
+  // Registered last, so asked first: the deletion, and the trip brought back.
+  await page.route('**/api/v1/travel/trips/goa', (route) => {
+    if (route.request().method() !== 'DELETE') return route.fallback();
+    asked.push('delete');
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/v1/travel/trips/goa/undelete', (route) => {
+    asked.push('undelete');
+    return route.fulfill({ json: { ...travelTrip, event_id: 'restored' } });
+  });
+  // My Trips' own code held back, as on a slow network: the page can't leave until it comes.
+  const myTrips = /\/assets\/trips-page-[\w-]+\.js$/;
+  const held: Route[] = [];
+  await page.route(myTrips, (route) => {
+    held.push(route);
+  });
+  await page.goto('/m/travel/trips/goa');
+  await page.getByRole('button', { name: 'Delete the trip' }).click();
+  const asking = page.getByRole('dialog', { name: 'Delete “Goa with friends”?' });
+  await asking.getByRole('button', { name: 'Delete it' }).click();
+
+  // Deleted: the question closes at once, not left offering to keep the trip while it waits.
+  await expect(page.getByText('Deleted “Goa with friends”.')).toBeVisible();
+  await expect(asking).toBeHidden();
+  await expect(page).toHaveURL(/\/m\/travel\/trips\/goa$/);
+  expect(held).toHaveLength(1); // asked for, and still on its way
+  await page.unroute(myTrips);
+  await Promise.all(held.map((route) => route.continue()));
+  await expect(page).toHaveURL(/\/m\/travel\/trips$/);
+  // Nothing the dialog did to the page behind it is left: the page takes the pointer again.
+  expect(await page.evaluate<string>('getComputedStyle(document.body).pointerEvents')).toBe('auto');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.getByText('“Goa with friends” is back in your trips.')).toBeVisible();
+  await page.getByRole('button', { name: 'Past' }).click();
+  await expect(page.getByText('No past trips yet.')).toBeVisible();
+  expect(asked).toEqual(['delete', 'undelete']);
+});
+
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
@@ -1619,6 +1900,58 @@ test.describe('on a phone', () => {
       page.getByRole('button', { name: 'Take out money from A motorbike for college' }),
     ).toBeVisible();
     expect(await fitsWidth(page)).toBe(true);
+  });
+
+  test("a trip's sections fit the screen, its tabs scrolling within their bar", async ({
+    page,
+  }) => {
+    await stubApi(page);
+    await stubTravel(page);
+    const tabs = page.getByRole('navigation', { name: 'Sections of “Goa with friends”' });
+    for (const [path, tab, shown] of [
+      ['/history', 'History', 'Added the booking “Beach hotel”'],
+      ['/budget', 'Budget', 'Ravi pays Asha ₹750'],
+      ['/bookings', 'Bookings', /Ref\. HX-2041/],
+      ['/itinerary', 'Itinerary', 'Morning at the beach'],
+      ['', 'Overview', 'Day 1 of 4'],
+    ] as const) {
+      await page.goto(`/m/travel/trips/goa${path}`);
+      await expect(page.getByText(shown).first()).toBeVisible();
+      const open = tabs.getByRole('link', { name: tab, exact: true });
+      await expect(open).toHaveAttribute('aria-current', 'page');
+      await expect(open).toBeInViewport({ ratio: 1 }); // the bar scrolled to the open tab
+      expect(await fitsWidth(page)).toBe(true);
+    }
+    // A cost no rate converts is said plainly, and counted nowhere.
+    await page.goto('/m/travel/trips/goa/budget');
+    await expect(page.getByText('Not counted in any total')).toBeVisible();
+    await expect(page.getByText('Diving deposit: $50')).toBeVisible();
+    expect(await fitsWidth(page)).toBe(true);
+  });
+
+  test("a trip's sections fit the screen in Tamil too, whose words run long", async ({ page }) => {
+    await stubApi(page);
+    await stubTravel(page);
+    const tamil = { ...user, locale: 'ta' };
+    await page.route('**/api/v1/auth/refresh', (route) =>
+      route.fulfill({ json: { ...token, user: tamil } }),
+    );
+    await page.route('**/api/v1/me', (route) => route.fulfill({ json: tamil }));
+    const tabs = page.getByRole('navigation', { name: /Goa with friends/ });
+    for (const path of ['', '/itinerary', '/prepare', '/packing', '/budget', '/bookings']) {
+      await page.goto(`/m/travel/trips/goa${path}`);
+      await expect(tabs).toBeVisible();
+      await expect(page.locator('html')).toHaveAttribute('lang', 'ta');
+      expect(await fitsWidth(page), path).toBe(true);
+    }
+    // Each of an item's four states keeps its name inside its own button.
+    await page.goto('/m/travel/trips/goa/prepare');
+    await expect(page.getByRole('group', { name: /Sunscreen/ }).getByRole('button')).toHaveCount(4);
+    const spilling = await page.evaluate<number>(
+      "[...document.querySelectorAll('[role=group] button')]" +
+        '.filter((button) => button.scrollWidth > button.clientWidth).length',
+    );
+    expect(spilling).toBe(0);
   });
 
   test('a loan is added, paid back in part, and what is still owed is shown', async ({ page }) => {

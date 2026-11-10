@@ -6,6 +6,49 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — Phase 18: Travel trips core
+
+- **Travel** pages (`src/modules/travel`, backend ADR-0025), for everyone: Home (a greeting; ways
+  to plan a trip, see them all, and prepare tomorrow or pack for the next one; the trips under way
+  and coming up, each with its countdown, readiness or _No tasks yet_, and its next step with the
+  reason), My trips (by phase, kept in the address) and _Plan a trip_ in five steps: where and
+  when; who (each traveller with their own passport country, more only if wanted); style, budget
+  and the reminder; the mode cards; a check to edit before saving.
+- **A trip's page**, its tabs scrolling sideways:
+  - Overview: the countdown, readiness, the next step with _Do it now_, what is next and still
+    open, the trip's details to edit, or to delete with a moment to bring it back, and its mode
+    (Premium locked; Basic AI says it works as Static);
+  - Itinerary: a day strip and a timeline; add, edit (what it changes shown first), move up or
+    down, mark done, skip, replace or reschedule (_See what this changes_, then _What changed?_),
+    remove;
+  - Prepare: _Get me ready_ and _Prepare tomorrow_, or any day of the trip (those still to do
+    marked): its plan, bookings, getting around, its checklist and the whole trip's, suggestions
+    for the day;
+  - Packing: by bag, with progress and quantities; suggestions shown before they are added;
+  - Budget: estimated against spent by category, what is left, who owes whom, costs with no rate
+    called out and counted nowhere; costs added, changed and removed; the trip's budget set;
+  - Bookings: as entered, with a status badge; a form; linked to activities or unlinked;
+  - History: every change, newest first, with Undo; a refused undo says why.
+- **Undo takes back exactly what was done**: the event the write answered (`event_id`); nothing
+  to undo when nothing changed; a refusal is shown even once the form or card that made the change
+  has gone.
+- **Ticks with no network**: a checklist or packing tick waits on the phone (the outbox,
+  `travel.tick`) and goes when back; a new tap on an item drops its taps still waiting, so only
+  the latest is sent, with no revision.
+- **English, Tamil and Hindi** throughout. The refusals only a trip's pages meet are worded with
+  the module and load with its pages; the three planning a trip can meet
+  (`TRAVEL_PREMIUM_LOCKED`, `TRAVEL_TRIP_DATES_INVALID`, `TRAVEL_TRIPS_FULL`) are in the shell's
+  `errors.json`.
+- **Room on the first page**: a build plugin (`vite-plugins/preload-lists.ts`) leaves out of the
+  lazy pages' lists of files to fetch what the first page has loaded already (`/` went from
+  199.3 KB to 197.0 KB before Travel); a trip's pages load as one chunk through a small loader.
+  First-load JavaScript: 199.9 KB of 200 (`/login` 193.7 KB).
+- Tests: Home, My trips and planning a trip (Premium can't be chosen, a double tap sends once, the
+  reminder rule), the trip's tabs (a change previewed, then undone; offline ticks; a refused undo
+  shown after its form has gone), the plugin's lists; e2e: the ten travel pages in the axe checks
+  (light and dark), a trip's sections at phone width in English and Tamil, a trip deleted and
+  brought back.
+
 ### Added — Phase 17: Labor's extras
 
 - **Attendance with no network**: each tap waits on the phone (the outbox, `labor.marks`) with

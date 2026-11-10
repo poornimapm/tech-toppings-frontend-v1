@@ -89,5 +89,8 @@
   "LABOR_WORKER_STATE": "That worker is already that way.",
   "LABOR_WORKER_UNKNOWN": "That worker isn't in this project, or isn't working now.",
   "LABOR_MARK_CHANGED": "This mark was changed on another device since. Open the day to set it again.",
-  "LABOR_EXPORT_TOO_LARGE": "That's more days and payments than one file takes. Choose a shorter period."
+  "LABOR_EXPORT_TOO_LARGE": "That's more days and payments than one file takes. Choose a shorter period.",
+  "TRAVEL_PREMIUM_LOCKED": "Premium isn't available yet. Choose Static or Basic AI.",
+  "TRAVEL_TRIP_DATES_INVALID": "A trip ends on or after its first day, and can only be so long.",
+  "TRAVEL_TRIPS_FULL": "That's as many trips as one person keeps: delete an old one first."
 }

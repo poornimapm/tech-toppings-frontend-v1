@@ -7,6 +7,7 @@ import { defineConfig } from 'vitest/config';
 
 import { ocr } from './vite-plugins/ocr-files.ts';
 import { pagesHeaders } from './vite-plugins/pages-headers.ts';
+import { preloadLists } from './vite-plugins/preload-lists.ts';
 import { pwa } from './vite-plugins/pwa.ts';
 
 // Build-time settings. Browser-visible values use the VITE_ prefix (see src/core/config/env.ts);
@@ -27,6 +28,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       ocr(),
+      preloadLists(),
       pwa({
         entry: fileURLToPath(new URL('./src/sw/service-worker.ts', import.meta.url)),
         name: appName,
