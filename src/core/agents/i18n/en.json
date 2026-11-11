@@ -1,0 +1,12 @@
+{
+  "progress": "Progress",
+  "starting": "Starting",
+  "stages": {
+    "understanding": "Understanding your request",
+    "reading": "Reading your records",
+    "drafting": "Writing a draft",
+    "proposing": "Preparing changes to confirm",
+    "checking": "Working with what it found",
+    "done": "Finished"
+  }
+}

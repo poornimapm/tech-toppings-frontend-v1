@@ -5,6 +5,12 @@ import { Link, useSearchParams } from 'react-router';
 
 import { displayDate } from '@/core/utils/dates';
 import { Alert, Badge, Button, FilterChips, SelectField } from '@/design-system';
+import { aiHelps } from '@/modules/travel/ai-action';
+import {
+  ActivityAiButtons,
+  ActivityAiDialog,
+  type ActivityTask,
+} from '@/modules/travel/activity-ai';
 import { isChecked } from '@/modules/travel/booking-api';
 import { Checklist } from '@/modules/travel/checklist';
 import {
@@ -18,12 +24,14 @@ import { NS } from '@/modules/travel/i18n';
 import { ItemForm } from '@/modules/travel/item-form';
 import { Part } from '@/modules/travel/part';
 import { SuggestDialog } from '@/modules/travel/suggest-dialog';
+import { useActivities, type Activity } from '@/modules/travel/plan-api';
 import { useTripContext } from '@/modules/travel/trip-context';
 import { daysIn, weekdayOf } from '@/modules/travel/trip-words';
 import { Waiting } from '@/modules/travel/waiting';
 import { useWords } from '@/modules/travel/words';
 
 const WHEN = ['today', 'tomorrow'] as const;
+type AskAi = (activity: Activity, task: ActivityTask) => void;
 /** A link drawn as text, to where something is looked at in full. */
 const MORE = 'mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4';
 
@@ -33,7 +41,8 @@ const MORE = 'mt-3 inline-block text-sm font-medium text-primary underline under
  * that day's plan, its bookings and how it gets around, what is to do that day, and what is to
  * do for the whole trip (what matters before it starts). An item
  * saved for another day opens that day, so it is never out of sight. Only what the person keeps
- * is shown: no weather, as there is no source for it yet.
+ * is shown: no weather, as there is no source for it yet. On a trip in Basic AI, the assistant can
+ * draft a planned activity's checklist, or a change to it from the person's words.
  */
 export function PrepareTab() {
   const { t, i18n } = useTranslation(NS);
@@ -50,6 +59,14 @@ export function PrepareTab() {
   // Open: the item being edited (id null for a new one, on `day`), or the suggestions.
   const [editing, setEditing] = useState<{ id: string | null; day: string | null } | null>(null);
   const [suggesting, setSuggesting] = useState<string | null>(null);
+  const [asking, setAsking] = useState<{ activity: Activity; task: ActivityTask } | null>(null);
+  // As the trip has it now (the day's plan no longer holds one moved to another day), else as it
+  // was asked about: its dialog (what changed, and Undo) stays until the person closes it, and a
+  // reload after a conflict still finds the latest revision.
+  const tripActivities = useActivities(trip.id, asking !== null);
+  const askingActivity =
+    asking &&
+    (tripActivities.data?.find((each) => each.id === asking.activity.id) ?? asking.activity);
 
   const all = [...(plan.data?.checklist ?? []), ...(checklist.data ?? [])];
   const editingItem = editing?.id ? (all.find((item) => item.id === editing.id) ?? null) : null;
@@ -93,6 +110,13 @@ export function PrepareTab() {
             setEditing({ id: null, day });
           }}
           onSuggest={setSuggesting}
+          onAi={
+            aiHelps(trip)
+              ? (activity, task) => {
+                  setAsking({ activity, task });
+                }
+              : undefined
+          }
         />
       ) : (
         <Waiting query={plan} failed={t('prepare.loadError')} />
@@ -141,6 +165,20 @@ export function PrepareTab() {
           }}
         />
       )}
+      {asking && askingActivity && (
+        <ActivityAiDialog
+          key={`${asking.activity.id}-${asking.task}`}
+          task={asking.task}
+          activity={askingActivity}
+          onClose={() => {
+            setAsking(null);
+          }}
+          onReload={() => {
+            void plan.refetch();
+            void tripActivities.refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -151,11 +189,14 @@ function DayView({
   onEdit,
   onAdd,
   onSuggest,
+  onAi,
 }: {
   plan: DayPlan;
   onEdit: (item: ChecklistItem) => void;
   onAdd: (day: string) => void;
   onSuggest: (day: string) => void;
+  /** Basic AI's help with a planned activity, on a trip in Basic AI. */
+  onAi?: AskAi;
 }) {
   const { t, i18n } = useTranslation(NS);
   const words = useWords();
@@ -182,6 +223,17 @@ function DayView({
                   <Badge tone={activity.status === 'done' ? 'success' : 'locked'}>
                     {t(`itinerary.status.${activity.status}`)}
                   </Badge>
+                )}
+                {onAi && plan.within_trip && activity.status === 'planned' && (
+                  <div className="mt-1 flex w-full flex-wrap gap-2">
+                    <ActivityAiButtons
+                      activity={activity}
+                      named
+                      onAsk={(task) => {
+                        onAi(activity, task);
+                      }}
+                    />
+                  </div>
                 )}
               </li>
             ))}

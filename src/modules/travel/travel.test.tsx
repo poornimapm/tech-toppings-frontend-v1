@@ -496,9 +496,13 @@ describe('planning a trip', () => {
 
     expect(await screen.findByRole('heading', { name: 'How the app helps' })).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: 'Basic AI' }));
+    // What it does, that its use is limited, and that the trip works without it: never more.
     expect(screen.getByRole('radio', { name: 'Basic AI' })).toHaveAccessibleDescription(
-      "AI help isn't active yet. Until a later update, a trip in Basic AI works exactly like Static.",
+      "AI drafts for you to check: the trip from your words, a day's plan, an activity's " +
+        'checklist, a change. Nothing is saved until you apply it. Use is limited each day, and ' +
+        "whenever AI isn't available the trip works as Static.",
     );
+    expect(screen.getByText('Drafts for you')).toBeInTheDocument();
     await next(user);
 
     expect(await screen.findByRole('heading', { name: 'Check and save' })).toBeInTheDocument();

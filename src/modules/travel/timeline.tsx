@@ -10,7 +10,7 @@ import {
   Trash2,
   type LucideIcon,
 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '@/core/utils/money';
@@ -42,6 +42,8 @@ export interface TimelineActions {
   onChange: (activity: Activity, action: ChangeAction) => void;
   /** Off the plan for good (one added by mistake), with a moment to take it back. */
   onRemove: (activity: Activity) => void;
+  /** More that can be done with a planned one (Basic AI's help), beside its changes. */
+  more?: (activity: Activity) => ReactNode;
 }
 
 /**
@@ -90,6 +92,7 @@ function Entry({
   onMove,
   onChange,
   onRemove,
+  more,
 }: TimelineActions & {
   activity: Activity;
   first: boolean;
@@ -196,6 +199,7 @@ function Entry({
                   {t(`change.actions.${action}`)}
                 </Button>
               ))}
+            {activity.status === 'planned' && more?.(activity)}
             <Button
               variant="ghost"
               className="min-h-11"

@@ -4,22 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '@/core/auth/session-store';
 import { toMinor } from '@/core/utils/money';
 import { SelectField, Switch, TextField } from '@/design-system';
-import type { Options, Pace, TripType } from '@/modules/travel/api';
+import type { Options } from '@/modules/travel/api';
 import { CHOICE } from '@/modules/travel/choice';
 import { useCurrencies } from '@/modules/travel/currencies';
 import { NS } from '@/modules/travel/i18n';
-import { canRemind, interestsOf, LIMITS, type TripValues } from '@/modules/travel/trip-form';
-
-const TYPES: TripType[] = [
-  'solo',
-  'friends',
-  'family',
-  'honeymoon',
-  'business',
-  'adventure',
-  'other',
-];
-const PACES: Pace[] = ['relaxed', 'balanced', 'packed'];
+import {
+  canRemind,
+  interestsOf,
+  LIMITS,
+  PACES,
+  TRIP_TYPES,
+  type TripValues,
+} from '@/modules/travel/trip-form';
 
 /** Step three: the kind of trip and its pace, its budget, what the travellers enjoy, notes, and
  *  whether to be reminded the day before it starts. A trip starting on its own today, or begun,
@@ -48,7 +44,7 @@ export function StyleStep({
       <fieldset>
         <legend className="mb-1 text-sm font-medium">{t('new.style.type')}</legend>
         <div className="flex flex-wrap gap-2">
-          {TYPES.map((type) => (
+          {TRIP_TYPES.map((type) => (
             <label key={type} className={CHOICE}>
               <input
                 type="radio"

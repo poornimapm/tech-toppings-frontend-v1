@@ -11,7 +11,7 @@ import { NS } from '@/modules/travel/i18n';
 /** Each mode, how its badge reads, in the order offered. */
 const MODES: { mode: TripMode; tone: BadgeTone }[] = [
   { mode: 'static', tone: 'success' },
-  { mode: 'basic', tone: 'soon' },
+  { mode: 'basic', tone: 'beta' },
   { mode: 'premium', tone: 'locked' },
 ];
 
@@ -21,9 +21,10 @@ const CARD =
   'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-[var(--tt-focus)]';
 
 /**
- * The trip's mode as cards, each saying plainly what it does today: Static works fully, Basic AI
- * isn't active yet and works as Static does, Premium is locked. A locked mode's radio is
- * disabled, so neither a tap nor the keyboard can choose it.
+ * The trip's mode as cards, each saying plainly what it does today: Static works fully; Basic AI
+ * drafts for the person to check, its use limited each day, and the trip works as Static
+ * whenever AI isn't available; Premium is locked. A locked mode's radio is disabled, so neither a
+ * tap nor the keyboard can choose it.
  */
 export function ModeCards({
   field,

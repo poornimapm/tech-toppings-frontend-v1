@@ -162,6 +162,8 @@ export function eventOf(changes: Partial<TripEvent> & { id: string; kind: string
     changes: [],
     undoable: true,
     undone_at: null,
+    source: 'manual',
+    ai_run_id: null,
     ...changes,
   };
 }
@@ -206,6 +208,8 @@ interface Event {
   /** What takes it back; none for an undo, which can't be undone. */
   revert?: () => void;
   undone?: boolean;
+  /** The AI run whose draft it applied: the event then says AI made it. */
+  aiRunId?: unknown;
 }
 
 const json = HttpResponse.json.bind(HttpResponse);
@@ -256,9 +260,10 @@ export function fakeTrip(state: TripState): Sent[] {
     changes: RecordChange[],
     revert?: () => void,
     summary: Record<string, unknown> = {},
+    aiRunId: unknown = null,
   ) => {
     const id = next('event');
-    events.set(id, { kind, summary, changes, revert });
+    events.set(id, { kind, summary, changes, revert, aiRunId });
     return id;
   };
   /** One record made or removed, as its change says it. */
@@ -266,6 +271,32 @@ export function fakeTrip(state: TripState): Sent[] {
     { entity, op, record_id: record.id, title: record.title, day: null, fields: [] },
   ];
   const activity = (id: unknown) => state.activities.find((each) => each.id === id);
+  /** A move to another day or time, as the server answers it (its items stay where they are). */
+  const reschedule = (found: Activity, body: Record<string, unknown>) => {
+    const day = typeof body.new_day === 'string' ? body.new_day : found.day;
+    const time = typeof body.new_start_time === 'string' ? body.new_start_time : found.start_time;
+    const fields = [
+      ...(day === found.day ? [] : [{ field: 'day', old: found.day, new: day }]),
+      ...(time === found.start_time
+        ? []
+        : [{ field: 'start_time', old: found.start_time, new: time }]),
+    ];
+    const what_changed: RecordChange[] = [
+      { entity: 'activity', op: 'set', record_id: found.id, title: found.title, day, fields },
+    ];
+    const answer = {
+      what_changed,
+      needs_review: [],
+      kept: [],
+      days: [...new Set([found.day, day])],
+    };
+    if (!body.apply) return json({ ...answer, event_id: null });
+    const revert = snapshot();
+    Object.assign(found, { day, start_time: time, revision_no: found.revision_no + 1 });
+    const summary = { title: found.title, day };
+    const id = remember('activity_rescheduled', what_changed, revert, summary, body.ai_run_id);
+    return json({ ...answer, event_id: id });
+  };
   const item = (id: unknown) => state.items.find((each) => each.id === id);
   const booking = (id: unknown) => state.bookings?.find((each) => each.id === id);
   const expense = (id: unknown) => state.expenses?.find((each) => each.id === id);
@@ -386,13 +417,14 @@ export function fakeTrip(state: TripState): Sent[] {
       });
       return json({ event_id: recorded });
     }),
-    // Done or skipped, as the server does it: the activity's own items stand down unless they
-    // are the person's own work, and an estimate is listed for review.
+    // Done or skipped (a replacement too), as the server does it: the activity's own items stand
+    // down unless they are the person's own work, and an estimate is listed for review.
     http.post('*/api/v1/travel/activities/:id/change', async ({ request, params }) => {
       const body = await log(request);
       const found = activity(params.id);
       if (!found) return refuse(404, 'NOT_FOUND');
       if (body.revision_no !== found.revision_no) return refuse(409, 'VERSION_CONFLICT');
+      if (body.action === 'reschedule') return reschedule(found, body);
       const away = body.action !== 'done';
       const status = away ? 'skipped' : 'done';
       const tied = away ? state.items.filter((each) => each.activity_id === found.id) : [];
@@ -440,7 +472,103 @@ export function fakeTrip(state: TripState): Sent[] {
         Object.assign(each, { state: 'not_applicable', revision_no: each.revision_no + 1 });
       }
       const summary = { title: found.title, day: found.day };
-      const id = remember(`activity_${status}`, what_changed, revert, summary);
+      const id = remember(`activity_${status}`, what_changed, revert, summary, body.ai_run_id);
+      return json({ ...answer, event_id: id });
+    }),
+    // AI help, on a trip in Basic AI only (as the server checks it): the run's answers are the
+    // test's to serve (`serveRun`).
+    http.post('*/api/v1/travel/trips/:id/assist', async ({ request }) => {
+      await log(request);
+      if (state.trip.mode !== 'basic') {
+        return json(errorEnvelope('TRAVEL_AI_OFF', 'refused', { mode: state.trip.mode }), {
+          status: 409,
+        });
+      }
+      return json({ run_id: next('run') }, { status: 202 });
+    }),
+    // A day's draft goes after the day's own, as one change.
+    http.post('*/api/v1/travel/trips/:id/activities/draft', async ({ request }) => {
+      const body = (await log(request)) as {
+        day: string;
+        activities: Partial<Activity>[];
+        apply: boolean;
+        ai_run_id?: string;
+      };
+      const first = state.activities.filter((each) => each.day === body.day).length;
+      const drafted = body.activities.map((each, place) =>
+        activityOf({
+          ...each,
+          id: next('activity'),
+          title: String(each.title),
+          day: body.day,
+          position: first + place,
+        }),
+      );
+      const what_changed: RecordChange[] = drafted.map((each) => ({
+        entity: 'activity',
+        op: 'add',
+        record_id: body.apply ? each.id : null,
+        title: each.title,
+        day: each.day,
+        fields: [
+          { field: 'kind', new: each.kind },
+          ...(each.start_time ? [{ field: 'start_time', new: each.start_time }] : []),
+          ...(each.estimated_cost_minor === null
+            ? []
+            : [{ field: 'estimated_cost_minor', new: each.estimated_cost_minor }]),
+        ],
+      }));
+      const answer = { what_changed, needs_review: [], kept: [], days: [body.day] };
+      if (!body.apply) return json({ ...answer, event_id: null });
+      const revert = snapshot();
+      state.activities.push(...drafted);
+      const summary = { day: body.day, count: drafted.length };
+      const id = remember('day_drafted', what_changed, revert, summary, body.ai_run_id);
+      return json({ ...answer, event_id: id });
+    }),
+    // An activity's AI items, as the assistant's suggestions: one already there isn't added again.
+    http.post('*/api/v1/travel/trips/:id/checklist/assist', async ({ request }) => {
+      const body = (await log(request)) as {
+        activity_id: string;
+        items: { title: string; bag?: Item['bag']; quantity?: number }[];
+        apply: boolean;
+        ai_run_id?: string;
+      };
+      const found = activity(body.activity_id);
+      if (!found) return refuse(422, 'TRAVEL_ACTIVITY_UNKNOWN');
+      const taken = new Set(state.items.map((each) => each.suggestion_key));
+      const fresh = body.items
+        .map((each) =>
+          itemOf({
+            id: next('item'),
+            title: each.title,
+            day: found.day,
+            activity_id: found.id,
+            bag: each.bag ?? null,
+            quantity: each.quantity ?? 1,
+            source: 'assistant',
+            suggestion_key: `ai:${found.id}:${each.title.toLowerCase().replaceAll(' ', '_')}`,
+          }),
+        )
+        .filter((each) => !taken.has(each.suggestion_key));
+      const what_changed: RecordChange[] = fresh.map((each) => ({
+        entity: 'checklist',
+        op: 'add',
+        record_id: body.apply ? each.id : null,
+        title: each.title,
+        day: each.day,
+        fields: [
+          ...(each.bag ? [{ field: 'bag', new: each.bag }] : []),
+          { field: 'quantity', new: each.quantity },
+          { field: 'suggestion_key', new: each.suggestion_key },
+        ],
+      }));
+      const answer = { what_changed, needs_review: [], kept: [], days: [], more: false };
+      if (!body.apply) return json({ ...answer, event_id: null });
+      const revert = snapshot();
+      state.items.push(...fresh);
+      const summary = { count: fresh.length, title: found.title, day: found.day };
+      const id = remember('checklist_ai_suggested', what_changed, revert, summary, body.ai_run_id);
       return json({ ...answer, event_id: id });
     }),
     // Newest first: those the test made, then those it started with.
@@ -454,6 +582,8 @@ export function fakeTrip(state: TripState): Sent[] {
         changes: event.changes,
         undoable: Boolean(event.revert) && !event.undone,
         undone_at: event.undone ? NOW.toISOString() : null,
+        source: event.aiRunId ? 'ai' : 'manual',
+        ai_run_id: event.aiRunId ?? null,
       }));
       const items = [...made, ...(state.history ?? [])];
       return json({ items, page: 1, page_size: 20, total: items.length, has_next: false });
@@ -484,6 +614,8 @@ export function fakeTrip(state: TripState): Sent[] {
         changes: [],
         undoable: false,
         undone_at: null,
+        source: 'manual', // an undo is the person's own, whatever it took back
+        ai_run_id: null,
       });
     }),
     http.get('*/api/v1/travel/trips/:id/checklist', () => json(state.items)),
@@ -545,7 +677,10 @@ export function fakeTrip(state: TripState): Sent[] {
       const body = await log(request);
       const taken = new Set(state.items.map((each) => each.suggestion_key));
       const fresh = state.suggestions.filter(
-        (each) => !taken.has(each.suggestion_key) && (!body.packing || each.bag !== null),
+        (each) =>
+          !taken.has(each.suggestion_key) &&
+          (!body.packing || each.bag !== null) &&
+          (!body.activity_id || each.activity_id === body.activity_id),
       );
       const what_changed: RecordChange[] = fresh.map((each) => ({
         entity: 'checklist',

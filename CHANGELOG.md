@@ -6,6 +6,75 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed — Phase 19 review fixes
+
+**Cancel** now stops the run on the server (`POST /v1/agents/runs/{id}/cancel`, fire and forget,
+also for a run that starts after Cancel), so it uses no more of the day's AI, and a page follows a
+run for 150 s, past the server's longest (120 s). **Progress** names each stage once, in the order
+first reached, the latest marked as under way (`aria-current`, keyed by code, so no duplicate
+keys), and `checking` reads _Working with what it found_ (true after a read as after a draft).
+**Ask about this trip** shows the answer under _The assistant says:_ with a line that it can be
+wrong and the trip's sections are the record, never as the trip's own records. **Money from a
+draft** comes in the currency's main unit (the backend's tools changed) and is turned into minor
+units with the app's own helper: a drafted day's costs before its preview and apply, a described
+trip's budget as it fills the form (tested in yen). **Describe your trip** keeps _Put back what I
+had_ beside the form after the other steps are checked, and its preview shows a currency the draft
+would change. **On a trip**: a change that moves an activity to another day keeps its dialog
+(what changed, Undo) on Prepare, and nothing opens by itself after; a failed _Turn on the AI
+assistant_ says why beside the button; `409 TRAVEL_AI_OFF` refreshes the trip and its overview,
+so its real mode shows and the AI buttons go; `409 TRAVEL_AI_DRAFT_APPLIED` (a day's draft added
+already) is worded, the day is asked for again and only Close is left; _Tell it what changed_
+says Mark done, Skip, Replace and Reschedule are on the Itinerary. The slow describe-trip test is
+split in three (each under 5 s alone). The API types follow the backend's regenerated schema.
+First load unchanged: `/` 199.6 KB gzipped, `/login` 193.4 KB.
+
+### Added — Phase 19: Basic AI (part F2)
+
+- **AI on a trip in Basic AI** (and nowhere else), each shown with its stages while it works, then
+  in the usual preview with Cancel; nothing is saved until it is applied, and an apply names its
+  run (`ai_run_id`). When AI can't run, each says why (with the button to turn AI on where consent
+  is why), Try again and the way to do it by hand.
+  - _Draft this day_ (Itinerary): activities for the day, with a wish for it if given, previewed
+    after the day's own and added as one change to undo.
+  - _Prepare with AI_ (an activity, in the Itinerary and Prepare): items for it, previewed and added
+    as the assistant's suggestions (marked _AI suggestion_ on the lists). Without AI it offers the
+    app's own rule suggestions for that activity instead, labelled as such, or says there are none.
+  - _Tell it what changed_ (an activity, in the Itinerary and Prepare): the person's words open the
+    usual change dialog filled in (done, skipped, replaced or rescheduled), to check and apply.
+  - _Ask about this trip_ (Overview): an answer in plain words, said to come from the trip's own
+    records, with a link to the section (and day) it is about.
+- **History** marks what came from an AI draft, and words a drafted day and an activity's AI
+  suggestions; an AI item keeps its own words (its key is no rule's).
+- The suggestions' preview became one `PreviewDialog` for anything added after a preview (rule
+  suggestions, a day's draft, an activity's AI items).
+- **First load** unchanged: `/` 199.6 KB gzipped, `/login` 193.4 KB; the travel manifest is as it
+  was, and the new screens load with a trip's pages.
+
+### Added — Phase 19: Basic AI (part F1)
+
+- **Following a background AI run** (`src/core/agents`): `useRun` asks for the run every 1.5 s
+  while it is `running` and never once it has ended, stops when the page leaves or the server
+  can't be reached, and reads a run still working after two minutes as stopped for taking too long
+  (as the server does). `RunStages` shows the stages it has reached in fixed words (never the
+  model's text), announced politely, with Cancel. Their words load with the pages that use them.
+- **One piece for each of Travel's AI actions** (`useAiAction`, `AiProgress`): starts the run (202,
+  its id), follows it, then hands its draft to the page's usual preview, or says why there is none
+  (consent, with the button to turn AI on; no provider; providers resting; today's limit; too
+  long; stopped; what the AI said instead; Basic AI off for the trip), with Try again and the way
+  to do it by hand. Nothing is saved by it.
+- **Describe your trip** on the first planning step: on a trip being planned in Basic AI (one
+  button chooses it; the mode step can change it back), a sentence or two is drafted into the
+  steps, shown first, filled in only on _Fill in the steps_ (and put back on request); never who
+  travels, notes, the mode or the reminder. The trip is checked step by step and saved as usual.
+- **The Basic AI card** says what it does (drafts for you to check), that its use is limited each
+  day, and that the trip works as Static whenever AI isn't available. Premium stays locked.
+- The API types follow the backend's Phase 19 schema (run stages, `running`, `timeout`, travel's
+  AI routes, an event's `source` and `ai_run_id`); the assistant still picks its own agent by
+  name, never the travel agent now listed beside it.
+- **First load**: _Plan a trip_ now loads through Travel's small loader chunk, as a trip's pages
+  do, so the manifest that ships with the first page no longer lists that page's files (its chunk
+  is 277 bytes smaller). `/` is 199.6 KB gzipped (was 199.9), `/login` 193.4 KB (was 193.7).
+
 ### Added — Phase 18: Travel trips core
 
 - **Travel** pages (`src/modules/travel`, backend ADR-0025), for everyone: Home (a greeting; ways

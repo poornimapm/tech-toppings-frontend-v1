@@ -25,7 +25,6 @@ export type SuggestAsk = Omit<Schemas['TravelSuggestIn'], 'apply'>;
 export type When = 'today' | 'tomorrow' | (string & {});
 
 const itemPath = (item_id: string) => ({ params: { path: { item_id } } });
-const suggestPath = '/v1/travel/trips/{trip_id}/checklist/suggest';
 
 /** A suggestion is shown as one (and in the app's words) while it is as its rule words it: the
  *  server's to say, as only a new name makes it the person's words (a tick doesn't). */
@@ -80,24 +79,15 @@ export function useRemoveItem() {
   );
 }
 
-/** What the rules would add, written nowhere: asked afresh each time it is shown. */
-export function useSuggestions(tripId: string, asked: SuggestAsk, enabled: boolean) {
-  return useQuery({
-    queryKey: travelKeys.suggest(tripId, asked),
-    queryFn: () =>
-      unwrap(api.POST(suggestPath, { ...tripPath(tripId), body: { ...asked, apply: false } })),
-    enabled,
-    staleTime: 0,
-    gcTime: 0,
-  });
-}
-
-/** The suggestions added, as one change: its event takes them all back. */
-export function useApplySuggestions(tripId: string) {
-  return useTravelChange((asked: SuggestAsk) =>
-    unwrap(api.POST(suggestPath, { ...tripPath(tripId), body: { ...asked, apply: true } })),
+/** What the rules would add (a preview, written nowhere), or the suggestions added, as one change
+ *  whose event takes them all back. */
+export const suggest = (tripId: string, asked: SuggestAsk, apply: boolean) =>
+  unwrap(
+    api.POST('/v1/travel/trips/{trip_id}/checklist/suggest', {
+      ...tripPath(tripId),
+      body: { ...asked, apply },
+    }),
   );
-}
 
 /** The ticks waiting on this device for a trip's items, by item (the latest tap wins). */
 export function useWaitingTicks(tripId: string): Map<string, ChecklistState> {

@@ -42,7 +42,8 @@ export default defineModule({
         {
           path: 'new',
           lazy: async () => ({
-            Component: (await import('@/modules/travel/new-trip-page')).NewTripPage,
+            Component: (await (await import('@/modules/travel/trip-loader')).newTripPage())
+              .NewTripPage,
           }),
         },
         // One trip, its own tabs round its sections.

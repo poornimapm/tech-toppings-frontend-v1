@@ -5,8 +5,10 @@ import { NS } from '@/modules/travel/i18n';
 import en from '@/modules/travel/i18n/en.json';
 import { isKnown } from '@/modules/travel/known';
 
-/** The last part of a suggestion's key: "activity:ab12:water_bottle" -> "water_bottle". */
-const ruleOf = (key: string | null | undefined) => key?.split(':').at(-1) ?? '';
+/** The last part of a rule suggestion's key: "activity:ab12:water_bottle" -> "water_bottle". An
+ *  AI item's key ("ai:ab12:…", its own words) names no rule. */
+const ruleOf = (key: string | null | undefined) =>
+  key?.startsWith('ai:') ? '' : (key?.split(':').at(-1) ?? '');
 
 /**
  * The module's words for what the server sends by key, and for times and lengths. A key this

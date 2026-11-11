@@ -1,4 +1,4 @@
-import { CalendarPlus, Plus } from 'lucide-react';
+import { CalendarPlus, Plus, Sparkles } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
@@ -6,8 +6,15 @@ import { useSearchParams } from 'react-router';
 import { useSession } from '@/core/auth/session-store';
 import { displayDate } from '@/core/utils/dates';
 import { Button, EmptyState, toast } from '@/design-system';
+import { aiHelps } from '@/modules/travel/ai-action';
+import {
+  ActivityAiButtons,
+  ActivityAiDialog,
+  type ActivityTask,
+} from '@/modules/travel/activity-ai';
 import { ActivityForm } from '@/modules/travel/activity-form';
 import { ChangeDialog } from '@/modules/travel/change-dialog';
+import { DayAiDialog } from '@/modules/travel/day-ai';
 import { DayStrip } from '@/modules/travel/day-strip';
 import { failureText } from '@/modules/travel/failure-text';
 import { NS } from '@/modules/travel/i18n';
@@ -27,7 +34,8 @@ import { Waiting } from '@/modules/travel/waiting';
 /**
  * The trip day by day: a strip of its days (the one in the address, else today if the trip is
  * on, else its first) and that day's timeline, to add to, edit, put in order, remove from and
- * change as things happen. A move or a removal is said with a way to take it back.
+ * change as things happen. A move or a removal is said with a way to take it back. On a trip in
+ * Basic AI, the assistant can draft the day, an activity's checklist, or a change from words.
  */
 export function ItineraryTab() {
   const { t, i18n } = useTranslation(NS);
@@ -42,6 +50,10 @@ export function ItineraryTab() {
   // Open: the activity being edited (null for a new one), or the one being changed and how.
   const [editing, setEditing] = useState<{ id: string | null } | null>(null);
   const [changing, setChanging] = useState<{ id: string; action: ChangeAction } | null>(null);
+  // Basic AI, asked: to draft a day, or to help with one activity.
+  const [drafting, setDrafting] = useState<string | null>(null);
+  const [asking, setAsking] = useState<{ id: string; task: ActivityTask } | null>(null);
+  const ai = aiHelps(trip);
   const headingId = useId();
 
   const days = daysIn(trip);
@@ -73,6 +85,7 @@ export function ItineraryTab() {
 
   const editingActivity = editing && find(editing.id);
   const changingActivity = changing && find(changing.id);
+  const askingActivity = asking && find(asking.id);
 
   return (
     <section aria-labelledby={headingId} className="space-y-4">
@@ -88,15 +101,29 @@ export function ItineraryTab() {
         <h3 id={headingId} className="text-lg font-semibold">
           {date}
         </h3>
-        <Button
-          className="min-h-11"
-          onClick={() => {
-            setEditing({ id: null });
-          }}
-        >
-          <Plus aria-hidden="true" className="size-4" />
-          {t('itinerary.add')}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {ai && (
+            <Button
+              variant="secondary"
+              className="min-h-11"
+              onClick={() => {
+                setDrafting(day);
+              }}
+            >
+              <Sparkles aria-hidden="true" className="size-4" />
+              {t('ai.day.button')}
+            </Button>
+          )}
+          <Button
+            className="min-h-11"
+            onClick={() => {
+              setEditing({ id: null });
+            }}
+          >
+            <Plus aria-hidden="true" className="size-4" />
+            {t('itinerary.add')}
+          </Button>
+        </div>
       </div>
       {!activities.data ? (
         <Waiting query={activities} failed={t('itinerary.loadError')} />
@@ -122,6 +149,18 @@ export function ItineraryTab() {
           onRemove={(activity) =>
             void removal(activity.id, t('itinerary.removed', { title: activity.title }))
           }
+          more={
+            ai
+              ? (activity) => (
+                  <ActivityAiButtons
+                    activity={activity}
+                    onAsk={(task) => {
+                      setAsking({ id: activity.id, task });
+                    }}
+                  />
+                )
+              : undefined
+          }
         />
       )}
       {editing && (editing.id === null || editingActivity) && (
@@ -142,6 +181,25 @@ export function ItineraryTab() {
           action={changing.action}
           onClose={() => {
             setChanging(null);
+          }}
+          onReload={() => void activities.refetch()}
+        />
+      )}
+      {drafting && (
+        <DayAiDialog
+          day={drafting}
+          onClose={() => {
+            setDrafting(null);
+          }}
+        />
+      )}
+      {asking && askingActivity && (
+        <ActivityAiDialog
+          key={`${asking.id}-${asking.task}`}
+          task={asking.task}
+          activity={askingActivity}
+          onClose={() => {
+            setAsking(null);
           }}
           onReload={() => void activities.refetch()}
         />

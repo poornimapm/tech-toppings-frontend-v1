@@ -81,6 +81,9 @@ export function Checklist({
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {showBag && item.bag && <Badge>{t(`bags.${item.bag}`)}</Badge>}
                     {asSuggested(item) && <Badge tone="beta">{t('checklist.suggestion')}</Badge>}
+                    {item.source === 'assistant' && (
+                      <Badge tone="beta">{t('checklist.aiSuggestion')}</Badge>
+                    )}
                     {waiting.has(item.id) && (
                       <Badge icon={<CloudOff aria-hidden="true" className="size-3" />}>
                         {t('checklist.waiting')}

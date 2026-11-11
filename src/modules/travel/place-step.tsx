@@ -5,14 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { Button, SelectField, TextField } from '@/design-system';
 import type { Options } from '@/modules/travel/api';
 import { NS } from '@/modules/travel/i18n';
-import { blankPlace, LIMITS, type TripValues } from '@/modules/travel/trip-form';
+import { blankPlace, LIMITS, TIME_ZONES, type TripValues } from '@/modules/travel/trip-form';
 import { lengthOf } from '@/modules/travel/trip-words';
 
-/** The time zones this browser knows (IANA names, as the API checks them); none if it can't
- *  list them, and then the trip's today is the person's own. */
-const ZONES = (
-  typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : []
-).map((zone) => ({ value: zone, label: zone.replaceAll('_', ' ') }));
+const ZONES = TIME_ZONES.map((zone) => ({ value: zone, label: zone.replaceAll('_', ' ') }));
 
 /** Step one: the trip's name, where it goes (one place or more) and when. */
 export function PlaceStep({

@@ -113,9 +113,10 @@ async function stubApi(
       json: { items: modules, page: 1, page_size: 100, total: modules.length, has_next: false },
     }),
   );
+  // Travel's own agent is listed too (first: nothing may pick the assistant by position).
   await page.route('**/api/v1/agents', (route) =>
     route.fulfill({
-      json: { items: [assistant], page: 1, page_size: 20, total: 1, has_next: false },
+      json: { items: [travelAgent, assistant], page: 1, page_size: 20, total: 2, has_next: false },
     }),
   );
   await page.route('**/api/v1/notifications?*', (route) => {
@@ -183,6 +184,17 @@ const assistant = {
   quota_remaining: 30,
   skills: [
     { name: 'manage-modules', description: 'Manage modules.', mode: 'agent', has_static: true },
+  ],
+};
+const travelAgent = {
+  name: 'travel',
+  description: "Travel's own AI help on a trip in Basic AI.",
+  mode: null,
+  reason: 'consent',
+  fallback: true,
+  quota_remaining: 30,
+  skills: [
+    { name: 'describe-trip', description: 'Describe a trip.', mode: 'agent', has_static: false },
   ],
 };
 const proposal = {
@@ -621,6 +633,8 @@ async function stubTravel(page: Page) {
         changes: [{ entity: 'booking', op: 'add', record_id: 'stay', title: 'Beach hotel' }],
         undoable: true,
         undone_at: null,
+        source: 'manual',
+        ai_run_id: null,
       },
       {
         id: 'event-1',
@@ -631,6 +645,8 @@ async function stubTravel(page: Page) {
         changes: [],
         undoable: false,
         undone_at: null,
+        source: 'manual',
+        ai_run_id: null,
       },
     ]),
   };
@@ -1807,6 +1823,193 @@ test('a trip deleted from its page leaves for My Trips, which stays usable, and 
   await page.getByRole('button', { name: 'Past' }).click();
   await expect(page.getByText('No past trips yet.')).toBeVisible();
   expect(asked).toEqual(['delete', 'undelete']);
+});
+
+test('a trip described in words is drafted by Basic AI, checked step by step and saved', async ({
+  page,
+}) => {
+  await stubApi(page);
+  await stubTravel(page);
+  const sent: { path: string; body: unknown }[] = [];
+  // Registered last, so asked first: the description, the run it starts, and the trip saved.
+  await page.route('**/api/v1/travel/assist', (route) => {
+    sent.push({ path: 'assist', body: route.request().postDataJSON() });
+    return route.fulfill({ status: 202, json: { run_id: 'run-e2e' } });
+  });
+  let asks = 0;
+  await page.route('**/api/v1/agents/runs/run-e2e', (route) => {
+    asks += 1;
+    const run = {
+      id: 'run-e2e',
+      agent: 'travel',
+      skill: 'describe-trip',
+      status: 'running',
+      mode: 'agent',
+      reason: null,
+      message: null,
+      message_code: null,
+      message_params: {},
+      proposals: [],
+      client_actions: [],
+      stages: ['understanding', 'drafting'],
+      created_at: AT,
+    };
+    if (asks === 1) return route.fulfill({ json: run });
+    const trip = {
+      title: 'Goa honeymoon',
+      destinations: [{ name: 'Goa', country: 'India', timezone: null }],
+      departure_city: null,
+      start_date: dayAfter(10),
+      end_date: dayAfter(14),
+      trip_type: 'honeymoon',
+      pace: 'relaxed',
+      budget: null,
+      currency: null,
+      interests: ['beaches'],
+    };
+    return route.fulfill({
+      json: {
+        ...run,
+        status: 'completed',
+        message: 'I filled in your trip to Goa.',
+        client_actions: [{ tool: 'travel_trip_draft', arguments: { trip } }],
+        stages: ['understanding', 'drafting', 'checking', 'done'],
+      },
+    });
+  });
+  await page.route('**/api/v1/travel/trips', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    sent.push({ path: 'trips', body });
+    return route.fulfill({ status: 201, json: { ...travelTrip, ...body, event_id: 'made' } });
+  });
+  await page.goto('/m/travel/new');
+
+  const describe = page.getByRole('region', { name: 'Describe your trip' });
+  await describe.getByRole('button', { name: 'Use Basic AI for this trip' }).click();
+  await describe
+    .getByRole('textbox', { name: 'Your trip in your words' })
+    .fill('Our honeymoon in Goa, relaxed, beaches');
+  await describe.getByRole('button', { name: 'Draft the steps' }).click();
+  await expect(page.getByRole('list', { name: 'Progress' })).toContainText('Writing a draft');
+
+  const preview = page.getByRole('region', { name: 'Drafted from your words' });
+  await expect(preview).toContainText('Goa honeymoon');
+  await expect(preview).toContainText('Honeymoon');
+  expect(await axeProblems(page)).toEqual([]);
+  await expect(page.getByRole('textbox', { name: /Trip name/ })).toHaveValue('');
+  await preview.getByRole('button', { name: 'Fill in the steps' }).click();
+  await expect(page.getByRole('textbox', { name: /Trip name/ })).toHaveValue('Goa honeymoon');
+  await expect(page.getByRole('textbox', { name: 'Place' })).toHaveValue('Goa');
+  expect(await fitsWidth(page)).toBe(true);
+
+  for (const step of ["Who's going", 'Style and budget', 'How the app helps', 'Check and save']) {
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page.getByRole('heading', { level: 2, name: step })).toBeVisible();
+  }
+  expect(sent.map(({ path }) => path)).toEqual(['assist']); // nothing saved by the AI
+  await page.getByRole('button', { name: 'Save the trip' }).click();
+  await expect(page.getByText('“Goa honeymoon” is planned.')).toBeVisible();
+  expect(sent).toEqual([
+    { path: 'assist', body: { text: 'Our honeymoon in Goa, relaxed, beaches', locale: 'en' } },
+    {
+      path: 'trips',
+      body: expect.objectContaining({
+        title: 'Goa honeymoon',
+        trip_type: 'honeymoon',
+        pace: 'relaxed',
+        interests: ['beaches'],
+        mode: 'basic',
+        travellers: [],
+        notes: null,
+        remind_prepare: false,
+      }),
+    },
+  ]);
+});
+
+test('on a trip in Basic AI, a day is drafted, previewed and added naming its run', async ({
+  page,
+}) => {
+  await stubApi(page);
+  await stubTravel(page);
+  const sent: { path: string; body: unknown }[] = [];
+  // Registered last, so asked first: the trip in Basic AI, the ask, its run and the draft applied.
+  await page.route('**/api/v1/travel/trips/goa', (route) =>
+    route.request().method() === 'GET'
+      ? route.fulfill({ json: { ...travelTrip, mode: 'basic' } })
+      : route.fallback(),
+  );
+  await page.route('**/api/v1/travel/trips/goa/assist', (route) => {
+    sent.push({ path: 'assist', body: route.request().postDataJSON() });
+    return route.fulfill({ status: 202, json: { run_id: 'run-day' } });
+  });
+  let asks = 0;
+  await page.route('**/api/v1/agents/runs/run-day', (route) => {
+    asks += 1;
+    const run = {
+      id: 'run-day',
+      agent: 'travel',
+      skill: 'plan-day',
+      status: 'running',
+      mode: 'agent',
+      reason: null,
+      message: null,
+      message_code: null,
+      message_params: {},
+      proposals: [],
+      client_actions: [],
+      stages: ['understanding', 'reading'],
+      created_at: AT,
+    };
+    if (asks === 1) return route.fulfill({ json: run });
+    const activities = [{ title: 'Spice farm', kind: 'sightseeing', start_time: '11:00' }];
+    return route.fulfill({
+      json: {
+        ...run,
+        status: 'completed',
+        message: 'I drafted the day.',
+        client_actions: [
+          { tool: 'travel_day_draft', arguments: { trip_id: 'goa', day: today, activities } },
+        ],
+        stages: ['understanding', 'reading', 'drafting', 'checking', 'done'],
+      },
+    });
+  });
+  await page.route('**/api/v1/travel/trips/goa/activities/draft', (route) => {
+    const body = route.request().postDataJSON() as { apply: boolean };
+    sent.push({ path: 'draft', body });
+    const added = { entity: 'activity', op: 'add', title: 'Spice farm', day: today, fields: [] };
+    return route.fulfill({
+      json: {
+        what_changed: [{ ...added, record_id: body.apply ? 'spice' : null }],
+        needs_review: [],
+        kept: [],
+        days: [today],
+        event_id: body.apply ? 'drafted' : null,
+      },
+    });
+  });
+  await page.goto('/m/travel/trips/goa/itinerary');
+
+  await page.getByRole('button', { name: 'Draft this day' }).click();
+  const dialog = page.getByRole('dialog', { name: /^Draft / });
+  await dialog.getByRole('button', { name: 'Draft the day' }).click();
+  await expect(dialog.getByRole('list', { name: 'Progress' })).toContainText(
+    'Reading your records',
+  );
+  await expect(dialog.getByText('Add “Spice farm”')).toBeVisible();
+  expect(await axeProblems(page)).toEqual([]);
+  expect(sent.map(({ path }) => path)).toEqual(['assist', 'draft']); // a preview: nothing added
+
+  await dialog.getByRole('button', { name: 'Add 1 activity' }).click();
+  await expect(page.getByRole('dialog', { name: 'What changed?' })).toBeVisible();
+  const activities = [{ title: 'Spice farm', kind: 'sightseeing', start_time: '11:00' }];
+  expect(sent).toEqual([
+    { path: 'assist', body: { task: 'day', day: today, text: null, locale: 'en' } },
+    { path: 'draft', body: { day: today, activities, apply: false, ai_run_id: 'run-day' } },
+    { path: 'draft', body: { day: today, activities, apply: true, ai_run_id: 'run-day' } },
+  ]);
 });
 
 test.describe('on a phone', () => {

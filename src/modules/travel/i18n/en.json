@@ -182,13 +182,29 @@
         "body": "Everything works, without AI: you plan the trip yourself, step by step."
       },
       "basic": {
-        "badge": "Not active yet",
-        "body": "AI help isn't active yet. Until a later update, a trip in Basic AI works exactly like Static."
+        "badge": "Drafts for you",
+        "body": "AI drafts for you to check: the trip from your words, a day's plan, an activity's checklist, a change. Nothing is saved until you apply it. Use is limited each day, and whenever AI isn't available the trip works as Static."
       },
       "premium": {
         "badge": "Locked",
         "body": "Not available yet, so it can't be chosen."
       }
+    },
+    "describe": {
+      "title": "Describe your trip",
+      "offer": "With Basic AI, describe the trip in your own words and it drafts these steps for you to check. Nothing is saved until you save the trip.",
+      "useBasic": "Use Basic AI for this trip",
+      "basicOn": "This trip is in Basic AI. You can change that at “{{step}}”.",
+      "words": "Your trip in your words",
+      "example": "For example: “Goa with friends, 20 to 24 November, relaxed, beaches and seafood”.",
+      "draft": "Draft the steps",
+      "manual": "Or fill in the steps yourself below.",
+      "preview": "Drafted from your words",
+      "ready": "A draft is ready. Check it, then fill in the steps with it or cancel.",
+      "yours": "Who's going, notes and the reminder stay yours to fill in.",
+      "use": "Fill in the steps",
+      "filled": "Filled in from your words. Check every step, then save the trip.",
+      "putBack": "Put back what I had"
     },
     "review": {
       "intro": "This is the trip as it will be saved. Change any part with its Edit button.",
@@ -470,7 +486,8 @@
     "wholeTrip": "The whole trip",
     "save": "Save",
     "added": "“{{title}}” is on the list.",
-    "saved": "“{{title}}” is saved."
+    "saved": "“{{title}}” is saved.",
+    "aiSuggestion": "AI suggestion"
   },
   "bags": {
     "check_in": "Check-in bag",
@@ -613,6 +630,60 @@
     "phone_charger": "Phone charger",
     "power_adapter": "A power adapter, if you need one"
   },
+  "ai": {
+    "nothing": "It didn't draft anything this time.",
+    "ready": "A draft is ready. Check it, then add it or cancel.",
+    "previewError": "The draft couldn't be shown.",
+    "day": {
+      "button": "Draft this day",
+      "title": "Draft {{day}}",
+      "about": "The assistant drafts activities for this day from the trip's places, pace and interests, and what the day already holds. You check them before anything is added.",
+      "words": "Anything you'd like that day? (optional)",
+      "example": "For example: “a slow morning and a seafood lunch”.",
+      "start": "Draft the day",
+      "manual": "Or add activities yourself with “Add an activity”.",
+      "intro": "Nothing is added yet. These go after what the day already holds, as estimates with no booking, and nothing there moves or changes.",
+      "add_one": "Add {{count}} activity",
+      "add_other": "Add {{count}} activities"
+    },
+    "items": {
+      "button": "Prepare with AI",
+      "label": "Prepare with AI: {{title}}",
+      "title": "Prepare for “{{title}}”",
+      "about": "The assistant drafts what to bring and do for this activity, from what it is and what's on your lists already. You check them before anything is added.",
+      "start": "Draft the list",
+      "manual": "Or add items yourself with “Add an item” in Prepare.",
+      "intro": "Nothing is added yet. These are the assistant's suggestions for this activity, not requirements of any place or company.",
+      "none": "Nothing new: what it drafted is on your lists already, or you removed it.",
+      "rules": "Here are the app's own suggestions for this kind of activity instead: by rule, not by AI.",
+      "rulesIntro": "Nothing is added yet. These come from the app's own rules for this kind of activity, not from AI, and aren't requirements of any place or company.",
+      "noRules": "The app has no suggestions of its own for this kind of activity."
+    },
+    "change": {
+      "button": "Tell it what changed",
+      "label": "Tell it what changed: {{title}}",
+      "title": "What happened with “{{title}}”?",
+      "about": "Say it in your words. The assistant drafts the change (done, skipped, replaced or moved), and you see what it would do before anything changes.",
+      "words": "In your words",
+      "example": "For example: “we skipped it, it rained” or “moved to Saturday at 10”.",
+      "start": "Draft the change",
+      "manual": "Or use Mark done, Skip, Replace or Reschedule on the Itinerary yourself.",
+      "drafted": "Drafted from your words. Check it, then see what it changes."
+    },
+    "ask": {
+      "title": "Ask about this trip",
+      "about": "It answers from this trip's plan, lists and budget. It can't know the weather, prices, opening hours or entry rules.",
+      "words": "Your question",
+      "example": "For example: “What's planned for Saturday?” or “How much of the budget is left?”",
+      "start": "Ask",
+      "manual": "Or look through the trip's sections yourself.",
+      "from": "The assistant says:",
+      "check": "It answers from this trip's records and can be wrong: the trip's sections are the record.",
+      "none": "It had no answer this time.",
+      "open": "Open {{section}}",
+      "openDay": "Open {{section}} for {{day}}"
+    }
+  },
   "budget": {
     "summary": "The budget",
     "budget": "Budget",
@@ -732,8 +803,13 @@
       "booking_removed": "Removed the booking “{{title}}”",
       "expense_added": "Added the cost “{{title}}”",
       "expense_edited": "Edited the cost “{{title}}”",
-      "expense_removed": "Removed the cost “{{title}}”"
-    }
+      "expense_removed": "Removed the cost “{{title}}”",
+      "day_drafted_one": "Added {{count}} drafted activity",
+      "day_drafted_other": "Added {{count}} drafted activities",
+      "checklist_ai_suggested_one": "Added {{count}} AI suggestion for “{{title}}”",
+      "checklist_ai_suggested_other": "Added {{count}} AI suggestions for “{{title}}”"
+    },
+    "ai": "From an AI draft"
   },
   "errors": {
     "TRAVEL_ACTIVITIES_FULL": "That's as many activities as one trip keeps.",
@@ -754,6 +830,9 @@
     "TRAVEL_TRAVELLER_UNKNOWN": "That traveller isn't on this trip any more.",
     "TRAVEL_ACTIVITIES_OUTSIDE_DATES": "Some activities would fall outside the trip's dates.",
     "TRAVEL_CHECKLIST_OUTSIDE_DATES": "Some checklist items would fall outside the trip's dates.",
-    "TRAVEL_TRAVELLER_IN_USE": "A traveller still has checklist items or costs on this trip."
+    "TRAVEL_TRAVELLER_IN_USE": "A traveller still has checklist items or costs on this trip.",
+    "TRAVEL_AI_OFF": "AI help is only for a trip in Basic AI. Switch the trip to it in its settings, or go on by hand.",
+    "TRAVEL_AI_RUN_INVALID": "That AI draft can't be used here any more. Ask again, or do it by hand.",
+    "TRAVEL_AI_DRAFT_APPLIED": "This draft was added to the day already. To add it again, undo that in History first."
   }
 }

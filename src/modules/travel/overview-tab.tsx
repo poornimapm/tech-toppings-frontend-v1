@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { Card } from '@/design-system';
+import { aiHelps } from '@/modules/travel/ai-action';
 import { useOverview, type NextAction, type Overview } from '@/modules/travel/api';
+import { AskTrip } from '@/modules/travel/ask-trip';
 import { SIDE_LINK } from '@/modules/travel/choice';
 import { NS } from '@/modules/travel/i18n';
 import { ModeSettings } from '@/modules/travel/mode-settings';
@@ -44,8 +46,8 @@ const QUICK = [
 
 /**
  * A trip at a glance: the countdown, how ready it is from its real tasks (or that it has none
- * yet), the next thing to do with why, what is coming up and still open, quick ways in, what the
- * trip is (to change or delete it), and its mode.
+ * yet), the next thing to do with why, what is coming up and still open, quick ways in, a
+ * question about it (Basic AI), what the trip is (to change or delete it), and its mode.
  */
 export function OverviewTab() {
   const { t } = useTranslation(NS);
@@ -69,6 +71,7 @@ export function OverviewTab() {
           ))}
         </div>
       </Card>
+      {aiHelps(trip) && <AskTrip />}
       <TripDetails />
       <Card title={t('overview.settings')}>
         <ModeSettings key={trip.revision_no} trip={trip} options={options} />

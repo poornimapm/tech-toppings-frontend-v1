@@ -1,4 +1,4 @@
-import { Undo2 } from 'lucide-react';
+import { Sparkles, Undo2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Alert, Badge, Button, toast } from '@/design-system';
@@ -18,6 +18,8 @@ import { useWords } from '@/modules/travel/words';
 type Summary = TripEvent['summary'];
 
 const textOf = (value: unknown) => (typeof value === 'string' ? value : '');
+/** Kinds worded by how many records they added (their words have a form for one, and more). */
+const COUNTED = ['checklist_suggested', 'checklist_ai_suggested', 'day_drafted'] as const;
 
 /** A change in a line of words, from its kind and the figures the server kept with it: an undo
  *  says what it took back. A kind this build doesn't word is "A change". A suggestion still as
@@ -31,9 +33,10 @@ function useHeadline() {
     const said = { title, day: day && weekdayOf(day, i18n.language) };
     if (kind === 'undo')
       return t('history.undid', { what: headline(textOf(summary.undid), summary) });
-    if (kind === 'checklist_suggested') {
+    const counted = COUNTED.find((each) => each === kind);
+    if (counted) {
       const count = typeof summary.count === 'number' ? summary.count : 0;
-      return t('history.kinds.checklist_suggested', { count });
+      return t(`history.kinds.${counted}`, { ...said, count });
     }
     return isKnown(en.history.kinds, kind)
       ? t(`history.kinds.${kind}`, said)
@@ -43,9 +46,9 @@ function useHeadline() {
 }
 
 /**
- * One change on the trip: what it was, when, and for which day, then what it did record by
- * record. While it can be taken back there is an Undo; refused (something it touched changed
- * since, say), why is said beside it, with what to do instead.
+ * One change on the trip: what it was, when, for which day and whether it applied an AI draft,
+ * then what it did record by record. While it can be taken back there is an Undo; refused
+ * (something it touched changed since, say), why is said beside it, with what to do instead.
  */
 export function EventEntry({ event }: { event: TripEvent }) {
   const { t, i18n } = useTranslation(NS);
@@ -75,6 +78,13 @@ export function EventEntry({ event }: { event: TripEvent }) {
               .filter(Boolean)
               .join(' · ')}
           </p>
+          {event.source === 'ai' && (
+            <p className="mt-1">
+              <Badge tone="beta" icon={<Sparkles aria-hidden="true" className="size-3" />}>
+                {t('history.ai')}
+              </Badge>
+            </p>
+          )}
         </div>
         {event.undone_at ? (
           <Badge tone="locked">{t('history.undone')}</Badge>

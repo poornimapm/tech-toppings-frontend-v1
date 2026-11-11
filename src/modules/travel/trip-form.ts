@@ -53,7 +53,25 @@ export const LIMITS = {
   interest: 40,
   notes: 1000,
   need: 200,
+  /** What is typed for AI help (travel.yaml `assist.max_chars`). */
+  assist: 1000,
 } as const;
+
+export const TRIP_TYPES: TripType[] = [
+  'solo',
+  'friends',
+  'family',
+  'honeymoon',
+  'business',
+  'adventure',
+  'other',
+];
+export const PACES: Pace[] = ['relaxed', 'balanced', 'packed'];
+
+/** The time zones this browser knows (IANA names, as the API checks them); none if it can't
+ *  list them, and then the trip's today is the person's own. */
+export const TIME_ZONES =
+  typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : [];
 
 /** What more a traveller may say of themselves, past their name and passport country. */
 export const TRAVELLER_DETAILS = [

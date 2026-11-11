@@ -10,6 +10,7 @@ import { errorKey } from '@/core/i18n';
 import { cx } from '@/core/utils/cx';
 import { Alert, Button, toast } from '@/design-system';
 import { failureCode, useAddTrip, useOptions, type Options } from '@/modules/travel/api';
+import { DescribeTrip } from '@/modules/travel/describe-trip';
 import { NS } from '@/modules/travel/i18n';
 import { ModeCards } from '@/modules/travel/mode-cards';
 import { PeopleStep } from '@/modules/travel/people-step';
@@ -40,8 +41,9 @@ export function NewTripPage() {
 /**
  * The guided steps: where and when, who, style and budget, the mode, then everything to check
  * and change before it is saved. Each step is checked before the next; Enter moves on, and the
- * focus goes to each new step's heading. The trip is sent with one key, so a retry after a
- * failure can't plan it twice.
+ * focus goes to each new step's heading. The first step can also be described in words, for
+ * Basic AI to draft the steps (its own form, beside the steps'). The trip is sent with one key,
+ * so a retry after a failure can't plan it twice.
  */
 function TripSteps({ options, currency }: { options: Options; currency: string }) {
   const { t } = useTranslation(NS);
@@ -50,6 +52,8 @@ function TripSteps({ options, currency }: { options: Options; currency: string }
   const own = useSession((state) => state.user?.timezone);
   const add = useAddTrip();
   const form = useForm<TripValues>({ defaultValues: blankTrip(currency) });
+  // What the steps held before a description filled them in, to put back from the first step.
+  const [before, setBefore] = useState<TripValues | null>(null);
   const [step, setStep] = useState<Step>('place');
   // Sent back from the check to change one part: Next returns there.
   const [checking, setChecking] = useState(false);
@@ -122,6 +126,7 @@ function TripSteps({ options, currency }: { options: Options; currency: string }
           ))}
         </ol>
       </div>
+      {step === 'place' && <DescribeTrip form={form} before={before} onBefore={setBefore} />}
       <form
         noValidate
         className="space-y-5"

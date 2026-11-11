@@ -243,6 +243,19 @@ const assistantView: Schemas['AgentView'] = {
     { name: 'manage-modules', description: 'Manage modules.', mode: 'agent', has_static: true },
   ],
 };
+/** Travel's own agent: its skills are kept off the assistant, and the app must never show or
+ *  pick it in the assistant's place (it is listed first, so nothing picks by position). */
+const travelView: Schemas['AgentView'] = {
+  name: 'travel',
+  description: "Travel's own AI help on a trip in Basic AI.",
+  mode: null,
+  reason: 'consent',
+  fallback: true,
+  quota_remaining: 30,
+  skills: [
+    { name: 'describe-trip', description: 'Describe a trip.', mode: 'agent', has_static: false },
+  ],
+};
 
 export function testProposal(changes: Partial<Proposal> = {}): Proposal {
   return {
@@ -274,9 +287,63 @@ export function testRun(changes: Partial<AgentRun> = {}): AgentRun {
     message_params: { name: 'Journal' },
     proposals: [testProposal()],
     client_actions: [],
+    // What a static run records: it understood, then answered.
+    stages: ['understanding', 'done'],
     created_at: '2026-10-09T10:00:00Z',
     ...changes,
   };
+}
+
+/** A background run (one started with 202) as GET /v1/agents/runs/{id} answers it: still
+ *  working, at its first stage. `changes` move it on, or end it. */
+export function backgroundRun(changes: Partial<AgentRun> = {}): AgentRun {
+  return testRun({
+    agent: 'travel',
+    skill: 'describe-trip',
+    status: 'running',
+    mode: 'agent',
+    reason: null,
+    message_code: null,
+    message_params: {},
+    proposals: [],
+    stages: ['understanding'],
+    ...changes,
+  });
+}
+
+/** Serves GET /v1/agents/runs/{id} with `answers` in turn, the last one from then on, as a run
+ *  moves on. Returns the ids asked about, one per ask. */
+export function serveRun(...answers: AgentRun[]): string[] {
+  const asked: string[] = [];
+  server.use(
+    http.get('*/api/v1/agents/runs/:id', ({ params }) => {
+      asked.push(String(params.id));
+      const answer = answers[Math.min(asked.length, answers.length) - 1];
+      return answer
+        ? HttpResponse.json({ ...answer, id: String(params.id) })
+        : HttpResponse.json(errorEnvelope('NOT_FOUND', 'no such run'), { status: 404 });
+    }),
+  );
+  return asked;
+}
+
+/** A run stopped by POST /v1/agents/runs/{id}/cancel, as the server answers it: incomplete, with
+ *  what it made, and no reason. */
+const cancelled = (id: unknown) =>
+  HttpResponse.json(
+    backgroundRun({ id: String(id), status: 'incomplete', stages: ['understanding', 'done'] }),
+  );
+
+/** Serves POST /v1/agents/runs/{id}/cancel. Returns the ids cancelled, one per call. */
+export function serveCancel(): string[] {
+  const asked: string[] = [];
+  server.use(
+    http.post('*/api/v1/agents/runs/:id/cancel', ({ params }) => {
+      asked.push(String(params.id));
+      return cancelled(params.id);
+    }),
+  );
+  return asked;
 }
 
 const moduleNotFound = () =>
@@ -331,8 +398,9 @@ const handlers = [
     const view = updateModule(String(params.key), { notify_requested: true });
     return view ? HttpResponse.json(view) : moduleNotFound();
   }),
-  http.get('*/api/v1/agents', () => HttpResponse.json(pageOf([assistantView]))),
+  http.get('*/api/v1/agents', () => HttpResponse.json(pageOf([travelView, assistantView]))),
   http.post('*/api/v1/agents/:name/runs', () => HttpResponse.json(testRun(), { status: 201 })),
+  http.post('*/api/v1/agents/runs/:id/cancel', ({ params }) => cancelled(params.id)),
   http.post('*/api/v1/agents/proposals/:id/confirm', ({ params }) => {
     updateModule('journal', { pinned: true });
     return HttpResponse.json(testProposal({ id: String(params.id), status: 'confirmed' }));

@@ -394,7 +394,8 @@
       "quota": "Today's AI limit is used up. It resets tomorrow.",
       "no_provider": "AI isn't set up on this server.",
       "providers_failed": "The AI service isn't answering right now.",
-      "no_static": "This needs AI, which is switched off."
+      "no_static": "This needs AI, which is switched off.",
+      "timeout": "It took too long."
     },
     "enable": "Turn on the AI assistant",
     "enableHint": "Your request goes to a free AI service. Email addresses and long numbers are masked first (a receipt photo can't be: you can keep photos to this device), and nothing changes until you confirm it.",

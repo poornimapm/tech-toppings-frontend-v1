@@ -148,6 +148,60 @@ describe('the history', () => {
     expect(within(removed).getByText('Removed “Towel”')).toBeVisible();
   });
 
+  it('marks what came from an AI draft, and words its changes naturally', async () => {
+    // An AI item's key is its own words, not a rule's: it keeps the words it was drafted in.
+    const bottle = { title: 'Steel bottle', suggestion_key: 'ai:kayak:water_bottle' };
+    state.history = [
+      eventOf({
+        id: 'items',
+        kind: 'checklist_ai_suggested',
+        summary: { count: 1, title: 'Kayaking', day: TODAY, activity_id: 'kayak' },
+        changes: [{ entity: 'checklist', op: 'add', record_id: 'bottle', ...bottle }],
+        source: 'ai',
+        ai_run_id: 'run-items',
+      }),
+      eventOf({
+        id: 'day',
+        kind: 'day_drafted',
+        summary: { day: TODAY, count: 2 },
+        source: 'ai',
+        ai_run_id: 'run-day',
+      }),
+      eventOf({
+        id: 'took-back',
+        kind: 'undo',
+        summary: { undid: 'day_drafted', day: TODAY, count: 2 },
+        undoable: false,
+      }),
+      eventOf({ id: 'own', kind: 'activity_added', summary: { title: 'Fort visit' } }),
+    ];
+    const { user, container } = renderApp('/m/travel/trips/goa/history');
+
+    expect(await headlines()).toEqual([
+      'Added 1 AI suggestion for “Kayaking”',
+      'Added 2 drafted activities',
+      'Took back: Added 2 drafted activities',
+      'Added “Fort visit”',
+    ]);
+    const [items, day, undo, own] = (await entries()) as [
+      HTMLElement,
+      HTMLElement,
+      HTMLElement,
+      HTMLElement,
+    ];
+    for (const made of [items, day]) {
+      expect(within(made).getByText('From an AI draft')).toBeInTheDocument();
+    }
+    // An undo is the person's own, whatever it took back.
+    for (const mine of [undo, own]) {
+      expect(within(mine).queryByText('From an AI draft')).not.toBeInTheDocument();
+    }
+    expect(within(day).getByText(/For Fri, Nov 6$/)).toBeInTheDocument();
+    await user.click(within(items).getByText('What changed?'));
+    expect(within(items).getByText('Added “Steel bottle”')).toBeVisible();
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
   it('says plainly why an undo is refused, and what to do instead', async () => {
     state.refuseUndo = 'TRAVEL_UNDO_STALE';
     const { user } = renderApp('/m/travel/trips/goa/history');

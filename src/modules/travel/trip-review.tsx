@@ -115,7 +115,8 @@ function Part({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+/** One answer under its label, in a `<dl>`. */
+export function Row({ label, value }: { label: string; value: string }) {
   return (
     <>
       <dt className="text-muted">{label}</dt>

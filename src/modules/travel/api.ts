@@ -34,9 +34,9 @@ export const travelKeys = {
   expenses: (id: string) => [...travelKey, 'expenses', id] as const,
   budget: (id: string) => [...travelKey, 'budget', id] as const,
   events: (id: string) => [...travelKey, 'events', id] as const,
-  /** Outside `all`: a change to the trip (the suggestions being added, say) mustn't ask for the
-   *  preview again behind its back. */
-  suggest: (id: string, asked: object) => [...userKeys.all, 'travel-suggest', id, asked] as const,
+  /** A preview of what would be added (suggestions, an AI draft). Outside `all`: the change being
+   *  made mustn't ask for the preview again behind its back. */
+  preview: (id: string, asked: object) => [...userKeys.all, 'travel-preview', id, asked] as const,
 };
 
 export const tripPath = (trip_id: string) => ({ params: { path: { trip_id } } });

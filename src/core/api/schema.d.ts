@@ -528,10 +528,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** One of my runs */
+        /**
+         * One of my runs
+         * @description A page polls a background run here: `stages` while its status is `running`, then its outcome.
+         */
         get: operations["read_run_v1_agents_runs__run_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agents/runs/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel one of my running runs
+         * @description Stops a background run: it makes no further AI call, and keeps what it made so far as `incomplete` (its `reason` null). A run cancelled already answers as it is; one that finished otherwise answers 409 `AGENT_RUN_FINISHED`.
+         */
+        post: operations["cancel_run_v1_agents_runs__run_id__cancel_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2563,6 +2586,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/travel/assist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Describe a trip in your words: AI drafts the new-trip steps (describe-trip)
+         * @description Starts a background AI run and answers its id at once. Its draft (`travel_trip_draft`) fills the planning steps; nothing is saved by it.
+         */
+        post: operations["describe_trip_v1_travel_assist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/travel/trips": {
         parameters: {
             query?: never;
@@ -2634,6 +2677,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/travel/trips/{trip_id}/assist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI help on a Basic AI trip: draft a day, prepare an activity, say what changed, ask
+         * @description Starts a background AI run and answers its id at once: `day` (plan-day) drafts `travel_day_draft`, `activity` (activity-checklist) `travel_items_draft`, `change` (update-trip) `travel_change_draft`, and `ask` (ask-trip) answers in words. A trip not in Basic answers 409 `TRAVEL_AI_OFF`. Nothing is written by a run.
+         */
+        post: operations["assist_trip_v1_travel_trips__trip_id__assist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/travel/trips/{trip_id}/activities": {
         parameters: {
             query?: never;
@@ -2673,6 +2736,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/travel/trips/{trip_id}/activities/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a drafted day's activities after the day's own: a preview until apply is true
+         * @description An AI run's draft (`ai_run_id`) is added once: again only after that addition is undone (409 `TRAVEL_AI_DRAFT_APPLIED`).
+         */
+        post: operations["draft_day_v1_travel_trips__trip_id__activities_draft_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/travel/trips/{trip_id}/checklist": {
         parameters: {
             query?: never;
@@ -2702,6 +2785,23 @@ export interface paths {
         put?: never;
         /** Suggest items from the trip's activities and length: a preview until apply is true */
         post: operations["suggest_checklist_v1_travel_trips__trip_id__checklist_suggest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/travel/trips/{trip_id}/checklist/assist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an activity's AI items (the assistant's suggestions): a preview until apply is true */
+        post: operations["assist_checklist_v1_travel_trips__trip_id__checklist_assist_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3317,6 +3417,11 @@ export interface components {
             /** Items */
             items: components["schemas"]["Unusual"][];
         };
+        /**
+         * AssistTask
+         * @enum {string}
+         */
+        AssistTask: "day" | "activity" | "change" | "ask";
         /** AttachmentIn */
         AttachmentIn: {
             /**
@@ -3409,7 +3514,7 @@ export interface components {
          * Blocker
          * @enum {string}
          */
-        Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static";
+        Blocker: "consent" | "quota" | "no_provider" | "providers_failed" | "no_static" | "timeout";
         /**
          * BookingKind
          * @enum {string}
@@ -4065,6 +4170,44 @@ export interface components {
             uncertain: ("worker" | "status")[];
         };
         /**
+         * DraftedActivity
+         * @description An activity as an AI draft may give it: never confirmed and with no booking, which are the
+         *     person's alone, so it is an estimate until they say otherwise.
+         */
+        DraftedActivity: {
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /** Start Time */
+            start_time?: string | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            /** Location */
+            location?: string | null;
+            /** Transport */
+            transport?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Estimated Cost Minor */
+            estimated_cost_minor?: number | null;
+        };
+        /**
+         * DraftedItem
+         * @description A checklist or packing item as an AI draft gives it for one activity.
+         */
+        DraftedItem: {
+            /** Title */
+            title: string;
+            /** @description With a bag, it is a packing item */
+            bag?: components["schemas"]["PackingBag"] | null;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity: number;
+        };
+        /**
          * DuplicateCandidate
          * @description An entry about to be saved, as far as telling it from saved ones needs.
          */
@@ -4355,6 +4498,13 @@ export interface components {
              */
             request_id?: string | null;
         };
+        /**
+         * EventSource
+         * @description Who made a change: the person by hand, or the person applying an AI draft. Its revisions
+         *     say the same.
+         * @enum {string}
+         */
+        EventSource: "manual" | "ai";
         /**
          * ExpenseKind
          * @enum {string}
@@ -6925,16 +7075,27 @@ export interface components {
             /** Client Actions */
             client_actions: components["schemas"]["ClientAction"][];
             /**
+             * Stages
+             * @description How far the run has got, in order: codes, never the model's words
+             */
+            stages: components["schemas"]["RunStage"][];
+            /**
              * Created At
              * Format: date-time
              */
             created_at: string;
         };
         /**
+         * RunStage
+         * @description How far a run has got, for a page to show while it works: codes, never the model's text.
+         * @enum {string}
+         */
+        RunStage: "understanding" | "reading" | "drafting" | "proposing" | "checking" | "done";
+        /**
          * RunStatus
          * @enum {string}
          */
-        RunStatus: "completed" | "unavailable" | "incomplete";
+        RunStatus: "completed" | "unavailable" | "incomplete" | "running";
         /** RunningTotal */
         RunningTotal: {
             /**
@@ -7579,6 +7740,41 @@ export interface components {
              */
             updated_at: string;
         };
+        /** TravelAssistIn */
+        TravelAssistIn: {
+            task: components["schemas"]["AssistTask"];
+            /**
+             * Day
+             * @description day: the day to draft, of the trip
+             */
+            day?: string | null;
+            /**
+             * Activity Id
+             * @description activity, change: a planned activity of the trip
+             */
+            activity_id?: string | null;
+            /**
+             * Text
+             * @description The person's words: what changed (change), the question (ask); a wish for the day or the activity, if any
+             */
+            text?: string | null;
+            /**
+             * Locale
+             * @description en, ta, hi
+             */
+            locale?: string | null;
+        };
+        /**
+         * TravelAssistOut
+         * @description An AI run started in the background (202): nothing is written by it.
+         */
+        TravelAssistOut: {
+            /**
+             * Run Id
+             * @description Follow it at GET /v1/agents/runs/{run_id}: its stages while running, then its answer, with its draft as a client action
+             */
+            run_id: string;
+        };
         /** TravelBalanceOut */
         TravelBalanceOut: {
             /** Traveller Id */
@@ -7815,6 +8011,11 @@ export interface components {
              * @description The revision previewed: moved on since, the answer is 409
              */
             revision_no?: number | null;
+            /**
+             * Ai Run Id
+             * @description The AI run whose draft this applies (GET /v1/agents/runs/{id}): the caller's own finished run that drafted it for this trip. The event then says AI made it
+             */
+            ai_run_id?: string | null;
         };
         /** TravelChangeOut */
         TravelChangeOut: {
@@ -7840,6 +8041,27 @@ export interface components {
              * @description None in a preview
              */
             event_id: string | null;
+        };
+        /** TravelChecklistAssistIn */
+        TravelChecklistAssistIn: {
+            /**
+             * Activity Id
+             * @description A planned activity of the same trip: the items are tied to it, on its day
+             */
+            activity_id: string;
+            /** Items */
+            items: components["schemas"]["DraftedItem"][];
+            /**
+             * Apply
+             * @description False: nothing is written, only the preview
+             * @default false
+             */
+            apply: boolean;
+            /**
+             * Ai Run Id
+             * @description The AI run whose draft this applies (GET /v1/agents/runs/{id}): the caller's own finished run that drafted it for this trip. The event then says AI made it
+             */
+            ai_run_id?: string | null;
         };
         /** TravelChecklistIn */
         TravelChecklistIn: {
@@ -7995,6 +8217,43 @@ export interface components {
              */
             updated_at: string;
         };
+        /** TravelDayDraftIn */
+        TravelDayDraftIn: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /**
+             * Activities
+             * @description Added after the day's own, in this order: nothing already there moves
+             */
+            activities: components["schemas"]["DraftedActivity"][];
+            /**
+             * Apply
+             * @description False: nothing is written, only the preview
+             * @default false
+             */
+            apply: boolean;
+            /**
+             * Ai Run Id
+             * @description The AI run whose draft this applies (GET /v1/agents/runs/{id}): the caller's own finished run that drafted it for this trip. The event then says AI made it
+             */
+            ai_run_id?: string | null;
+        };
+        /** TravelDescribeIn */
+        TravelDescribeIn: {
+            /**
+             * Text
+             * @description The trip in the person's own words
+             */
+            text: string;
+            /**
+             * Locale
+             * @description en, ta, hi
+             */
+            locale?: string | null;
+        };
         /** TravelEventOut */
         TravelEventOut: {
             /** Id */
@@ -8024,6 +8283,10 @@ export interface components {
             undoable: boolean;
             /** Undone At */
             undone_at: string | null;
+            /** @description ai: the person applied an AI draft (ai_run_id) */
+            source: components["schemas"]["EventSource"];
+            /** Ai Run Id */
+            ai_run_id: string | null;
         };
         /** TravelExpenseIn */
         TravelExpenseIn: {
@@ -8357,6 +8620,11 @@ export interface components {
              * @description Only for that day's activities
              */
             day?: string | null;
+            /**
+             * Activity Id
+             * @description Only for that activity (of the same trip): what an activity's AI help offers when AI is unavailable
+             */
+            activity_id?: string | null;
             /**
              * Packing
              * @description What to pack: what goes in a bag for its activities and, with no day, the list for the whole trip by its length. False: all that its activities suggest
@@ -11201,6 +11469,73 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_run_v1_agents_runs__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -21681,6 +22016,75 @@ export interface operations {
             };
         };
     };
+    describe_trip_v1_travel_assist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelDescribeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelAssistOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_trips_v1_travel_trips_get: {
         parameters: {
             query?: {
@@ -22170,6 +22574,95 @@ export interface operations {
             };
         };
     };
+    assist_trip_v1_travel_trips__trip_id__assist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelAssistIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelAssistOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_activities_v1_travel_trips__trip_id__activities_get: {
         parameters: {
             query?: {
@@ -22403,6 +22896,86 @@ export interface operations {
             };
         };
     };
+    draft_day_v1_travel_trips__trip_id__activities_draft_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelDayDraftIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelChangeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_checklist_v1_travel_trips__trip_id__checklist_get: {
         parameters: {
             query?: {
@@ -22570,6 +23143,86 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TravelSuggestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TravelSuggestOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    assist_checklist_v1_travel_trips__trip_id__checklist_assist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TravelChecklistAssistIn"];
             };
         };
         responses: {

@@ -19,8 +19,9 @@ export type Flag = Schemas['TravelFlag'];
 const activityPath = (activity_id: string) => ({ params: { path: { activity_id } } });
 
 /** Every activity of a trip, day by day and in each day's order (the server's). */
-export function useActivities(tripId: string) {
+export function useActivities(tripId: string, enabled = true) {
   return useQuery({
+    enabled,
     queryKey: travelKeys.activities(tripId),
     queryFn: () => unwrap(api.GET('/v1/travel/trips/{trip_id}/activities', tripPath(tripId))),
   });

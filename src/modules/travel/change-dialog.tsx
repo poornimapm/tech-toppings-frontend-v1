@@ -20,7 +20,7 @@ import { daysIn, weekdayOf } from '@/modules/travel/trip-words';
 import { useOnce } from '@/modules/travel/use-once';
 import { useWords } from '@/modules/travel/words';
 
-interface ChangeValues {
+export interface ChangeValues {
   note: string;
   title: string;
   kind: string;
@@ -29,14 +29,27 @@ interface ChangeValues {
   new_time: string;
 }
 
-/** The change as the API takes it, for a preview or for real, as of the revision seen. */
+/** A change Basic AI drafted from the person's words: the fields it fills in, and its run. */
+export interface DraftedChange {
+  values: Partial<ChangeValues>;
+  runId: string;
+}
+
+/** The change as the API takes it, for a preview or for real, as of the revision seen. One from
+ *  an AI draft names its run, so History says AI drafted it. */
 function bodyOf(
   action: ChangeAction,
   activity: Activity,
   values: ChangeValues,
   apply: boolean,
+  draft?: DraftedChange,
 ): ChangeInput {
-  const base = { action, apply, revision_no: activity.revision_no };
+  const base = {
+    action,
+    apply,
+    revision_no: activity.revision_no,
+    ...(draft && { ai_run_id: draft.runId }),
+  };
   if (action === 'reschedule') {
     return {
       ...base,
@@ -60,16 +73,19 @@ function bodyOf(
 /**
  * Marking an activity done, skipping, replacing or rescheduling it, in three steps: what the
  * change is; what it would do, with nothing written yet (what it changes, what to look at, what
- * of the person's own work it keeps); then "What changed?", with a way to take it all back.
+ * of the person's own work it keeps); then "What changed?", with a way to take it all back. A
+ * `draft` fills in the first step, saying so, for the person to check like their own.
  */
 export function ChangeDialog({
   activity,
   action,
+  draft,
   onClose,
   onReload,
 }: {
   activity: Activity;
   action: ChangeAction;
+  draft?: DraftedChange;
   onClose: () => void;
   /** The activity changed elsewhere: the latest is asked for. */
   onReload: () => void;
@@ -90,6 +106,7 @@ export function ChangeDialog({
       time: activity.start_time ?? '',
       day: activity.day,
       new_time: '',
+      ...draft?.values,
     },
   });
   const { errors } = form.formState;
@@ -97,14 +114,15 @@ export function ChangeDialog({
 
   const ask = form.handleSubmit(async (values) => {
     const result = await preview
-      .mutateAsync({ id: activity.id, body: bodyOf(action, activity, values, false) })
+      .mutateAsync({ id: activity.id, body: bodyOf(action, activity, values, false, draft) })
       .catch(() => null); // shown from preview.error
     if (result) setShown(result);
   });
 
   const commit = useOnce(async () => {
+    const values = form.getValues();
     const result = await apply
-      .mutateAsync({ id: activity.id, body: bodyOf(action, activity, form.getValues(), true) })
+      .mutateAsync({ id: activity.id, body: bodyOf(action, activity, values, true, draft) })
       .catch(() => null); // shown from apply.error
     if (result) setDone(result);
     return result !== null;
@@ -134,6 +152,7 @@ export function ChangeDialog({
       title={
         done ? t('change.whatChanged') : t(`change.titles.${action}`, { title: activity.title })
       }
+      description={draft && !done ? t('ai.change.drafted') : undefined}
     >
       <div className="space-y-4">
         <Failure error={failed} onReload={reload} />
